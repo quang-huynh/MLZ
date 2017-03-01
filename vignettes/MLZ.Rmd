@@ -1,0 +1,188 @@
+---
+title: "MLZ: Mean Length-based Z Estimators"
+author: "Quang C. Huynh"
+date: "2017-02-28"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{MLZ}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Introduction
+
+MLZ is a package that facilitates data preparation and estimation of mortality with statistical diagnostics using the mean length-based mortality estimator and several extensions. 
+
+## Outline of ML estimator
+In this section, a step-by-step guide to using the mean length (ML) estimator of Gedamke and Hoenig (2006) is provided. This guide outlines the main features of the package.
+
+Work in the package can be divided into three general steps:
+1. Data preparation
+2. Mortality estimation
+3. Model selection procedure
+
+### Data preparation
+MLZ uses the S4 class system. Data and life history parameters, i.e., von Bertalanffy Linf and K, are stored in a single object of class `MLZ_data`. Entries in the S4 class can be accessed with `@`.
+
+```{r, echo = FALSE}
+library(MLZ); data(Goosefish)
+```
+```{r, eval = FALSE}
+library(MLZ)
+class?MLZ_data
+data(Goosefish)
+Goosefish@vbLinf
+```
+
+Length data are imported as either a data frame of individual records or as a matrix (years x length bins):
+The `plot` function can be used to visualize the data to aid in the selection of $L_c$.
+
+```{r, message = FALSE, fig.height = 5, fig.width = 6}
+data(SilkSnapper)
+new.dataset <- new("MLZ_data", Year = 1983:2013, Len_df = SilkSnapper)
+plot(new.dataset)
+```
+
+Once L_c is identified, `calc_ML()` can be used to mean lengths from records larger than L_c.
+
+```{r, message = FALSE}
+new.dataset@Lc <- 310
+new.dataset <- calc_ML(new.dataset)
+```
+
+A `summary` method function is also available for class `MLZ_data`.
+```{r, eval = FALSE}
+summary(new.dataset)
+```
+
+### Mortality estimation
+Once mean lengths > Lc are calculated, mortality can be estimated using the `ML` function:
+
+```{r, eval = FALSE}
+est <- ML(Goosefish, ncp = 2)
+```
+```{r, echo = FALSE}
+est <- ML(Goosefish, ncp = 2, figure = FALSE)
+```
+
+The function returns an object of class `MLZ_model` which includes predicted values of the data, parameter estimates with correlation matrix and gradient vector. `summary` and `plot` method functions are also available for MLZ_model objects.
+
+```{r, eval = FALSE}
+plot(est)
+```
+```{r, echo = FALSE, fig.width = 5}
+par(mar = c(4, 4, 0.5, 0.5))
+plot(est, residuals = FALSE)
+```
+```{r}
+summary(est)
+```
+
+The analysis can be repeated by considering alternative numbers of change points (years in which mortality changes).
+
+```{r, eval = FALSE}
+model1 <- ML(Goosefish, ncp = 0)
+model2 <- ML(Goosefish, ncp = 1)
+model3 <- ML(Goosefish, ncp = 2)
+```
+
+```{r, echo = FALSE}
+model1 <- ML(Goosefish, ncp = 0, figure = FALSE)
+model2 <- ML(Goosefish, ncp = 1, figure = FALSE)
+model3 <- ML(Goosefish, ncp = 2, figure = FALSE)
+```
+
+In order to avoid local minima in the negative log-likelihood function, the function by default uses a grid
+search in order to use starting values for the change points that are close to the maximum likelihood estimates.
+
+The grid search function can also be called seperately using `profile_ML`. This function also serves as a likelihood profile over the change points.
+
+```r
+profile_ML(Goosefish, ncp = 1)
+```
+```{r, echo = FALSE, fig.width = 4.5}
+par(mar = c(4, 4, 0.5, 0.5))
+zz <- profile_ML(Goosefish, ncp = 1)
+```
+
+```r
+profile_ML(Goosefish, ncp = 2)
+```
+```{r, echo = FALSE, fig.height = 4, fig.width = 5}
+par(mar = c(4, 4, 1.5, 0.5))
+zz <- profile_ML(Goosefish, ncp = 2, color = FALSE)
+```
+
+
+### Model selection
+Model runs with different change points can be compared using AIC. The `compare_models` function facilitates
+this feature and produces a plot of the predicted data.
+
+```{r, eval = FALSE}
+compare_models(list(model1, model2, model3))
+```
+```{r, fig.width = 5, echo = FALSE}
+par(mar = c(2,4,1,1))
+compare_models(list(model1, model2, model3))
+```
+## Outline of other estimators
+### MLCR (Mean Length with Catch Rate)
+To use the MLCR estimator, a time series of CPUE is needed:
+
+```{r, echo = FALSE}
+data(MuttonSnapper)
+```
+```r
+data(MuttonSnapper)
+MuttonSnapper@CPUE
+```
+
+If the CPUE is biomass-based, e.g., pounds of fish per gear haul, then length-weight exponent `b` is also needed.
+
+```r
+MuttonSnapper@lwb <- 3.05
+```
+The corresponding estimation function and grid search function are `MLCR` and `profile_MLCR`, respectively:
+
+```r
+MLCR(MuttonSnapper, ncp = 2, "WPUE")
+```
+
+### MLmulti (multispecies)
+For a multispecies or multi-stock analysis, seperate MLZ_data objects are created for seperate stocks/species and should be stored in a list:
+```{r}
+data(PRSnapper)
+typeof(PRSnapper)
+```
+The corresponding estimation function and grid search function are `MLmulti` and `profile_MLmulti`, respectively. For both functions, the Single Species Model or Multispecies 1, 2, or 3 must also be identified
+in the `model` argument:
+```{r, eval = FALSE}
+MLmulti(PRSnapper, ncp = 1, model = "MSM1")
+```
+
+### MLeffort (Mean Length with effort)
+`MLeffort` uses a time series of mean length and effort to estimate a catchability coefficient `q` and natural mortality `M`. Parameter $t_0$ from the von Bertalanffy equation
+is needed as well:
+```{r, eval = FALSE}
+data(Nephrops)
+Nephrops@Effort
+Nephrops@vbt0 <- 0
+MLeffort(Nephrops, start = list(q = 0.1, M = 0.2), n_age = 24)
+```
+```{r, echo = FALSE}
+data(Nephrops)
+```
+Unlike other models in the package, starting values are required in MLeffort.
+
+Instead of using an analytic model for the mean length, MLeffort uses an age-structured population model. The youngest age in the age-structured model is $t_c$ which is obtained from von Bertalanffy parameters and $L_c$:
+$t_c = \frac{-1}{K}log(1 - \frac{L_c}{L_{\infty}}) + t_0$
+
+In the `MLeffort` function call, the number of ages above $t_c$ modeled is indicated in argument `n_age`. Time steps smaller than one year can be used by indicating the number of seasons in the model with argument `n_season`. The season is matched to the season in which mean lengths are observed with argument `obs_season` and the timing within the observed season that lengths are observed is set with argument `timing`. The equilibrium effort prior to the first year of the model is indicated with argument `eff_init`, i.e. `eff_init = 0` for virgin equilibrium conditions. 
+
+Finally, the model can be run with a fixed M with the argument `estimate.M = FALSE`, in which case, the value of M for the model is obtained from slot `@M` in the MLZ_data object.
+
+```{r, eval = FALSE}
+Nephrops@M
+MLeffort(Nephrops, start = list(q = 0.1), n_age = 24, estimate.M = FALSE)
+```
+

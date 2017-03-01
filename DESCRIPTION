@@ -1,0 +1,23 @@
+Package: MLZ
+Title: Mean Length-based Estimators of Mortality
+Version: 0.0.0.9000
+Authors@R: c(person("Quang", "Huynh", email = "qhuynh@vims.edu", role = c("aut", "cre")),
+  person("Todd", "Gedamke", rol = "ctb"), person("Amy", "Then", rol = "ctb"))
+Maintainer: Quang Huynh <qhuynh@vims.edu>
+Description: An R package for mean length-based estimators of total mortality Z.
+Depends: R (>= 3.3.1),
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+Imports: methods, stats, graphics, grDevices, dplyr (>= 0.5.0), gplots,
+        ggplot2 (>= 2.0.0), reshape2 (>= 1.4.1), numDeriv, parallel,
+        msm, Rcpp
+RoxygenNote: 6.0.1
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
+LinkingTo: Rcpp, RcppArmadillo
+NeedsCompilation: yes
+Packaged: 2017-03-01 18:29:13 UTC; qhuynh
+Author: Quang Huynh [aut, cre],
+  Todd Gedamke [ctb],
+  Amy Then [ctb]
