@@ -8,7 +8,8 @@ The package can be installed using the `devtools` package:
 
 ```r
 ### install missing dependencies first
-depends <- list("methods", "stats", "graphics", "grDevices", "dplyr", "gplots", "ggplot2", "reshape2", "numDeriv", "parallel", "msm", "Rcpp", "RcppArmadillo")
+depends <- list("methods", "stats", "graphics", "grDevices", "dplyr", "gplots", "ggplot2", "reshape2", 
+                "numDeriv", "parallel", "msm", "Rcpp", "RcppArmadillo")
 lapply(depends, function(x) if(!x %in% installed.packages()) install.packages(x))
 
 devtools::install_github("quang-huynh/MLZ")
