@@ -20,4 +20,4 @@ vignette("MLZ")
 ```
 
 ## Version
-Currently, the package is in development in version 0.0.0.9000. Testing, reporting issues, and pull requests are welcome.
+Currently, the package is in development, version 0.0.0.9000. Testing, reporting issues, and pull requests are welcome.
