@@ -2,18 +2,47 @@
 % Please edit documentation in R/data_process.R
 \name{modal_length}
 \alias{modal_length}
-\title{Calculate modal length from length data.}
+\title{Modal length from length data}
 \usage{
-modal_length(MLZ_data)
+modal_length(MLZ_data, length.slot = c("Len_df", "Len_matrix"),
+  breaks = NULL, figure = TRUE)
 }
 \arguments{
 \item{MLZ_data}{An object of class \code{MLZ_data}.}
+
+\item{length.slot}{Name of slot in \code{\linkS4class{MLZ_data}} from which to calculate
+modal lengths, either: \code{Len_df} or \code{Len_matrix}. Only used if there are data in both slots.}
+
+\item{breaks}{Only used for \code{Len_df}. An optional vector for breaks for \code{\link{create_bin}}.}
+
+\item{figure}{If TRUE, a plot is also drawn.}
+}
+\value{
+A data frame of plotted values.
 }
 \description{
-Creates two figures. First, a histogram of length data pooled across all years is produced and the modal
-length is reported. Second, a plot of the annual modal length is produced and compared to the pooled modal length.
+Calculates the annual modal length from the length data, which can be used to select Lc. 
+Note: Modal length can change over time for many reasons, including a change in mortality 
+(Hordyk et al. 2015), recruitment, or selectivity (Huynh et al. 2017).
+}
+\details{
+Length frequency matrix from \code{Len_df} are created by using \code{\link[graphics]{hist}} function.
 }
 \examples{
 data(Nephrops)
 modal_length(Nephrops)
+
+data(SilkSnapper)
+new.dataset <- new("MLZ_data", Year = 1983:2013, Len_df = SilkSnapper)
+modal_length(new.dataset)
+modal_length(new.dataset, breaks = seq(80, 830, 10))
+
+}
+\references{
+Hordyk, A. Ono, K., Sainsbury, K., Loneragan, N., and Prince, J. 2015. Some explorations of the 
+life history ratios to describe length composition, spawning-per-recruit, and the 
+spawning potential ratio. ICES Journal of Marine Science 72:204-216.
+
+Huynh, Q.C, Gedamke, T., Hoenig, J.M, and Porch C. 2017. Multispecies Extensions
+to a Nonequilibrium Length-Based Mortality Estimator. Marine and Coastal Fisheries 9:68-78.
 }
