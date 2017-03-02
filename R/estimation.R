@@ -587,7 +587,7 @@ MLeffort <- function(MLZ_data, start, n_age, estimate.M = TRUE, log.par = FALSE,
                        timing = timing, logpar = tmb.dat$logpar)
     covariance <- solve(MLehess)
     opt$corr <- cov2cor(covariance)
-    opt$gradient <- grad(MLefullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, eff = tmb.dat$Effort,
+    opt$gradient <- grad(MLefixMfullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, eff = tmb.dat$Effort,
                          LH = tmb.dat$LH, Lc = tmb.dat$Lc, eff_init = tmb.dat$eff_init,
                          n_age = tmb.dat$n_age, n_season = n_season, obs_season = obs_season,
                          timing = timing, logpar = tmb.dat$logpar)
