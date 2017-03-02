@@ -54,7 +54,7 @@ ML(Goosefish, ncp = 2, grid.search = TRUE)
 \references{
 Gedamke, T. and Hoenig, J.M. 2006. Estimating mortality from mean length data in
 nonequilibrium situations, with application to the assessment of goosefish.
-Trans. Am. Fish. Soc. 135:476-487.
+Transactions of the American Fisheries Society 135:476-487.
 }
 \seealso{
 \code{\link{profile_ML}}
