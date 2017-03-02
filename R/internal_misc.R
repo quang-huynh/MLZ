@@ -6,3 +6,7 @@ timeseries_multi <- function(x) {
 returnNAoptvalue <- function(x, reps = 1) {
   if(inherits(x, "try-error")) as.numeric(rep(NA, reps)) else getElement(x, "value")
 }
+
+bin_length.Len_summary <- function(x, y) {
+  data.frame(Year = rep(x, length(y$mids)), Length = y$mids, Frequency = y$counts)
+}
