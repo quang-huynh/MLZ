@@ -26,7 +26,7 @@
 #'
 #' @references Gedamke, T. and Hoenig, J.M. 2006. Estimating mortality from mean length data in
 #' nonequilibrium situations, with application to the assessment of goosefish.
-#' Trans. Am. Fish. Soc. 135:476-487.
+#' Transactions of the American Fisheries Society 135:476-487.
 #' @return An object of class \code{\linkS4class{MLZ_model}}.
 #' @examples
 #' data(Goosefish)
@@ -325,8 +325,8 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NULL, "WPUE", "NPUE"), loglikeCPUE
 #' values for \code{yearZ} which minimize the negative log-likelihood from the grid search.
 #' Otherwise, the starting values for \code{yearZ} evenly divide the time series.
 #'
-#' @references Huynh, Q.C, Gedamke, T., Hoenig, J.M, and Porch C. In press. Multispecies Extensions
-#' to a Nonequilibrium Length-Based Mortality Estimator. Marine and Coastal Fisheries.
+#' @references Huynh, Q.C, Gedamke, T., Hoenig, J.M, and Porch C. 2017. Multispecies Extensions
+#' to a Nonequilibrium Length-Based Mortality Estimator. Marine and Coastal Fisheries 9:68-78.
 #'
 #' @seealso \code{\link{profile_MLmulti}}
 #'
