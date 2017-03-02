@@ -125,7 +125,8 @@ setMethod("summary", signature(object = "MLZ_model"), function(object)
 
 #' \code{plot} method for S4 class \code{MLZ_data}
 #'
-#' Plots annual length frequencies from slot \code{Len_matrix}.
+#' Plots annual length frequencies from slot \code{Len_matrix} or \code{Len_df}. If there are data in 
+#' both slots, \code{Len_matrix} is preferentially plotted.
 #'
 #' @param x An object of class \code{MLZ_data}.
 #' @param ggplot_layer Layers to add to ggplot2 plot.
@@ -141,7 +142,7 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
   on.exit(par(list = old_par), add = TRUE)
 
   length.units <- MLZ_data@length.units
-  length.units <- paste0("(", length.units, ")")
+  if(length(length.units) != 0) length.units <- paste0("(", length.units, ")") else length.units <- NULL
 
   no.Len_matrix <- nrow(MLZ_data@Len_matrix) == 0 & ncol(MLZ_data@Len_matrix) == 0
   no.Len_df <- nrow(MLZ_data@Len_df) == 0
@@ -216,7 +217,8 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
 setMethod("plot", signature(x = "MLZ_model"), function(x, residuals = TRUE) {
   MLZ_model <- x
   length.units <- MLZ_model@length.units
-
+  if(length(length.units) != 0) length.units <- paste0("(", length.units, ")") else length.units <- NULL
+  
   old_par <- par(no.readonly = TRUE)
   on.exit(par(list = old_par), add = TRUE)
 
