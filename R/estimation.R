@@ -31,7 +31,7 @@
 #' @examples
 #' data(Goosefish)
 #' ML(Goosefish, ncp = 2)
-#' ML(Goosefish, ncp = 2, start = list(Z = c(0.1, 0.3, 0.5), yearZ = c(1978, 1988))
+#' ML(Goosefish, ncp = 2, start = list(Z = c(0.1, 0.3, 0.5), yearZ = c(1978, 1988)))
 #' ML(Goosefish, ncp = 2, grid.search = TRUE)
 #'
 #' @seealso \code{\link{profile_ML}}
