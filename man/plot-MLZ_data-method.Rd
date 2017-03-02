@@ -13,7 +13,8 @@
 \item{ggplot_layer}{Layers to add to ggplot2 plot.}
 }
 \description{
-Plots annual length frequencies from slot \code{Len_matrix}.
+Plots annual length frequencies from slot \code{Len_matrix} or \code{Len_df}. If there are data in 
+both slots, \code{Len_matrix} is preferentially plotted.
 }
 \examples{
 data(Nephrops)
