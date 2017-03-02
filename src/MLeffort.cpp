@@ -60,7 +60,7 @@ double MLe(NumericVector stpar, NumericVector Lbar, NumericVector ss,
   }
   for(y=1;y<n_yr;y++) {
     N(y,0,0) = 1.;
-    for(a=1;a<astep;a++) N(y,a,0) = N(y-1,a-1,n_season-1) * exp(-Z(y)/n_season);
+    for(a=1;a<astep;a++) N(y,a,0) = N(y-1,a-1,n_season-1) * exp(-Z(y-1)/n_season);
     if(n_season>1) {
       for(k=1;k<n_season;k++) {
         N(y,0,k) = 1.;
@@ -141,7 +141,7 @@ List MLepred(NumericVector stpar, NumericVector Lbar, NumericVector ss,
   }
   for(y=1;y<n_yr;y++) {
     N(y,0,0) = 1.;
-    for(a=1;a<astep;a++) N(y,a,0) = N(y-1,a-1,n_season-1) * exp(-Z(y)/n_season);
+    for(a=1;a<astep;a++) N(y,a,0) = N(y-1,a-1,n_season-1) * exp(-Z(y-1)/n_season);
     if(n_season>1) {
       for(k=1;k<n_season;k++) {
         N(y,0,k) = 1.;
@@ -177,7 +177,6 @@ double MLefullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss,
   int y;
   int a;
   int k;
-  double ndata = 0.;
   int astep = n_age*n_season;
 
   double q;
@@ -221,7 +220,7 @@ double MLefullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss,
   }
   for(y=1;y<n_yr;y++) {
     N(y,0,0) = 1.;
-    for(a=1;a<astep;a++) N(y,a,0) = N(y-1,a-1,n_season-1) * exp(-Z(y)/n_season);
+    for(a=1;a<astep;a++) N(y,a,0) = N(y-1,a-1,n_season-1) * exp(-Z(y-1)/n_season);
     if(n_season>1) {
       for(k=1;k<n_season;k++) {
         N(y,0,k) = 1.;
@@ -233,7 +232,7 @@ double MLefullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss,
     for(a=0;a<astep;a++) Nobs(y,a) = N(y,a,obs_season-1) * exp(-Z(y) * timing/n_season);
     Lpred(y) = sum(Nobs(y,_)*La)/sum(Nobs(y,_));
 
-    nLL += -log(sigma) - 0.5 * ss[y] * pow(Lbar[y] - Lpred[y], 2)/(sigma*sigma);
+    if(ss[y]>0) nLL += -log(sigma) - 0.5 * ss[y] * pow(Lbar[y] - Lpred[y], 2)/(sigma*sigma);
   }
 
   nLL *= -1;
@@ -293,7 +292,7 @@ double MLefixM(NumericVector stpar, NumericVector Lbar, NumericVector ss,
   }
   for(y=1;y<n_yr;y++) {
     N(y,0,0) = 1.;
-    for(a=1;a<astep;a++) N(y,a,0) = N(y-1,a-1,n_season-1) * exp(-Z(y)/n_season);
+    for(a=1;a<astep;a++) N(y,a,0) = N(y-1,a-1,n_season-1) * exp(-Z(y-1)/n_season);
     if(n_season>1) {
       for(k=1;k<n_season;k++) {
         N(y,0,k) = 1.;
@@ -331,7 +330,6 @@ double MLefixMfullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector s
   int y;
   int a;
   int k;
-  double ndata = 0.;
   int astep = n_age*n_season;
 
   double q;
@@ -369,7 +367,7 @@ double MLefixMfullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector s
   }
   for(y=1;y<n_yr;y++) {
     N(y,0,0) = 1.;
-    for(a=1;a<astep;a++) N(y,a,0) = N(y-1,a-1,n_season-1) * exp(-Z(y)/n_season);
+    for(a=1;a<astep;a++) N(y,a,0) = N(y-1,a-1,n_season-1) * exp(-Z(y-1)/n_season);
     if(n_season>1) {
       for(k=1;k<n_season;k++) {
         N(y,0,k) = 1.;
@@ -381,7 +379,7 @@ double MLefixMfullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector s
     for(a=0;a<astep;a++) Nobs(y,a) = N(y,a,obs_season-1) * exp(-Z(y) * timing/n_season);
     Lpred(y) = sum(Nobs(y,_)*La)/sum(Nobs(y,_));
 
-    nLL += -log(sigma) - 0.5 * ss[y] * pow(Lbar[y] - Lpred[y], 2)/(sigma*sigma);
+    if(ss[y]>0) nLL += -log(sigma) - 0.5 * ss[y] * pow(Lbar[y] - Lpred[y], 2)/(sigma*sigma);
   }
 
   nLL *= -1;
