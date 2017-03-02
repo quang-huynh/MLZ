@@ -14,11 +14,11 @@ life history data of stock.}
 \item{ncp}{The number of change points in total mortality in the time series. \code{ncp + 1} total
 mortality rates will be estimated.}
 
-\item{start}{A list of starting values. Ignored if \code{grid.search = TRUE}. See details.}
+\item{start}{A list of starting values. See details.}
 
 \item{grid.search}{If \code{TRUE}, a grid search will be performed using the \code{\link{profile_ML}}
 function to find the best starting values for the change points (the years when mortality changes).
-Ignored if \code{ncp = 0}.}
+Ignored if \code{ncp = 0}. Ignored if \code{start} is provided.}
 
 \item{parallel}{Whether grid search is performed with parallel processing.}
 

@@ -20,11 +20,11 @@ mortality rates will be estimated.}
 \item{loglikeCPUE}{Indicates whether the log-likelihood for the CPUE will be lognormally or
 normally distributed.}
 
-\item{start}{A list of starting values. Ignored if \code{grid.search = TRUE}. See details.}
+\item{start}{A list of starting values. See details.}
 
 \item{grid.search}{If \code{TRUE}, a grid search will be performed using the \code{\link{profile_MLCR}}
 function to find the best starting values for the change points (the years when mortality changes).
-Ignored if \code{ncp = 0}.}
+Ignored if \code{ncp = 0}. Ignored if \code{start} is provided.}
 
 \item{parallel}{Whether grid search is performed with parallel processing.}
 

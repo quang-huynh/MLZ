@@ -6,10 +6,10 @@
 #' life history data of stock.
 #' @param ncp The number of change points in total mortality in the time series. \code{ncp + 1} total
 #' mortality rates will be estimated.
-#' @param start A list of starting values. Ignored if \code{grid.search = TRUE}. See details.
+#' @param start A list of starting values. See details.
 #' @param grid.search If \code{TRUE}, a grid search will be performed using the \code{\link{profile_ML}}
 #' function to find the best starting values for the change points (the years when mortality changes).
-#' Ignored if \code{ncp = 0}.
+#' Ignored if \code{ncp = 0}. Ignored if \code{start} is provided. 
 #' @param parallel Whether grid search is performed with parallel processing.
 #' @param min.time The minimum number of years between each change point for the grid search, passed
 #' to \code{\link{profile_ML}}. Not used if \code{grid.search = FALSE}.
@@ -129,7 +129,7 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, parallel = FALSE
   MLZ_model <- new("MLZ_model", Stock = MLZ_data@Stock, Model = "ML", time.series = time.series,
                    estimates = results.matrix, negLL = opt$value, n.changepoint = ncp, n.species = 1L,
                    opt = opt, length.units = MLZ_data@length.units)
-  if(ncp > 0 & grid.search) MLZ_model@grid.search <- grid.output
+  if(exists("grid.output")) MLZ_model@grid.search <- grid.output
   if(figure) plot(MLZ_model)
   return(MLZ_model)
 }
@@ -145,10 +145,10 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, parallel = FALSE
 #' @param CPUE.type Indicates whether CPUE time series is abundance or biomass based.
 #' @param loglikeCPUE Indicates whether the log-likelihood for the CPUE will be lognormally or
 #' normally distributed.
-#' @param start A list of starting values. Ignored if \code{grid.search = TRUE}. See details.
+#' @param start A list of starting values. See details.
 #' @param grid.search If \code{TRUE}, a grid search will be performed using the \code{\link{profile_MLCR}}
 #' function to find the best starting values for the change points (the years when mortality changes).
-#' Ignored if \code{ncp = 0}.
+#' Ignored if \code{ncp = 0}. Ignored if \code{start} is provided.
 #' @param parallel Whether grid search is performed with parallel processing.
 #' @param min.time The minimum number of years between each change point for the grid search, passed
 #' to \code{\link{profile_MLCR}}. Not used if \code{grid.search = FALSE}.
@@ -266,7 +266,7 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NULL, "WPUE", "NPUE"), loglikeCPUE
   MLZ_model <- new("MLZ_model", Stock = MLZ_data@Stock, Model = "MLCR", time.series = time.series,
                    estimates = results.matrix, negLL = opt$value, n.changepoint = ncp, n.species = 1L,
                    opt = opt, length.units = MLZ_data@length.units)
-  if(grid.search) MLZ_model@grid.search <- grid.output
+  if(exists("grid.output")) MLZ_model@grid.search <- grid.output
   if(figure) plot(MLZ_model)
   return(MLZ_model)
 }
@@ -283,6 +283,7 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NULL, "WPUE", "NPUE"), loglikeCPUE
 #' @param start A list of starting values. Ignored if \code{grid.search = TRUE}. See details.
 #' @param grid.search If \code{TRUE}, a grid search will be performed using the \code{\link{profile_MLmulti}}
 #' function to find the best starting values for the change points (the years when mortality changes).
+#' Ignored if \code{start} is provided.
 #' @param parallel Whether grid search is performed in parallel.
 #' @param min.time The minimum number of years between each change point for the grid search, passed
 #' to \code{\link{profile_MLmulti}}. Not used if \code{grid.search = FALSE}.

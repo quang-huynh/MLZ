@@ -19,7 +19,8 @@ mortality rates will be estimated.}
 \item{start}{A list of starting values. Ignored if \code{grid.search = TRUE}. See details.}
 
 \item{grid.search}{If \code{TRUE}, a grid search will be performed using the \code{\link{profile_MLmulti}}
-function to find the best starting values for the change points (the years when mortality changes).}
+function to find the best starting values for the change points (the years when mortality changes).
+Ignored if \code{start} is provided.}
 
 \item{parallel}{Whether grid search is performed in parallel.}
 
