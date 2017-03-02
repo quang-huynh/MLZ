@@ -34,8 +34,9 @@ compare_models <- function(MLZ_model.list, figure = TRUE, color = NULL) {
   model <- unique(model.names)
   if(length(model) > 1) stop("More than one model identified in MLZ_model.list")
   length.units <- vapply(MLZ_model.list, getElement, c("x"), "length.units")
-  length.units <- paste0("(", unique(length.units), ")")
-
+  length.units <- unique(length.units)
+  if(length(length.units) != 0) length.units <- paste0("(", length.units, ")") else length.units <- NULL
+  
   nspec <- vapply(MLZ_model.list, getElement, integer(1), "n.species")
   nspec <- unique(nspec)
   if(length(nspec) > 1) stop("Different number of species among models.")
