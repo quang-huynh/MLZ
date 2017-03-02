@@ -88,8 +88,8 @@ st.delta <- 1
 MLmulti(PRSnapper, ncp = 1, model = "MSM3", start = list(Z1 = st.Z1, yearZ = st.yearZ, delta = st.delta))
 }
 \references{
-Huynh, Q.C, Gedamke, T., Hoenig, J.M, and Porch C. In press. Multispecies Extensions
-to a Nonequilibrium Length-Based Mortality Estimator. Marine and Coastal Fisheries.
+Huynh, Q.C, Gedamke, T., Hoenig, J.M, and Porch C. 2017. Multispecies Extensions
+to a Nonequilibrium Length-Based Mortality Estimator. Marine and Coastal Fisheries 9:68-78.
 }
 \seealso{
 \code{\link{profile_MLmulti}}
