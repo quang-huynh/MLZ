@@ -156,7 +156,7 @@ bin_length <- function(df, breaks = NULL) {
   df <- as.data.frame(df)
   names(df) <- c("Year", "Length")
   if(is.null(breaks)) breaks <- hist(df$Length, plot = FALSE)$breaks
-  Len_filter <- split(Len_df$Length, Len_df$Year)
+  Len_filter <- split(df$Length, df$Year)
   Len_hist <- lapply(Len_filter, hist, plot = FALSE, breaks = breaks, right = FALSE)
   
   Year <- new("list", as.numeric(names(Len_filter)))
