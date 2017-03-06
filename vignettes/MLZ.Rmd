@@ -2,7 +2,9 @@
 title: "MLZ: Mean Length-based Z Estimators"
 author: "Quang C. Huynh"
 date: "2017-03-03"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
 vignette: >
   %\VignetteIndexEntry{MLZ}
   %\VignetteEngine{knitr::rmarkdown}
@@ -170,7 +172,7 @@ Additional diagnostics, including sensitivity to growth, natural mortality, and 
 
 ## 4. Outline of other estimators
 ### 4.1 MLCR (Mean Length with Catch Rate)
-To use the MLCR estimator, a time series of CPUE is needed:
+To use the MLCR estimator (Huynh et al.), a time series of CPUE is needed:
 
 ```{r, echo = FALSE}
 data(MuttonSnapper)
@@ -191,8 +193,8 @@ The corresponding estimation function and grid search function are `MLCR` and `p
 MLCR(MuttonSnapper, ncp = 2, "WPUE")
 ```
 
-### 4.2 MLmulti (multispecies mean length estimator)
-For a multispecies or multi-stock analysis, seperate `MLZ_data` objects are created for seperate stocks/species and should be stored in a list:
+### 4.2 MLmulti (Multispecies Mean Length estimator)
+For a multispecies or multi-stock analysis (Huynh et al. 2017), seperate `MLZ_data` objects are created for seperate stocks/species and should be stored in a list:
 ```{r}
 data(PRSnapper)
 typeof(PRSnapper)
@@ -203,8 +205,8 @@ in the `model` argument:
 MLmulti(PRSnapper, ncp = 1, model = "MSM1")
 ```
 
-### 4.3 MLeffort (Mean Length with effort)
-`MLeffort` uses a time series of mean length and effort to estimate a catchability coefficient `q` and natural mortality `M`. Parameter $t_0$ from the von Bertalanffy equation
+### 4.3 MLeffort (Mean Length with Effort)
+`MLeffort` uses a time series of mean length and effort to estimate a catchability coefficient `q` and natural mortality `M` (Then et al.). Parameter $t_0$ from the von Bertalanffy equation
 is needed as well:
 ```{r, eval = FALSE}
 data(Nephrops)
@@ -233,3 +235,11 @@ Nephrops@M <- 0.3
 MLeffort(Nephrops, start = list(q = 0.1), n_age = 24, estimate.M = FALSE)
 ```
 
+## 5. References
+Gedamke, T. and Hoenig, J.M. 2006. Estimating mortality from mean length data in nonequilibrium situations, with application to the assessment of goosefish. Transactions of the American Fisheries Society 135:476-487.
+
+Huynh, Q.C, Gedamke, T., Hoenig, J.M, and Porch C. 2017. Multispecies Extensions to a Nonequilibrium Length-Based Mortality Estimator. Marine and Coastal Fisheries 9:68-78.
+
+Huynh, Q.C., Gedamke, T., Porch, C.E., Hoenig, J.M., Walter, J.F, Bryan, M., and Brodziak, J. In revision. Estimating Total Mortality Rates from Mean Lengths and Catch Rates in Non-equilibrium Situations. Transactions of the American Fisheries Society.
+
+Then, A.Y, Hoenig, J.M, and Huynh, Q.C. In revision. Estimating fishing and natural mortality rates, and catchability coefficient, from a series of observations on mean length and fishing effort. ICES Journal of Marine Science.
