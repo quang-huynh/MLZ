@@ -56,7 +56,7 @@ MLCR(MuttonSnapper, ncp = 2, CPUE.type = "WPUE", grid.search = TRUE)
 
 }
 \references{
-Huynh, Q.C., Gedamke, T., Porch, C.E., Hoenig, J.M., Walter, J.F, Bryan, M, and
+Huynh, Q.C., Gedamke, T., Porch, C.E., Hoenig, J.M., Walter, J.F, Bryan, M., and
 Brodziak, J. In revision. Estimating Total Mortality Rates from Mean Lengths and
 Catch Rates in Non-equilibrium Situations. Transactions of the American Fisheries Society.
 }

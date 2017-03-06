@@ -154,7 +154,7 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, parallel = FALSE
 #' to \code{\link{profile_MLCR}}. Not used if \code{grid.search = FALSE}.
 #' @param figure If \code{TRUE}, a call to \code{plot} of observed and predicted mean lengths will be produced.
 #'
-#' @references Huynh, Q.C., Gedamke, T., Porch, C.E., Hoenig, J.M., Walter, J.F, Bryan, M, and
+#' @references Huynh, Q.C., Gedamke, T., Porch, C.E., Hoenig, J.M., Walter, J.F, Bryan, M., and
 #' Brodziak, J. In revision. Estimating Total Mortality Rates from Mean Lengths and
 #' Catch Rates in Non-equilibrium Situations. Transactions of the American Fisheries Society.
 #'
