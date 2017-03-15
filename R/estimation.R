@@ -123,7 +123,7 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, parallel = FALSE
       MLZ_data@Year[1] - 1
   }
   colnames(results.matrix) <- c("Estimate", "Std. Error")
-  time.series <- data.df
+  time.series <- full
   time.series$Predicted <- opt$Lpred
   time.series$Residual <- time.series$MeanLength - time.series$Predicted
   MLZ_model <- new("MLZ_model", Stock = MLZ_data@Stock, Model = "ML", time.series = time.series,
@@ -259,7 +259,7 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NULL, "WPUE", "NPUE"), loglikeCPUE
     MLZ_data@Year[1] - 1
 
   time.series <- data.frame(Predicted.ML = opt$Lpred, Predicted.CPUE = opt$Ipred)
-  time.series <- cbind(data.df, time.series)
+  time.series <- cbind(full, time.series)
   time.series$Residual.ML <- time.series$MeanLength - time.series$Predicted.ML
   time.series$Residual.CPUE <- time.series$CPUE - time.series$Predicted.CPUE
 
