@@ -35,7 +35,7 @@ profile_ML <- function(MLZ_data, ncp, stZ = 0.5, min.time = 3, parallel = FALSE,
   }
 
   tmb.dat <- list(LH = c(MLZ_data@vbLinf, MLZ_data@vbK), Lc = MLZ_data@Lc, nbreaks = ncp,
-                  Lbar = MLZ_data@MeanLength, ss = MLZ_data@time.series$ss)
+                  Lbar = MLZ_data@MeanLength, ss = MLZ_data@ss)
   tmb.dat$Lbar[is.na(tmb.dat$ss) | tmb.dat$ss <= 0] <- -99
   tmb.dat$ss[is.na(tmb.dat$ss) | tmb.dat$Lbar < 0 | tmb.dat$ss <= 0] <- 0
 
