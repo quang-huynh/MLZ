@@ -59,7 +59,7 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, parallel = FALSE
     else {
       start <- list(Z = MLZ_data@vbK * (MLZ_data@vbLinf - MLZ_data@MeanLength[1]) /
                       (MLZ_data@MeanLength[1] - MLZ_data@Lc))
-      start$Z[is.na(start$Z) | start$Z <= 0] <- 0.5
+      start$Z[is.na(start$Z) | start$Z <= 0 | is.infinite(start$Z)] <- 0.5
     }
     opt <- optim(start$Z, MLeqnegLL, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                  LH = tmb.dat$LH, Lc = tmb.dat$Lc, method = "BFGS", control = list(maxit = 1e7))
@@ -96,7 +96,7 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, parallel = FALSE
       }
       stZ <- MLZ_data@vbK * (MLZ_data@vbLinf - MLZ_data@MeanLength[c(1,styearZ)]) /
         (MLZ_data@MeanLength[c(1,styearZ)] - MLZ_data@Lc)
-      stZ[is.na(stZ) | stZ <= 0] <- 0.5
+      stZ[is.na(stZ) | stZ <= 0 | is.infinite(stZ)] <- 0.5
       start <- list(Z = stZ, yearZ = styearZ)
     }
     opt <- optim(c(start$Z, start$yearZ), MLnegLL, Lbar = tmb.dat$Lbar,
