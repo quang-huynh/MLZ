@@ -57,8 +57,8 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, parallel = FALSE
         stop("Entry in name 'Z' of start list is not a numeric of length 1.")
     }
     else {
-      start <- list(Z = MLZ_data@vbK * (MLZ_data@vbLinf - MLZ_data@time.series$MeanLength[1]) /
-                      (MLZ_data@time.series$MeanLength[1] - MLZ_data@Lc))
+      start <- list(Z = MLZ_data@vbK * (MLZ_data@vbLinf - MLZ_data@MeanLength[1]) /
+                      (MLZ_data@MeanLength[1] - MLZ_data@Lc))
       start$Z[is.na(start$Z) | start$Z <= 0] <- 0.5
     }
     opt <- optim(start$Z, MLeqnegLL, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
@@ -94,8 +94,8 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, parallel = FALSE
       else {
         styearZ <- length(tmb.dat$Lbar) * (1:ncp) / (ncp+1)
       }
-      stZ <- MLZ_data@vbK * (MLZ_data@vbLinf - MLZ_data@time.series$MeanLength[c(1,styearZ)]) /
-        (MLZ_data@time.series$MeanLength[c(1,styearZ)] - MLZ_data@Lc)
+      stZ <- MLZ_data@vbK * (MLZ_data@vbLinf - MLZ_data@MeanLength[c(1,styearZ)]) /
+        (MLZ_data@MeanLength[c(1,styearZ)] - MLZ_data@Lc)
       stZ[is.na(stZ) | stZ <= 0] <- 0.5
       start <- list(Z = stZ, yearZ = styearZ)
     }
@@ -218,8 +218,8 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NULL, "WPUE", "NPUE"), loglikeCPUE
     else {
       styearZ <- length(tmb.dat$Lbar) * (1:ncp) / (ncp+1)
     }
-    stZ <- MLZ_data@vbK * (MLZ_data@vbLinf - MLZ_data@time.series$MeanLength[c(1,styearZ)]) /
-      (MLZ_data@time.series$MeanLength[c(1,styearZ)] - MLZ_data@Lc)
+    stZ <- MLZ_data@vbK * (MLZ_data@vbLinf - MLZ_data@MeanLength[c(1,styearZ)]) /
+      (MLZ_data@MeanLength[c(1,styearZ)] - MLZ_data@Lc)
     stZ[is.na(stZ) | stZ <= 0] <- 0.5
     start <- list(Z = stZ, yearZ = styearZ)
   }
