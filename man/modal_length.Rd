@@ -13,7 +13,7 @@ modal_length(MLZ_data, length.slot = c("Len_df", "Len_matrix"),
 \item{length.slot}{Name of slot in \code{\linkS4class{MLZ_data}} from which to calculate
 modal lengths, either: \code{Len_df} or \code{Len_matrix}. Only used if there are data in both slots.}
 
-\item{breaks}{Only used for \code{Len_df}. An optional vector for breaks for \code{\link{create_bin}}.}
+\item{breaks}{Only used for \code{Len_df}. An optional vector for breaks for \code{\link{bin_length}}.}
 
 \item{figure}{If TRUE, a plot is also drawn.}
 }
