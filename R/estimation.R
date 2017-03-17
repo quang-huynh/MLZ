@@ -6,11 +6,12 @@
 #' life history data of stock.
 #' @param ncp The number of change points in total mortality in the time series. \code{ncp + 1} total
 #' mortality rates will be estimated.
-#' @param start A list of starting values. See details.
+#' @param start An optional list of starting values. See details.
+#' @param spawn Whether 'continuous' or 'annual' (pulse) spawning is modeled.
 #' @param grid.search If \code{TRUE}, a grid search will be performed using the \code{\link{profile_ML}}
 #' function to find the best starting values for the change points (the years when mortality changes).
-#' Ignored if \code{ncp = 0}. Ignored if \code{start} is provided. 
-#' @param parallel Whether grid search is performed with parallel processing.
+#' Ignored if \code{ncp = 0} or if \code{start} is provided. 
+#' @param parallel Whether grid search is performed with parallel processing. Ignored if \code{grid.search = FALSE}.
 #' @param min.time The minimum number of years between each change point for the grid search, passed
 #' to \code{\link{profile_ML}}. Not used if \code{grid.search = FALSE}.
 #' @param figure If \code{TRUE}, a call to \code{plot} of observed and predicted mean lengths will be produced.
@@ -36,10 +37,14 @@
 #'
 #' @seealso \code{\link{profile_ML}}
 #' @export
-ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, parallel = FALSE, min.time = 3, figure = TRUE) {
+ML <- function(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
+               grid.search = TRUE, parallel = ifelse(ncp > 2, TRUE, FALSE), min.time = 3, figure = TRUE) {
   if(!inherits(MLZ_data, "MLZ_data")) stop("No object of class 'MLZ_data' found.")
-
   ncp <- as.integer(ncp)
+  parallel <- as.logical(parallel)
+  spawn <- match.arg(spawn)
+  if(spawn == "continuous") spawn.cont <- 1L else spawn.cont <- 0L
+  
   years <- MLZ_data@Year
   max.years <- data.frame(Year = min(years):max(years))
   data.df <- data.frame(Year = MLZ_data@Year, MeanLength = MLZ_data@MeanLength, ss = MLZ_data@ss)
@@ -62,17 +67,19 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, parallel = FALSE
       start$Z[is.na(start$Z) | start$Z <= 0 | is.infinite(start$Z)] <- 0.5
     }
     opt <- optim(start$Z, MLeqnegLL, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
-                 LH = tmb.dat$LH, Lc = tmb.dat$Lc, method = "BFGS", control = list(maxit = 1e7))
-    data.pred <- MLeqpred(opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, LH = tmb.dat$LH, Lc = tmb.dat$Lc)
+                 LH = tmb.dat$LH, Lc = tmb.dat$Lc, spCont = spawn.cont, 
+                 method = "BFGS", control = list(maxit = 1e7))
+    data.pred <- MLeqpred(opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, LH = tmb.dat$LH, 
+                          Lc = tmb.dat$Lc, spCont = spawn.cont)
     opt$Lpred <- rep(data.pred[[1]], length(tmb.dat$Lbar))
     sigmaL <- data.pred[[2]]
     opt$par <- c(opt$par, sigmaL)
     MLhessian <- hessian(MLeqfullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
-                         LH = tmb.dat$LH, Lc = tmb.dat$Lc)
+                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, spCont = spawn.cont)
     covariance <- solve(MLhessian)
     opt$corr <- cov2cor(covariance)
     opt$gradient <- grad(MLeqfullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
-                         LH = tmb.dat$LH, Lc = tmb.dat$Lc)
+                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, spCont = spawn.cont)
 
     results.matrix <- matrix(c(opt$par, sqrt(diag(covariance))), ncol = 2)
     rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- c("Z", "sigma")
@@ -86,7 +93,7 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, parallel = FALSE
     }
     else {
       if(grid.search) {
-        grid.output <- profile_ML(MLZ_data, ncp, min.time = min.time, parallel = parallel, figure = FALSE)
+        grid.output <- profile_ML(MLZ_data, ncp, min.time = min.time, parallel = parallel, spawn = spawn, figure = FALSE)
         index.min <- which.min(grid.output$negLL)
         styearZ <- as.numeric(grid.output[index.min, 1:ncp])
         styearZ <- styearZ - MLZ_data@Year[1] + 1
@@ -101,31 +108,34 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, parallel = FALSE
     }
     opt <- optim(c(start$Z, start$yearZ), MLnegLL, Lbar = tmb.dat$Lbar,
                  ss = tmb.dat$ss, LH = tmb.dat$LH, Lc = tmb.dat$Lc,
-                 nbreaks = tmb.dat$nbreaks, method = "BFGS", control = list(maxit = 1e7))
-    data.pred <- MLpred(opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
-                        LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks)
+                 nbreaks = tmb.dat$nbreaks, spCont = spawn.cont, 
+                 method = "BFGS", control = list(maxit = 1e7))
+    data.pred <- MLpred(opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, LH = tmb.dat$LH, 
+                        Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks, spCont = spawn.cont)
     opt$Lpred <- data.pred[[1]]
     sigmaL <- data.pred[[2]]
     opt$par <- c(opt$par, sigmaL)
     MLhessian <- hessian(MLfullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
-                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks)
+                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks, 
+                         spCont = spawn.cont)
     covariance <- solve(MLhessian)
     opt$corr <- cov2cor(covariance)
     opt$gradient <- grad(MLfullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
-                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks)
+                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks, 
+                         spCont = spawn.cont)
 
     results.matrix <- matrix(c(opt$par, sqrt(diag(covariance))), ncol = 2)
     Z.name <- paste0("Z[", 1:(ncp+1), "]")
     yearZ.name <- paste0("yearZ[", 1:ncp, "]")
     rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- c(Z.name, yearZ.name, "sigma")
     year.ind <- grep("yearZ", rownames(results.matrix))
-    results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] +
-      MLZ_data@Year[1] - 1
+    results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] + MLZ_data@Year[1] - 1
   }
   colnames(results.matrix) <- c("Estimate", "Std. Error")
   time.series <- full
   time.series$Predicted <- opt$Lpred
   time.series$Residual <- time.series$MeanLength - time.series$Predicted
+  opt$message <- c(opt$message, paste0("Spawning is assumed to be ", spawn, " in model."))
   MLZ_model <- new("MLZ_model", Stock = MLZ_data@Stock, Model = "ML", time.series = time.series,
                    estimates = results.matrix, negLL = opt$value, n.changepoint = ncp, n.species = 1L,
                    opt = opt, length.units = MLZ_data@length.units)
@@ -145,11 +155,12 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, parallel = FALSE
 #' @param CPUE.type Indicates whether CPUE time series is abundance or biomass based.
 #' @param loglikeCPUE Indicates whether the log-likelihood for the CPUE will be lognormally or
 #' normally distributed.
-#' @param start A list of starting values. See details.
+#' @param start An optional list of starting values. See details.
+#' @param spawn Whether 'continuous' or 'annual' (pulse) spawning is modeled.
 #' @param grid.search If \code{TRUE}, a grid search will be performed using the \code{\link{profile_MLCR}}
 #' function to find the best starting values for the change points (the years when mortality changes).
-#' Ignored if \code{ncp = 0}. Ignored if \code{start} is provided.
-#' @param parallel Whether grid search is performed with parallel processing.
+#' Ignored if \code{ncp = 0} or if \code{start} is provided.
+#' @param parallel Whether grid search is performed with parallel processing. Ignored if \code{grid.search = FALSE}.
 #' @param min.time The minimum number of years between each change point for the grid search, passed
 #' to \code{\link{profile_MLCR}}. Not used if \code{grid.search = FALSE}.
 #' @param figure If \code{TRUE}, a call to \code{plot} of observed and predicted mean lengths will be produced.
@@ -177,15 +188,25 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, parallel = FALSE
 #' @seealso \code{\link{profile_MLCR}}
 #'
 #' @export
-MLCR <- function(MLZ_data, ncp, CPUE.type = c(NULL, "WPUE", "NPUE"), loglikeCPUE = c("lognormal", "normal"),
-                 start = NULL, grid.search = TRUE, parallel = FALSE, min.time = 3, figure = TRUE) {
+MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE = c("lognormal", "normal"),
+                 spawn = c("continuous", "annual"), start = NULL, grid.search = TRUE, 
+                 parallel = ifelse(ncp > 2, TRUE, FALSE), min.time = 3, figure = TRUE) {
 
   if(!inherits(MLZ_data, "MLZ_data")) stop("No object of class 'MLZ_data' found.")
-  if(ncp == 0L) stop("Zero changepoints not currently supported. Use ML().")
+  if(ncp == 0L) stop("Zero changepoints is not currently supported. Use ML().")
+  parallel <- as.logical(parallel)
+  
   CPUE.type <- match.arg(CPUE.type)
-  if(is.null(CPUE.type)) stop("CPUE must be identified in either weight or abundance.")
+  if(is.na(CPUE.type)) stop("Argument CPUE.type must be identified in either: weight 'WPUE' or abundance 'NPUE'.")
   loglikeCPUE <- match.arg(loglikeCPUE)
-
+  
+  spawn <- match.arg(spawn)
+  if(CPUE.type == "WPUE" & spawn == "annual") {
+    message("Annual spawning currently is not supported with WPUE. Continuous spawning assumed.")
+    spawn <- "continuous"
+  }
+  if(spawn == "continuous") spawn.cont <- 1L else spawn.cont <- 0L
+  
   years <- MLZ_data@Year
   max.years <- data.frame(Year = min(years):max(years))
   data.df <- data.frame(Year = MLZ_data@Year, MeanLength = MLZ_data@MeanLength, ss = MLZ_data@ss,
@@ -209,8 +230,8 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NULL, "WPUE", "NPUE"), loglikeCPUE
   }
   else {
     if(grid.search) {
-      grid.output <- profile_MLCR(MLZ_data, ncp, CPUE.type, loglikeCPUE, min.time = min.time,
-                                  parallel = parallel, figure = FALSE)
+      grid.output <- profile_MLCR(MLZ_data, ncp, CPUE.type, loglikeCPUE, spawn = spawn, 
+                                  min.time = min.time, parallel = parallel, figure = FALSE)
       index.min <- which.min(grid.output$negLL)
       styearZ <- as.numeric(grid.output[index.min, 1:ncp])
       styearZ <- styearZ - MLZ_data@Year[1] + 1
@@ -230,24 +251,24 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NULL, "WPUE", "NPUE"), loglikeCPUE
 
   opt <- optim(c(start$Z, start$yearZ), fx, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                CPUE = tmb.dat$CPUE, LH = tmb.dat$LH, Lc = tmb.dat$Lc,
-               nbreaks = tmb.dat$nbreaks, loglikeCPUE = tmb.dat$loglikeCPUE,
+               nbreaks = tmb.dat$nbreaks, loglikeCPUE = tmb.dat$loglikeCPUE, spCont = spawn.cont,
                method = "BFGS", control = list(maxit = 1e7))
   data.pred <- gx(opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, CPUE = tmb.dat$CPUE,
-                  LH = tmb.dat$LH, Lc = tmb.dat$Lc,
-                  nbreaks = tmb.dat$nbreaks, loglikeCPUE = tmb.dat$loglikeCPUE)
+                  LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks, 
+                  loglikeCPUE = tmb.dat$loglikeCPUE, spCont = spawn.cont)
   opt$Lpred <- data.pred[[1]]
   opt$Ipred <- data.pred[[2]]
   q <- data.pred[[3]]
   sigmav <- data.pred[[4]]
   opt$par <- c(opt$par, q, sigmav)
-  MLCRhessian <- hessian(hx, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
-                         CPUE = tmb.dat$CPUE, LH = tmb.dat$LH, Lc = tmb.dat$Lc,
-                         nbreaks = tmb.dat$nbreaks, loglikeCPUE = tmb.dat$loglikeCPUE)
+  MLCRhessian <- hessian(hx, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, CPUE = tmb.dat$CPUE, 
+                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks, 
+                         loglikeCPUE = tmb.dat$loglikeCPUE, spCont = spawn.cont)
   covariance <- solve(MLCRhessian)
   opt$corr <- cov2cor(covariance)
-  opt$gradient <- grad(hx, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
-                       CPUE = tmb.dat$CPUE, LH = tmb.dat$LH, Lc = tmb.dat$Lc,
-                       nbreaks = tmb.dat$nbreaks, loglikeCPUE = tmb.dat$loglikeCPUE)
+  opt$gradient <- grad(hx, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, CPUE = tmb.dat$CPUE, 
+                       LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks, 
+                       loglikeCPUE = tmb.dat$loglikeCPUE, spCont = spawn.cont)
 
   results.matrix <- matrix(c(opt$par, sqrt(diag(covariance))), ncol = 2)
   Z.name <- paste0("Z[", 1:(ncp+1), "]")
@@ -255,14 +276,17 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NULL, "WPUE", "NPUE"), loglikeCPUE
   rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- c(Z.name, yearZ.name, "q", "sigmaL", "sigmaI")
   colnames(results.matrix) <- c("Estimate", "Std. Error")
   year.ind <- grep("yearZ", rownames(results.matrix))
-  results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] +
-    MLZ_data@Year[1] - 1
+  results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] + MLZ_data@Year[1] - 1
 
   time.series <- data.frame(Predicted.ML = opt$Lpred, Predicted.CPUE = opt$Ipred)
   time.series <- cbind(full, time.series)
   time.series$Residual.ML <- time.series$MeanLength - time.series$Predicted.ML
   time.series$Residual.CPUE <- time.series$CPUE - time.series$Predicted.CPUE
 
+  opt$message <- c(opt$message, paste0("Catch rate assumed to be ", CPUE.type), 
+                   paste0("Catch rate likelihood used ", loglikeCPUE, " distribution."),
+                   paste0("Spawning is assumed to be ", spawn, " in model."))
+  
   MLZ_model <- new("MLZ_model", Stock = MLZ_data@Stock, Model = "MLCR", time.series = time.series,
                    estimates = results.matrix, negLL = opt$value, n.changepoint = ncp, n.species = 1L,
                    opt = opt, length.units = MLZ_data@length.units)
@@ -280,11 +304,12 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NULL, "WPUE", "NPUE"), loglikeCPUE
 #' @param ncp The number of change points in total mortality in the time series. \code{ncp + 1} total
 #' mortality rates will be estimated.
 #' @param model The multispecies model to be used.
-#' @param start A list of starting values. Ignored if \code{grid.search = TRUE}. See details.
+#' @param start An optional list of starting values. See details.
+#' @param spawn Whether 'continuous' or 'annual' (pulse) spawning is modeled.
 #' @param grid.search If \code{TRUE}, a grid search will be performed using the \code{\link{profile_MLmulti}}
 #' function to find the best starting values for the change points (the years when mortality changes).
 #' Ignored if \code{start} is provided.
-#' @param parallel Whether grid search is performed in parallel.
+#' @param parallel Whether grid search is performed in parallel. Ignored if \code{grid.search = FALSE}.
 #' @param min.time The minimum number of years between each change point for the grid search, passed
 #' to \code{\link{profile_MLmulti}}. Not used if \code{grid.search = FALSE}.
 #' @param figure If \code{TRUE}, a call to \code{plot} of observed and predicted mean lengths will be produced.
@@ -348,16 +373,23 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NULL, "WPUE", "NPUE"), loglikeCPUE
 #' MLmulti(PRSnapper, ncp = 1, model = "MSM3", start = list(Z1 = st.Z1, yearZ = st.yearZ, delta = st.delta))
 #' @export
 MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), start = NULL,
-                    grid.search = TRUE, parallel = FALSE, min.time = 3, figure = TRUE) {
+                    spawn = c("continuous", "annual"), grid.search = TRUE, parallel = ifelse(ncp > 2, TRUE, FALSE), 
+                    min.time = 3, figure = TRUE) {
 
   model <- match.arg(model)
+  parallel <- as.logical(parallel)
   if(!is.list(MLZ.list)) stop("No list found.")
   class.test <- vapply(MLZ.list, inherits, TRUE, "MLZ_data")
   if(!all(class.test)) stop("Not all entries in list are of class 'MLZ_data'")
   length.units <- vapply(MLZ.list, getElement, c("x"), "length.units")
   length.units <- unique(length.units)
-  if(length(length.units) > 1) stop("Lengths are in different units among species.")
+  if(length(length.units) > 1) stop("Different length units among species. All lengths should be the same units, e.g. cm.")
+  
   ncp <- as.integer(ncp)
+  if(ncp == 0) stop("Zero change points not supported. Use ML().")
+  spawn <- match.arg(spawn)
+  if(spawn == "continuous") spawn.cont <- 1L else spawn.cont <- 0L
+  
   nspec <- length(MLZ.list)
   years <- lapply(MLZ.list, getElement, "Year")
   years <- unique(do.call(c, years))
@@ -419,8 +451,8 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
           ygrid <- ygrid[truncate.index, ]
         }
       }
-      if("SSM" %in% model || "MSM1" %in% model) pr <- .SSM_MSM1_profile(tmb.dat, 0.5, parallel, ygrid)
-      if("MSM2" %in% model || "MSM3" %in% model) pr <- .MSM23_profile(tmb.dat, 0.5, parallel, ygrid, model)
+      if("SSM" %in% model || "MSM1" %in% model) pr <- .SSM_MSM1_profile(tmb.dat, 0.5, parallel, ygrid, spawn.cont)
+      if("MSM2" %in% model || "MSM3" %in% model) pr <- .MSM23_profile(tmb.dat, 0.5, parallel, ygrid, model, spawn.cont)
 
       if(model == "SSM") {
         index.min <- apply(pr$loglikesp, 2, which.min)
@@ -451,8 +483,8 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
     if(model == "MSM3") start <- list(Z1 = stZ1, delta = rep(1, ncp), yearZ = styearZ)
   }
 
-  if("SSM" %in% model || "MSM1" %in% model) est <- .SSM_MSM1_est(tmb.dat, start, model)
-  if("MSM2" %in% model || "MSM3" %in% model) est <- .MSM23_est(tmb.dat, start, model)
+  if("SSM" %in% model || "MSM1" %in% model) est <- .SSM_MSM1_est(tmb.dat, start, model, spawn.cont)
+  if("MSM2" %in% model || "MSM3" %in% model) est <- .MSM23_est(tmb.dat, start, model, spawn.cont)
 
   results.matrix <- est$results.matrix
   year.ind <- grep("yearZ", rownames(results.matrix))
@@ -467,6 +499,8 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
   num <- which(sp.ind == 0L)
   sp.name[num] <- paste0("Species_", num)
   Lbar.df$Stock <- rep(do.call(c, sp.name), each = length(years))
+  
+  opt$message <- c(opt$message, paste0("Spawning is assumed to be ", spawn, " in model."))
 
   MLZ_model <- new("MLZ_model", Stock = do.call(c, sp.name), Model = "MLmulti",
                    time.series = Lbar.df, estimates = results.matrix,

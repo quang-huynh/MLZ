@@ -3,7 +3,7 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 double MLNPUEnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE,
-                   NumericVector LH, double Lc, int nbreaks, int loglikeCPUE) {
+                   NumericVector LH, double Lc, int nbreaks, int loglikeCPUE, int spCont) {
 
   int i;
   int j;
@@ -70,11 +70,17 @@ double MLNPUEnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, Nu
           r(i,m) *= exp(-(Z[nbr+1-j] + K) * dy(nbr-j,m));
         }
       }
-
-      if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/Z[nbr+1-i];
-      if(i==nbr+1) denom[m] += a(i,m)/Z[nbr+1-i];
-
-      numsum[m] += r(i,m) * s(i,m) / (Z[nbr+1-i] + K);
+      
+      if(spCont == 1) {
+        if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/Z[nbr+1-i];
+        if(i==nbr+1) denom[m] += a(i,m)/Z[nbr+1-i];
+        numsum[m] += r(i,m) * s(i,m) / (Z[nbr+1-i] + K);
+      }
+      if(spCont == 0) {
+        if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/(1 - exp(-Z[nbr+1-i]));
+        if(i==nbr+1) denom[m] += a(i,m)/(1 - exp(-Z[nbr+1-i]));
+        numsum[m] += r(i,m) * s(i,m) / (1 - exp(-(Z[nbr+1-i] + K)));
+      }
     }
     num[m] = Linf * (denom[m] - (1. - Lc/Linf) * numsum[m]);
     Lpred[m] = num[m]/denom[m];
@@ -126,7 +132,7 @@ double MLNPUEnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, Nu
 // [[Rcpp::export]]
 double MLNPUEprofile(NumericVector Z, NumericVector yearZ, NumericVector Lbar, NumericVector ss,
                      NumericVector CPUE, NumericVector LH, double Lc,
-                     int nbreaks, int loglikeCPUE) {
+                     int nbreaks, int loglikeCPUE, int spCont) {
 
   int i;
   int j;
@@ -185,12 +191,17 @@ double MLNPUEprofile(NumericVector Z, NumericVector yearZ, NumericVector Lbar, N
           r(i,m) *= exp(-(Z[nbr+1-j] + K) * dy(nbr-j,m));
         }
       }
-
-      if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/Z[nbr+1-i];
-      if(i==nbr+1) denom[m] += a(i,m)/Z[nbr+1-i];
-
-      numsum[m] += r(i,m) * s(i,m) / (Z[nbr+1-i] + K);
-
+      
+      if(spCont == 1) {
+        if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/Z[nbr+1-i];
+        if(i==nbr+1) denom[m] += a(i,m)/Z[nbr+1-i];
+        numsum[m] += r(i,m) * s(i,m) / (Z[nbr+1-i] + K);
+      }
+      if(spCont == 0) {
+        if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/(1 - exp(-Z[nbr+1-i]));
+        if(i==nbr+1) denom[m] += a(i,m)/(1 - exp(-Z[nbr+1-i]));
+        numsum[m] += r(i,m) * s(i,m) / (1 - exp(-(Z[nbr+1-i] + K)));
+      }
     }
     num[m] = Linf * (denom[m] - (1. - Lc/Linf) * numsum[m]);
     Lpred[m] = num[m]/denom[m];
@@ -240,7 +251,7 @@ double MLNPUEprofile(NumericVector Z, NumericVector yearZ, NumericVector Lbar, N
 
 // [[Rcpp::export]]
 List MLNPUEpred(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE,
-                NumericVector LH, double Lc, int nbreaks, int loglikeCPUE) {
+                NumericVector LH, double Lc, int nbreaks, int loglikeCPUE, int spCont) {
 
   int i;
   int j;
@@ -305,11 +316,17 @@ List MLNPUEpred(NumericVector stpar, NumericVector Lbar, NumericVector ss, Numer
           r(i,m) *= exp(-(Z[nbr+1-j] + K) * dy(nbr-j,m));
         }
       }
-
-      if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/Z[nbr+1-i];
-      if(i==nbr+1) denom[m] += a(i,m)/Z[nbr+1-i];
-
-      numsum[m] += r(i,m) * s(i,m) / (Z[nbr+1-i] + K);
+      
+      if(spCont == 1) {
+        if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/Z[nbr+1-i];
+        if(i==nbr+1) denom[m] += a(i,m)/Z[nbr+1-i];
+        numsum[m] += r(i,m) * s(i,m) / (Z[nbr+1-i] + K);
+      }
+      if(spCont == 0) {
+        if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/(1 - exp(-Z[nbr+1-i]));
+        if(i==nbr+1) denom[m] += a(i,m)/(1 - exp(-Z[nbr+1-i]));
+        numsum[m] += r(i,m) * s(i,m) / (1 - exp(-(Z[nbr+1-i] + K)));
+      }
     }
     num[m] = Linf * (denom[m] - (1. - Lc/Linf) * numsum[m]);
     Lpred[m] = num[m]/denom[m];
@@ -357,7 +374,7 @@ List MLNPUEpred(NumericVector stpar, NumericVector Lbar, NumericVector ss, Numer
 
 // [[Rcpp::export]]
 double MLNPUEfullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE,
-                       NumericVector LH, double Lc, int nbreaks, int loglikeCPUE) {
+                       NumericVector LH, double Lc, int nbreaks, int loglikeCPUE, int spCont) {
 
   int i;
   int j;
@@ -423,11 +440,17 @@ double MLNPUEfullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss
           r(i,m) *= exp(-(Z[nbr+1-j] + K) * dy(nbr-j,m));
         }
       }
-
-      if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/Z[nbr+1-i];
-      if(i==nbr+1) denom[m] += a(i,m)/Z[nbr+1-i];
-
-      numsum[m] += r(i,m) * s(i,m) / (Z[nbr+1-i] + K);
+      
+      if(spCont == 1) {
+        if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/Z[nbr+1-i];
+        if(i==nbr+1) denom[m] += a(i,m)/Z[nbr+1-i];
+        numsum[m] += r(i,m) * s(i,m) / (Z[nbr+1-i] + K);
+      }
+      if(spCont == 0) {
+        if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/(1 - exp(-Z[nbr+1-i]));
+        if(i==nbr+1) denom[m] += a(i,m)/(1 - exp(-Z[nbr+1-i]));
+        numsum[m] += r(i,m) * s(i,m) / (1 - exp(-(Z[nbr+1-i] + K)));
+      }
     }
     num[m] = Linf * (denom[m] - (1. - Lc/Linf) * numsum[m]);
     Lpred[m] = num[m]/denom[m];

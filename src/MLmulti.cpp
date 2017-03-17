@@ -4,7 +4,7 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 double SSM_MSM1_negLL(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss,
-                NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM1) {
+                NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM1, int spCont) {
 
   int i;
   int j;
@@ -73,11 +73,17 @@ double SSM_MSM1_negLL(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss,
             r(i,m) *= exp(-(Z(w,nbr+1-j) + K(w)) * dy(w,nbr-j,m));
           }
         }
-
-        if(i<=nbr) denom(w,m) += a(i,m)*(1. - exp(-Z(w,nbr+1-i) * dy(w,nbr-i,m)))/Z(w,nbr+1-i);
-        if(i==nbr+1) denom(w,m) += a(i,m)/Z(w,nbr+1-i);
-
-        numsum(w,m) += r(i,m) * s(i,m) / (Z(w,nbr+1-i) + K(w));
+        
+        if(spCont == 1) {
+          if(i<=nbr) denom(w,m) += a(i,m)*(1. - exp(-Z(w,nbr+1-i) * dy(w,nbr-i,m)))/Z(w,nbr+1-i);
+          if(i==nbr+1) denom(w,m) += a(i,m)/Z(w,nbr+1-i);
+          numsum(w,m) += r(i,m) * s(i,m) / (Z(w,nbr+1-i) + K(w));
+        }
+        if(spCont == 0) {
+          if(i<=nbr) denom(w,m) += a(i,m)*(1. - exp(-Z(w,nbr+1-i) * dy(w,nbr-i,m)))/(1 - exp(-Z(w,nbr+1-i)));
+          if(i==nbr+1) denom(w,m) += a(i,m)/(1 - exp(-Z(w,nbr+1-i)));
+          numsum(w,m) += r(i,m) * s(i,m) / (1 - exp(-(Z(w,nbr+1-i) + K(w))));
+        }
       }
 
       num(w,m) = Linf(w) * (denom(w,m) - (1. - Lc(w)/Linf(w)) * numsum(w,m));
@@ -99,7 +105,7 @@ double SSM_MSM1_negLL(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss,
 
 // [[Rcpp::export]]
 double SSM_MSM1_profile(NumericVector stpar, NumericVector year, NumericMatrix Lbar, NumericMatrix ss,
-                        NumericMatrix LH, NumericVector Lc, int nbreaks) {
+                        NumericMatrix LH, NumericVector Lc, int nbreaks, int spCont) {
 
   int i;
   int j;
@@ -164,11 +170,17 @@ double SSM_MSM1_profile(NumericVector stpar, NumericVector year, NumericMatrix L
             r(i,m) *= exp(-(Z(w,nbr+1-j) + K(w)) * dy(w,nbr-j,m));
           }
         }
-
-        if(i<=nbr) denom(w,m) += a(i,m)*(1. - exp(-Z(w,nbr+1-i) * dy(w,nbr-i,m)))/Z(w,nbr+1-i);
-        if(i==nbr+1) denom(w,m) += a(i,m)/Z(w,nbr+1-i);
-
-        numsum(w,m) += r(i,m) * s(i,m) / (Z(w,nbr+1-i) + K(w));
+        
+        if(spCont == 1) {
+          if(i<=nbr) denom(w,m) += a(i,m)*(1. - exp(-Z(w,nbr+1-i) * dy(w,nbr-i,m)))/Z(w,nbr+1-i);
+          if(i==nbr+1) denom(w,m) += a(i,m)/Z(w,nbr+1-i);
+          numsum(w,m) += r(i,m) * s(i,m) / (Z(w,nbr+1-i) + K(w));
+        }
+        if(spCont == 0) {
+          if(i<=nbr) denom(w,m) += a(i,m)*(1. - exp(-Z(w,nbr+1-i) * dy(w,nbr-i,m)))/(1 - exp(-Z(w,nbr+1-i)));
+          if(i==nbr+1) denom(w,m) += a(i,m)/(1 - exp(-Z(w,nbr+1-i)));
+          numsum(w,m) += r(i,m) * s(i,m) / (1 - exp(-(Z(w,nbr+1-i) + K(w))));
+        }
       }
 
       num(w,m) = Linf(w) * (denom(w,m) - (1. - Lc(w)/Linf(w)) * numsum(w,m));
@@ -190,7 +202,7 @@ double SSM_MSM1_profile(NumericVector stpar, NumericVector year, NumericMatrix L
 
 // [[Rcpp::export]]
 List SSM_MSM1_pred(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss,
-                      NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM1) {
+                      NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM1, int spCont) {
 
   int i;
   int j;
@@ -259,11 +271,17 @@ List SSM_MSM1_pred(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss,
             r(i,m) *= exp(-(Z(w,nbr+1-j) + K(w)) * dy(w,nbr-j,m));
           }
         }
-
-        if(i<=nbr) denom(w,m) += a(i,m)*(1. - exp(-Z(w,nbr+1-i) * dy(w,nbr-i,m)))/Z(w,nbr+1-i);
-        if(i==nbr+1) denom(w,m) += a(i,m)/Z(w,nbr+1-i);
-
-        numsum(w,m) += r(i,m) * s(i,m) / (Z(w,nbr+1-i) + K(w));
+        
+        if(spCont == 1) {
+          if(i<=nbr) denom(w,m) += a(i,m)*(1. - exp(-Z(w,nbr+1-i) * dy(w,nbr-i,m)))/Z(w,nbr+1-i);
+          if(i==nbr+1) denom(w,m) += a(i,m)/Z(w,nbr+1-i);
+          numsum(w,m) += r(i,m) * s(i,m) / (Z(w,nbr+1-i) + K(w));
+        }
+        if(spCont == 0) {
+          if(i<=nbr) denom(w,m) += a(i,m)*(1. - exp(-Z(w,nbr+1-i) * dy(w,nbr-i,m)))/(1 - exp(-Z(w,nbr+1-i)));
+          if(i==nbr+1) denom(w,m) += a(i,m)/(1 - exp(-Z(w,nbr+1-i)));
+          numsum(w,m) += r(i,m) * s(i,m) / (1 - exp(-(Z(w,nbr+1-i) + K(w))));
+        }
       }
 
       num(w,m) = Linf(w) * (denom(w,m) - (1. - Lc(w)/Linf(w)) * numsum(w,m));
@@ -284,7 +302,7 @@ List SSM_MSM1_pred(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss,
 
 // [[Rcpp::export]]
 double SSM_MSM1_fullnegLL(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss,
-                          NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM1) {
+                          NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM1, int spCont) {
 
   int i;
   int j;
@@ -365,11 +383,17 @@ double SSM_MSM1_fullnegLL(NumericVector stpar, NumericMatrix Lbar, NumericMatrix
             r(i,m) *= exp(-(Z(w,nbr+1-j) + K(w)) * dy(w,nbr-j,m));
           }
         }
-
-        if(i<=nbr) denom(w,m) += a(i,m)*(1. - exp(-Z(w,nbr+1-i) * dy(w,nbr-i,m)))/Z(w,nbr+1-i);
-        if(i==nbr+1) denom(w,m) += a(i,m)/Z(w,nbr+1-i);
-
-        numsum(w,m) += r(i,m) * s(i,m) / (Z(w,nbr+1-i) + K(w));
+        
+        if(spCont == 1) {
+          if(i<=nbr) denom(w,m) += a(i,m)*(1. - exp(-Z(w,nbr+1-i) * dy(w,nbr-i,m)))/Z(w,nbr+1-i);
+          if(i==nbr+1) denom(w,m) += a(i,m)/Z(w,nbr+1-i);
+          numsum(w,m) += r(i,m) * s(i,m) / (Z(w,nbr+1-i) + K(w));
+        }
+        if(spCont == 0) {
+          if(i<=nbr) denom(w,m) += a(i,m)*(1. - exp(-Z(w,nbr+1-i) * dy(w,nbr-i,m)))/(1 - exp(-Z(w,nbr+1-i)));
+          if(i==nbr+1) denom(w,m) += a(i,m)/(1 - exp(-Z(w,nbr+1-i)));
+          numsum(w,m) += r(i,m) * s(i,m) / (1 - exp(-(Z(w,nbr+1-i) + K(w))));
+        }
       }
 
       num(w,m) = Linf(w) * (denom(w,m) - (1. - Lc(w)/Linf(w)) * numsum(w,m));

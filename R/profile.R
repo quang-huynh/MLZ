@@ -6,6 +6,7 @@
 #' @param MLZ_data An object of class \code{MLZ_data}.
 #' @param ncp The number of change points.
 #' @param stZ The starting value of total mortality rate used in the grid search.
+#' @param spawn Whether 'continuous' or 'annual' (pulse) spawning is modeled.
 #' @param min.time The minimum number of years between change points. Only used if \code{ncp > 1}.
 #' @param parallel Whether grid search is performed using parallel processing.
 #' @param figure If \code{TRUE}, creates a plot of the likelihood over the grid search. Only used
@@ -18,8 +19,14 @@
 #' profile_ML(Goosefish, ncp = 2)
 #'
 #' @export
-profile_ML <- function(MLZ_data, ncp, stZ = 0.5, min.time = 3, parallel = FALSE, figure = TRUE, color = TRUE) {
+profile_ML <- function(MLZ_data, ncp, stZ = 0.5, spawn = c("continuous", "annual"),
+                       min.time = 3, parallel = ifelse(ncp > 2, TRUE, FALSE), figure = TRUE, color = TRUE) {
+  parallel <- as.logical(parallel)
   ncp <- as.integer(ncp)
+  if(ncp == 0) stop("profile_ML is not needed with zero change points.")
+  spawn <- match.arg(spawn)
+  if(spawn == "continuous") spawn.cont <- 1L else spawn.cont <- 0L 
+  
   startZ <- rep(stZ, ncp + 1)
   year.range <- MLZ_data@Year - MLZ_data@Year[1] + 1
   year.range <- year.range[2:(length(year.range) - 1)]
@@ -43,7 +50,7 @@ profile_ML <- function(MLZ_data, ncp, stZ = 0.5, min.time = 3, parallel = FALSE,
     nll.vec <- numeric(nrow(ygrid))
     for(i in 1:nrow(ygrid)) {
       opt <- try(optim(startZ, MLprofile, yearZ = as.numeric(ygrid[i, ]), Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
-                       LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
+                       LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks, spCont = spawn.cont,
                        method = "BFGS", control = list(maxit = 1e7)))
       if(inherits(opt, "try-error")) nll.vec[i] <- NA else nll.vec[i] <- opt$value
     }
@@ -55,7 +62,7 @@ profile_ML <- function(MLZ_data, ncp, stZ = 0.5, min.time = 3, parallel = FALSE,
     start.yearZ <- parLapply(cl, start.yearZ, as.numeric)
     opt <- parLapply(cl, start.yearZ, function(x) try(optim(startZ, MLprofile, yearZ = x,
                                                         Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, LH = tmb.dat$LH,
-                                                        Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
+                                                        Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks, spCont = spawn.cont,
                                                         method = "BFGS", control = list(maxit = 1e7))))
     stopCluster(cl)
     nll.vec <- vapply(opt, returnNAoptvalue, numeric(1))
@@ -112,6 +119,7 @@ profile_ML <- function(MLZ_data, ncp, stZ = 0.5, min.time = 3, parallel = FALSE,
 #' @param CPUE.type Indicates whether CPUE time series is abundance or biomass based.
 #' @param loglikeCPUE Indicates whether the log-likelihood for the CPUE will be lognormally or
 #' normally distributed.
+#' @param spawn Whether 'continuous' or 'annual' (pulse) spawning is modeled.
 #' @param stZ The starting value of total mortality rate used in the grid search.
 #' @param parallel Whether the grid search is performed with parallel processing.
 #' @param min.time The minimum number of years between change points. Only used if \code{ncp > 1}.
@@ -124,11 +132,17 @@ profile_ML <- function(MLZ_data, ncp, stZ = 0.5, min.time = 3, parallel = FALSE,
 #' profile_MLCR(MuttonSnapper, ncp = 1)
 #' @export
 profile_MLCR <- function(MLZ_data, ncp, CPUE.type = c("NPUE", "WPUE"), loglikeCPUE = c("lognormal", "normal"),
-                         stZ = 0.5, min.time = 3, parallel = FALSE, figure = TRUE, color = TRUE) {
+                         spawn = c("continuous", "annual"), stZ = 0.5, min.time = 3, 
+                         parallel = ifelse(ncp > 2, TRUE, FALSE), figure = TRUE, color = TRUE) {
 
   CPUE.type <- match.arg(CPUE.type)
   loglikeCPUE <- match.arg(loglikeCPUE)
+  parallel <- as.logical(parallel)
   ncp <- as.integer(ncp)
+  if(ncp == 0) stop("profile_MLCR is not needed with zero change points.")
+  spawn <- match.arg(spawn)
+  if(spawn == "continuous") spawn.cont <- 1L else spawn.cont <- 0L 
+  
   startZ <- rep(stZ, ncp + 1)
   year.range <- MLZ_data@Year - MLZ_data@Year[1] + 1
   year.range <- year.range[2:(length(year.range) - 1)]
@@ -160,7 +174,7 @@ profile_MLCR <- function(MLZ_data, ncp, CPUE.type = c("NPUE", "WPUE"), loglikeCP
     for(i in 1:nrow(ygrid)) {
       opt <- try(optim(startZ, fx, yearZ = as.numeric(ygrid[i, ]), Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                    CPUE = tmb.dat$CPUE, LH = tmb.dat$LH, Lc = tmb.dat$Lc,
-                   nbreaks = tmb.dat$nbreaks, loglikeCPUE = tmb.dat$loglikeCPUE,
+                   nbreaks = tmb.dat$nbreaks, loglikeCPUE = tmb.dat$loglikeCPUE, spCont = spawn.cont,
                    method = "BFGS", control = list(maxit = 1e7)))
       if(inherits(opt, "try-error")) {
         nll.vec[i] <- NA
@@ -168,7 +182,8 @@ profile_MLCR <- function(MLZ_data, ncp, CPUE.type = c("NPUE", "WPUE"), loglikeCP
       } else {
         data.pred <- gx(c(opt$par, as.numeric(ygrid[i, ])), Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                         CPUE = tmb.dat$CPUE, LH = tmb.dat$LH, Lc = tmb.dat$Lc,
-                        nbreaks = tmb.dat$nbreaks, loglikeCPUE = tmb.dat$loglikeCPUE)
+                        nbreaks = tmb.dat$nbreaks, loglikeCPUE = tmb.dat$loglikeCPUE,
+                        spCont = spawn.cont)
         nll.vec[i] <- opt$value
         nll.data[i, ] <- -1 * data.pred[[5]]
       }
@@ -182,11 +197,13 @@ profile_MLCR <- function(MLZ_data, ncp, CPUE.type = c("NPUE", "WPUE"), loglikeCP
     opt <- parLapply(cl, start.yearZ, function(x) try(optim(startZ, fx, yearZ = x, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                                                             CPUE = tmb.dat$CPUE, LH = tmb.dat$LH, Lc = tmb.dat$Lc,
                                                             nbreaks = tmb.dat$nbreaks, loglikeCPUE = tmb.dat$loglikeCPUE,
+                                                            spCont = spawn.cont,
                                                             method = "BFGS", control = list(maxit = 1e7))))
     data.pred <- clusterMap(cl, function(x, y) if(!inherits(x, "try-error")) gx(c(getElement(x, "par"), y), Lbar = tmb.dat$Lbar,
                                                       ss = tmb.dat$ss, CPUE = tmb.dat$CPUE,
                                                       LH = tmb.dat$LH, Lc = tmb.dat$Lc,
-                                                      nbreaks = tmb.dat$nbreaks, loglikeCPUE = tmb.dat$loglikeCPUE),
+                                                      nbreaks = tmb.dat$nbreaks, loglikeCPUE = tmb.dat$loglikeCPUE,
+                                                      spCont = spawn.cont),
                             x = opt, y = start.yearZ)
     stopCluster(cl)
     nll.vec <- vapply(opt, returnNAoptvalue, numeric(1))
@@ -235,6 +252,7 @@ profile_MLCR <- function(MLZ_data, ncp, CPUE.type = c("NPUE", "WPUE"), loglikeCP
 #' @param MLZ.list A list containing an object of class \code{MLZ_data} for each species or stock.
 #' @param ncp The number of change points.
 #' @param model The name of the multispecies model for the grid search.
+#' @param spawn Whether 'continuous' or 'annual' (pulse) spawning is modeled.
 #' @param stZ The starting value of total mortality rate used in the grid search.
 #' @param parallel Whether the grid search is performed with parallel processing.
 #' @param min.time The minimum number of years between change points. Only used if \code{ncp > 1}.
@@ -247,12 +265,16 @@ profile_MLCR <- function(MLZ_data, ncp, CPUE.type = c("NPUE", "WPUE"), loglikeCP
 #' profile_MLmulti(PRSnapper, ncp = 1, model = "MSM1")
 #'
 #' @export
-profile_MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"),
-                          stZ = 0.5, parallel = FALSE, min.time = 3, figure = TRUE, color = TRUE) {
+profile_MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), spawn = c("continuous", "annual"),
+                            stZ = 0.5, parallel = ifelse(ncp > 2, TRUE, FALSE), min.time = 3, figure = TRUE, color = TRUE) {
 
   model <- match.arg(model)
-
+  parallel <- as.logical(parallel)
   ncp <- as.integer(ncp)
+  if(ncp == 0) stop("profile_MLmulti is not needed with zero changepoints.")
+  spawn <- match.arg(spawn)
+  if(spawn == "continuous") spawn.cont <- 1L else spawn.cont <- 0L
+  
   nspec <- length(MLZ.list)
   years <- lapply(MLZ.list, getElement, "Year")
   years <- unique(do.call(c, years))
@@ -290,8 +312,8 @@ profile_MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM
   tmb.dat$Lbar[is.na(tmb.dat$ss) | tmb.dat$ss == 0] <- -99
   tmb.dat$ss[is.na(tmb.dat$ss) | tmb.dat$Lbar < 0] <- 0
 
-  if("SSM" %in% model || "MSM1" %in% model) pr <- .SSM_MSM1_profile(tmb.dat, stZ, parallel, ygrid)
-  if("MSM2" %in% model || "MSM3" %in% model) pr <- .MSM23_profile(tmb.dat, stZ, parallel, ygrid, model)
+  if("SSM" %in% model || "MSM1" %in% model) pr <- .SSM_MSM1_profile(tmb.dat, stZ, parallel, ygrid, spawn.cont)
+  if("MSM2" %in% model || "MSM3" %in% model) pr <- .MSM23_profile(tmb.dat, stZ, parallel, ygrid, model, spawn.cont)
 
   output <- as.data.frame(ygrid + min(years) - 1)
   output <- cbind(output, pr$negLL, pr$loglikesp)

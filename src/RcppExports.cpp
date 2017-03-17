@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // MLnegLL
-double MLnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector LH, double Lc, int nbreaks);
-RcppExport SEXP MLZ_MLnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP) {
+double MLnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector LH, double Lc, int nbreaks, int spCont);
+RcppExport SEXP MLZ_MLnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -18,13 +18,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type LH(LHSEXP);
     Rcpp::traits::input_parameter< double >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
-    rcpp_result_gen = Rcpp::wrap(MLnegLL(stpar, Lbar, ss, LH, Lc, nbreaks));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLnegLL(stpar, Lbar, ss, LH, Lc, nbreaks, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MLprofile
-double MLprofile(NumericVector Z, NumericVector yearZ, NumericVector Lbar, NumericVector ss, NumericVector LH, double Lc, int nbreaks);
-RcppExport SEXP MLZ_MLprofile(SEXP ZSEXP, SEXP yearZSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP) {
+double MLprofile(NumericVector Z, NumericVector yearZ, NumericVector Lbar, NumericVector ss, NumericVector LH, double Lc, int nbreaks, int spCont);
+RcppExport SEXP MLZ_MLprofile(SEXP ZSEXP, SEXP yearZSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -35,13 +36,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type LH(LHSEXP);
     Rcpp::traits::input_parameter< double >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
-    rcpp_result_gen = Rcpp::wrap(MLprofile(Z, yearZ, Lbar, ss, LH, Lc, nbreaks));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLprofile(Z, yearZ, Lbar, ss, LH, Lc, nbreaks, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MLpred
-List MLpred(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector LH, double Lc, int nbreaks);
-RcppExport SEXP MLZ_MLpred(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP) {
+List MLpred(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector LH, double Lc, int nbreaks, int spCont);
+RcppExport SEXP MLZ_MLpred(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -51,13 +53,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type LH(LHSEXP);
     Rcpp::traits::input_parameter< double >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
-    rcpp_result_gen = Rcpp::wrap(MLpred(stpar, Lbar, ss, LH, Lc, nbreaks));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLpred(stpar, Lbar, ss, LH, Lc, nbreaks, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MLfullnegLL
-double MLfullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector LH, double Lc, int nbreaks);
-RcppExport SEXP MLZ_MLfullnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP) {
+double MLfullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector LH, double Lc, int nbreaks, int spCont);
+RcppExport SEXP MLZ_MLfullnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -67,7 +70,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type LH(LHSEXP);
     Rcpp::traits::input_parameter< double >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
-    rcpp_result_gen = Rcpp::wrap(MLfullnegLL(stpar, Lbar, ss, LH, Lc, nbreaks));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLfullnegLL(stpar, Lbar, ss, LH, Lc, nbreaks, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -182,8 +186,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // MLeqnegLL
-double MLeqnegLL(double Z, NumericVector Lbar, NumericVector ss, NumericVector LH, double Lc);
-RcppExport SEXP MLZ_MLeqnegLL(SEXP ZSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP) {
+double MLeqnegLL(double Z, NumericVector Lbar, NumericVector ss, NumericVector LH, double Lc, int spCont);
+RcppExport SEXP MLZ_MLeqnegLL(SEXP ZSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -192,13 +196,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type ss(ssSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type LH(LHSEXP);
     Rcpp::traits::input_parameter< double >::type Lc(LcSEXP);
-    rcpp_result_gen = Rcpp::wrap(MLeqnegLL(Z, Lbar, ss, LH, Lc));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLeqnegLL(Z, Lbar, ss, LH, Lc, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MLeqpred
-List MLeqpred(double Z, NumericVector Lbar, NumericVector ss, NumericVector LH, double Lc);
-RcppExport SEXP MLZ_MLeqpred(SEXP ZSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP) {
+List MLeqpred(double Z, NumericVector Lbar, NumericVector ss, NumericVector LH, double Lc, int spCont);
+RcppExport SEXP MLZ_MLeqpred(SEXP ZSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -207,13 +212,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type ss(ssSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type LH(LHSEXP);
     Rcpp::traits::input_parameter< double >::type Lc(LcSEXP);
-    rcpp_result_gen = Rcpp::wrap(MLeqpred(Z, Lbar, ss, LH, Lc));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLeqpred(Z, Lbar, ss, LH, Lc, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MLeqfullnegLL
-double MLeqfullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector LH, double Lc);
-RcppExport SEXP MLZ_MLeqfullnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP) {
+double MLeqfullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector LH, double Lc, int spCont);
+RcppExport SEXP MLZ_MLeqfullnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -222,13 +228,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type ss(ssSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type LH(LHSEXP);
     Rcpp::traits::input_parameter< double >::type Lc(LcSEXP);
-    rcpp_result_gen = Rcpp::wrap(MLeqfullnegLL(stpar, Lbar, ss, LH, Lc));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLeqfullnegLL(stpar, Lbar, ss, LH, Lc, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // SSM_MSM1_negLL
-double SSM_MSM1_negLL(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss, NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM1);
-RcppExport SEXP MLZ_SSM_MSM1_negLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP isMSM1SEXP) {
+double SSM_MSM1_negLL(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss, NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM1, int spCont);
+RcppExport SEXP MLZ_SSM_MSM1_negLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP isMSM1SEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -239,13 +246,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
     Rcpp::traits::input_parameter< int >::type isMSM1(isMSM1SEXP);
-    rcpp_result_gen = Rcpp::wrap(SSM_MSM1_negLL(stpar, Lbar, ss, LH, Lc, nbreaks, isMSM1));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(SSM_MSM1_negLL(stpar, Lbar, ss, LH, Lc, nbreaks, isMSM1, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // SSM_MSM1_profile
-double SSM_MSM1_profile(NumericVector stpar, NumericVector year, NumericMatrix Lbar, NumericMatrix ss, NumericMatrix LH, NumericVector Lc, int nbreaks);
-RcppExport SEXP MLZ_SSM_MSM1_profile(SEXP stparSEXP, SEXP yearSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP) {
+double SSM_MSM1_profile(NumericVector stpar, NumericVector year, NumericMatrix Lbar, NumericMatrix ss, NumericMatrix LH, NumericVector Lc, int nbreaks, int spCont);
+RcppExport SEXP MLZ_SSM_MSM1_profile(SEXP stparSEXP, SEXP yearSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -256,13 +264,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type LH(LHSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
-    rcpp_result_gen = Rcpp::wrap(SSM_MSM1_profile(stpar, year, Lbar, ss, LH, Lc, nbreaks));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(SSM_MSM1_profile(stpar, year, Lbar, ss, LH, Lc, nbreaks, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // SSM_MSM1_pred
-List SSM_MSM1_pred(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss, NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM1);
-RcppExport SEXP MLZ_SSM_MSM1_pred(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP isMSM1SEXP) {
+List SSM_MSM1_pred(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss, NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM1, int spCont);
+RcppExport SEXP MLZ_SSM_MSM1_pred(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP isMSM1SEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -273,13 +282,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
     Rcpp::traits::input_parameter< int >::type isMSM1(isMSM1SEXP);
-    rcpp_result_gen = Rcpp::wrap(SSM_MSM1_pred(stpar, Lbar, ss, LH, Lc, nbreaks, isMSM1));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(SSM_MSM1_pred(stpar, Lbar, ss, LH, Lc, nbreaks, isMSM1, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // SSM_MSM1_fullnegLL
-double SSM_MSM1_fullnegLL(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss, NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM1);
-RcppExport SEXP MLZ_SSM_MSM1_fullnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP isMSM1SEXP) {
+double SSM_MSM1_fullnegLL(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss, NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM1, int spCont);
+RcppExport SEXP MLZ_SSM_MSM1_fullnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP isMSM1SEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -290,13 +300,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
     Rcpp::traits::input_parameter< int >::type isMSM1(isMSM1SEXP);
-    rcpp_result_gen = Rcpp::wrap(SSM_MSM1_fullnegLL(stpar, Lbar, ss, LH, Lc, nbreaks, isMSM1));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(SSM_MSM1_fullnegLL(stpar, Lbar, ss, LH, Lc, nbreaks, isMSM1, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MSM23_negLL
-double MSM23_negLL(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss, NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM3);
-RcppExport SEXP MLZ_MSM23_negLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP isMSM3SEXP) {
+double MSM23_negLL(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss, NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM3, int spCont);
+RcppExport SEXP MLZ_MSM23_negLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP isMSM3SEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -307,13 +318,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
     Rcpp::traits::input_parameter< int >::type isMSM3(isMSM3SEXP);
-    rcpp_result_gen = Rcpp::wrap(MSM23_negLL(stpar, Lbar, ss, LH, Lc, nbreaks, isMSM3));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MSM23_negLL(stpar, Lbar, ss, LH, Lc, nbreaks, isMSM3, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MSM23_profile
-double MSM23_profile(NumericVector stpar, NumericVector year, NumericMatrix Lbar, NumericMatrix ss, NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM3);
-RcppExport SEXP MLZ_MSM23_profile(SEXP stparSEXP, SEXP yearSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP isMSM3SEXP) {
+double MSM23_profile(NumericVector stpar, NumericVector year, NumericMatrix Lbar, NumericMatrix ss, NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM3, int spCont);
+RcppExport SEXP MLZ_MSM23_profile(SEXP stparSEXP, SEXP yearSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP isMSM3SEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -325,13 +337,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
     Rcpp::traits::input_parameter< int >::type isMSM3(isMSM3SEXP);
-    rcpp_result_gen = Rcpp::wrap(MSM23_profile(stpar, year, Lbar, ss, LH, Lc, nbreaks, isMSM3));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MSM23_profile(stpar, year, Lbar, ss, LH, Lc, nbreaks, isMSM3, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MSM23_pred
-List MSM23_pred(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss, NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM3);
-RcppExport SEXP MLZ_MSM23_pred(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP isMSM3SEXP) {
+List MSM23_pred(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss, NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM3, int spCont);
+RcppExport SEXP MLZ_MSM23_pred(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP isMSM3SEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -342,13 +355,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
     Rcpp::traits::input_parameter< int >::type isMSM3(isMSM3SEXP);
-    rcpp_result_gen = Rcpp::wrap(MSM23_pred(stpar, Lbar, ss, LH, Lc, nbreaks, isMSM3));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MSM23_pred(stpar, Lbar, ss, LH, Lc, nbreaks, isMSM3, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MSM23_fullnegLL
-double MSM23_fullnegLL(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss, NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM3);
-RcppExport SEXP MLZ_MSM23_fullnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP isMSM3SEXP) {
+double MSM23_fullnegLL(NumericVector stpar, NumericMatrix Lbar, NumericMatrix ss, NumericMatrix LH, NumericVector Lc, int nbreaks, int isMSM3, int spCont);
+RcppExport SEXP MLZ_MSM23_fullnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP isMSM3SEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -359,13 +373,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
     Rcpp::traits::input_parameter< int >::type isMSM3(isMSM3SEXP);
-    rcpp_result_gen = Rcpp::wrap(MSM23_fullnegLL(stpar, Lbar, ss, LH, Lc, nbreaks, isMSM3));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MSM23_fullnegLL(stpar, Lbar, ss, LH, Lc, nbreaks, isMSM3, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MLNPUEnegLL
-double MLNPUEnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE, NumericVector LH, double Lc, int nbreaks, int loglikeCPUE);
-RcppExport SEXP MLZ_MLNPUEnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP CPUESEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP loglikeCPUESEXP) {
+double MLNPUEnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE, NumericVector LH, double Lc, int nbreaks, int loglikeCPUE, int spCont);
+RcppExport SEXP MLZ_MLNPUEnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP CPUESEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP loglikeCPUESEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -377,13 +392,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
     Rcpp::traits::input_parameter< int >::type loglikeCPUE(loglikeCPUESEXP);
-    rcpp_result_gen = Rcpp::wrap(MLNPUEnegLL(stpar, Lbar, ss, CPUE, LH, Lc, nbreaks, loglikeCPUE));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLNPUEnegLL(stpar, Lbar, ss, CPUE, LH, Lc, nbreaks, loglikeCPUE, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MLNPUEprofile
-double MLNPUEprofile(NumericVector Z, NumericVector yearZ, NumericVector Lbar, NumericVector ss, NumericVector CPUE, NumericVector LH, double Lc, int nbreaks, int loglikeCPUE);
-RcppExport SEXP MLZ_MLNPUEprofile(SEXP ZSEXP, SEXP yearZSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP CPUESEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP loglikeCPUESEXP) {
+double MLNPUEprofile(NumericVector Z, NumericVector yearZ, NumericVector Lbar, NumericVector ss, NumericVector CPUE, NumericVector LH, double Lc, int nbreaks, int loglikeCPUE, int spCont);
+RcppExport SEXP MLZ_MLNPUEprofile(SEXP ZSEXP, SEXP yearZSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP CPUESEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP loglikeCPUESEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -396,13 +412,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
     Rcpp::traits::input_parameter< int >::type loglikeCPUE(loglikeCPUESEXP);
-    rcpp_result_gen = Rcpp::wrap(MLNPUEprofile(Z, yearZ, Lbar, ss, CPUE, LH, Lc, nbreaks, loglikeCPUE));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLNPUEprofile(Z, yearZ, Lbar, ss, CPUE, LH, Lc, nbreaks, loglikeCPUE, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MLNPUEpred
-List MLNPUEpred(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE, NumericVector LH, double Lc, int nbreaks, int loglikeCPUE);
-RcppExport SEXP MLZ_MLNPUEpred(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP CPUESEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP loglikeCPUESEXP) {
+List MLNPUEpred(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE, NumericVector LH, double Lc, int nbreaks, int loglikeCPUE, int spCont);
+RcppExport SEXP MLZ_MLNPUEpred(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP CPUESEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP loglikeCPUESEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -414,13 +431,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
     Rcpp::traits::input_parameter< int >::type loglikeCPUE(loglikeCPUESEXP);
-    rcpp_result_gen = Rcpp::wrap(MLNPUEpred(stpar, Lbar, ss, CPUE, LH, Lc, nbreaks, loglikeCPUE));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLNPUEpred(stpar, Lbar, ss, CPUE, LH, Lc, nbreaks, loglikeCPUE, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MLNPUEfullnegLL
-double MLNPUEfullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE, NumericVector LH, double Lc, int nbreaks, int loglikeCPUE);
-RcppExport SEXP MLZ_MLNPUEfullnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP CPUESEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP loglikeCPUESEXP) {
+double MLNPUEfullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE, NumericVector LH, double Lc, int nbreaks, int loglikeCPUE, int spCont);
+RcppExport SEXP MLZ_MLNPUEfullnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP CPUESEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP loglikeCPUESEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -432,13 +450,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
     Rcpp::traits::input_parameter< int >::type loglikeCPUE(loglikeCPUESEXP);
-    rcpp_result_gen = Rcpp::wrap(MLNPUEfullnegLL(stpar, Lbar, ss, CPUE, LH, Lc, nbreaks, loglikeCPUE));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLNPUEfullnegLL(stpar, Lbar, ss, CPUE, LH, Lc, nbreaks, loglikeCPUE, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MLWPUEnegLL
-double MLWPUEnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE, NumericVector LH, double Lc, int nbreaks, int loglikeCPUE);
-RcppExport SEXP MLZ_MLWPUEnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP CPUESEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP loglikeCPUESEXP) {
+double MLWPUEnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE, NumericVector LH, double Lc, int nbreaks, int loglikeCPUE, int spCont);
+RcppExport SEXP MLZ_MLWPUEnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP CPUESEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP loglikeCPUESEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -450,13 +469,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
     Rcpp::traits::input_parameter< int >::type loglikeCPUE(loglikeCPUESEXP);
-    rcpp_result_gen = Rcpp::wrap(MLWPUEnegLL(stpar, Lbar, ss, CPUE, LH, Lc, nbreaks, loglikeCPUE));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLWPUEnegLL(stpar, Lbar, ss, CPUE, LH, Lc, nbreaks, loglikeCPUE, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MLWPUEprofile
-double MLWPUEprofile(NumericVector Z, NumericVector yearZ, NumericVector Lbar, NumericVector ss, NumericVector CPUE, NumericVector LH, double Lc, int nbreaks, int loglikeCPUE);
-RcppExport SEXP MLZ_MLWPUEprofile(SEXP ZSEXP, SEXP yearZSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP CPUESEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP loglikeCPUESEXP) {
+double MLWPUEprofile(NumericVector Z, NumericVector yearZ, NumericVector Lbar, NumericVector ss, NumericVector CPUE, NumericVector LH, double Lc, int nbreaks, int loglikeCPUE, int spCont);
+RcppExport SEXP MLZ_MLWPUEprofile(SEXP ZSEXP, SEXP yearZSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP CPUESEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP loglikeCPUESEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -469,13 +489,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
     Rcpp::traits::input_parameter< int >::type loglikeCPUE(loglikeCPUESEXP);
-    rcpp_result_gen = Rcpp::wrap(MLWPUEprofile(Z, yearZ, Lbar, ss, CPUE, LH, Lc, nbreaks, loglikeCPUE));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLWPUEprofile(Z, yearZ, Lbar, ss, CPUE, LH, Lc, nbreaks, loglikeCPUE, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MLWPUEpred
-List MLWPUEpred(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE, NumericVector LH, double Lc, int nbreaks, int loglikeCPUE);
-RcppExport SEXP MLZ_MLWPUEpred(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP CPUESEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP loglikeCPUESEXP) {
+List MLWPUEpred(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE, NumericVector LH, double Lc, int nbreaks, int loglikeCPUE, int spCont);
+RcppExport SEXP MLZ_MLWPUEpred(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP CPUESEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP loglikeCPUESEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -487,13 +508,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
     Rcpp::traits::input_parameter< int >::type loglikeCPUE(loglikeCPUESEXP);
-    rcpp_result_gen = Rcpp::wrap(MLWPUEpred(stpar, Lbar, ss, CPUE, LH, Lc, nbreaks, loglikeCPUE));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLWPUEpred(stpar, Lbar, ss, CPUE, LH, Lc, nbreaks, loglikeCPUE, spCont));
     return rcpp_result_gen;
 END_RCPP
 }
 // MLWPUEfullnegLL
-double MLWPUEfullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE, NumericVector LH, double Lc, int nbreaks, int loglikeCPUE);
-RcppExport SEXP MLZ_MLWPUEfullnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP CPUESEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP loglikeCPUESEXP) {
+double MLWPUEfullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE, NumericVector LH, double Lc, int nbreaks, int loglikeCPUE, int spCont);
+RcppExport SEXP MLZ_MLWPUEfullnegLL(SEXP stparSEXP, SEXP LbarSEXP, SEXP ssSEXP, SEXP CPUESEXP, SEXP LHSEXP, SEXP LcSEXP, SEXP nbreaksSEXP, SEXP loglikeCPUESEXP, SEXP spContSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -505,7 +527,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type Lc(LcSEXP);
     Rcpp::traits::input_parameter< int >::type nbreaks(nbreaksSEXP);
     Rcpp::traits::input_parameter< int >::type loglikeCPUE(loglikeCPUESEXP);
-    rcpp_result_gen = Rcpp::wrap(MLWPUEfullnegLL(stpar, Lbar, ss, CPUE, LH, Lc, nbreaks, loglikeCPUE));
+    Rcpp::traits::input_parameter< int >::type spCont(spContSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLWPUEfullnegLL(stpar, Lbar, ss, CPUE, LH, Lc, nbreaks, loglikeCPUE, spCont));
     return rcpp_result_gen;
 END_RCPP
 }

@@ -9,7 +9,7 @@ double pbeta_inc(double x, double a, double b) {
 
 // [[Rcpp::export]]
 double MLWPUEnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE,
-                   NumericVector LH, double Lc, int nbreaks, int loglikeCPUE) {
+                   NumericVector LH, double Lc, int nbreaks, int loglikeCPUE, int spCont) {
 
   int i;
   int j;
@@ -181,7 +181,7 @@ double MLWPUEnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, Nu
 // [[Rcpp::export]]
 double MLWPUEprofile(NumericVector Z, NumericVector yearZ, NumericVector Lbar, NumericVector ss,
                      NumericVector CPUE, NumericVector LH, double Lc,
-                     int nbreaks, int loglikeCPUE) {
+                     int nbreaks, int loglikeCPUE, int spCont) {
 
   int i;
   int j;
@@ -343,7 +343,7 @@ double MLWPUEprofile(NumericVector Z, NumericVector yearZ, NumericVector Lbar, N
 
 // [[Rcpp::export]]
 List MLWPUEpred(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE,
-                NumericVector LH, double Lc, int nbreaks, int loglikeCPUE) {
+                NumericVector LH, double Lc, int nbreaks, int loglikeCPUE, int spCont) {
 
   int i;
   int j;
@@ -510,7 +510,7 @@ List MLWPUEpred(NumericVector stpar, NumericVector Lbar, NumericVector ss, Numer
 
 // [[Rcpp::export]]
 double MLWPUEfullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss, NumericVector CPUE,
-                       NumericVector LH, double Lc, int nbreaks, int loglikeCPUE) {
+                       NumericVector LH, double Lc, int nbreaks, int loglikeCPUE, int spCont) {
 
   int i;
   int j;

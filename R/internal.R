@@ -1,4 +1,4 @@
-.SSM_MSM1_est <- function(tmb.dat, start, model) {
+.SSM_MSM1_est <- function(tmb.dat, start, model, spCont) {
   start <- lapply(start, as.numeric)
   stpar <- as.numeric(do.call(c, start))
   ncp <- tmb.dat$nbreaks
@@ -7,21 +7,22 @@
 
   opt <- optim(stpar, SSM_MSM1_negLL, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
-               isMSM1 = MSM1.switch, method = "BFGS", control = list(maxit = 1e7), hessian = T)
+               isMSM1 = MSM1.switch, spCont = spCont, 
+               method = "BFGS", control = list(maxit = 1e7), hessian = T)
   data.pred <- SSM_MSM1_pred(opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                              LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
-                             isMSM1 = MSM1.switch)
+                             isMSM1 = MSM1.switch, spCont = spCont)
   opt$Lpred <- data.pred[[1]]
   sigmaL <- data.pred[[2]]
   opt$par <- c(opt$par, sigmaL)
   MLmhessian <- hessian(SSM_MSM1_fullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
-                        isMSM1 = MSM1.switch)
+                        isMSM1 = MSM1.switch, spCont = spCont)
   covariance <- solve(MLmhessian)
   opt$corr <- cov2cor(covariance)
   opt$gradient <- grad(SSM_MSM1_fullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                        LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
-                       isMSM1 = MSM1.switch)
+                       isMSM1 = MSM1.switch, spCont = spCont)
 
   results.matrix <- matrix(c(opt$par, sqrt(diag(covariance))), ncol = 2)
   Z.name <- paste0(rep(paste0("Z[",1:(ncp+1)), nspec), rep(paste0(",", 1:nspec, "]"), each = ncp+1))
@@ -34,7 +35,7 @@
   return(list(opt = opt, results.matrix = results.matrix))
 }
 
-.MSM23_est <- function(tmb.dat, start, model) {
+.MSM23_est <- function(tmb.dat, start, model, spCont) {
   start <- lapply(start, as.numeric)
   stpar <- as.numeric(do.call(c, start))
   ncp <- tmb.dat$nbreaks
@@ -43,21 +44,21 @@
 
   opt <- optim(stpar, MSM23_negLL, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
-               isMSM3 = MSM3.switch, method = "BFGS", control = list(maxit = 1e7))
+               isMSM3 = MSM3.switch, spCont = spCont, method = "BFGS", control = list(maxit = 1e7))
   data.pred <- MSM23_pred(opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                              LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
-                             isMSM3 = MSM3.switch)
+                             isMSM3 = MSM3.switch, spCont = spCont)
   opt$Lpred <- data.pred[[1]]
   sigmaL <- data.pred[[2]]
   opt$par <- c(opt$par, sigmaL)
   MLmhessian <- hessian(MSM23_fullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
-                        isMSM3 = MSM3.switch)
+                        isMSM3 = MSM3.switch, spCont = spCont)
   covariance <- solve(MLmhessian)
   opt$corr <- cov2cor(covariance)
   opt$gradient <- grad(MSM23_fullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                        LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
-                       isMSM3 = MSM3.switch)
+                       isMSM3 = MSM3.switch, spCont = spCont)
 
   Z.name <- paste0(rep(paste0("Z[",1:(ncp+1)), nspec), rep(paste0(",", 1:nspec, "]"), each = ncp+1))
   Z1.name <- paste0("Z1[", 1:nspec, "]")
@@ -161,7 +162,7 @@ deltamethod_MSM3 <- function(Z, delta, M, cov) {
 }
 
 
-.SSM_MSM1_profile <- function(tmb.dat, stZ, parallel, ygrid) {
+.SSM_MSM1_profile <- function(tmb.dat, stZ, parallel, ygrid, spCont) {
   nspec <- tmb.dat$nspec
   ncp <- tmb.dat$nbreaks
   startZ <- rep(stZ, nspec*(ncp + 1))
@@ -174,6 +175,7 @@ deltamethod_MSM3 <- function(Z, delta, M, cov) {
       opt <- try(optim(startZ, SSM_MSM1_profile, year = as.numeric(ygrid[i, ]),
                        Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                        LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
+                       spCont = spCont,
                        method = "BFGS", control = list(maxit = 1e7)))
       if(inherits(opt, "try-error")) {
         nll.vec[i] <- NA
@@ -183,7 +185,7 @@ deltamethod_MSM3 <- function(Z, delta, M, cov) {
         data.pred <- SSM_MSM1_pred(c(opt$par, as.numeric(ygrid[i, ])),
                                    Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                                    LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
-                                   isMSM1 = 1L)
+                                   isMSM1 = 1L, spCont = spCont)
         loglikesp[i, ] <- -1 * data.pred[[3]]
       }
     }
@@ -197,11 +199,11 @@ deltamethod_MSM3 <- function(Z, delta, M, cov) {
     opt <- parLapply(cl, start.yearZ, function(x) try(optim(startZ, SSM_MSM1_profile, year = x,
                                                             Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                                                             LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
-                                                            method = "BFGS", control = list(maxit = 1e7))))
+                                                            spCont = spCont, method = "BFGS", control = list(maxit = 1e7))))
     data.pred <- clusterMap(cl, function(x, y) if(!inherits(x, "try-error")) SSM_MSM1_pred(c(x$par, y),
                                                                                            Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                                                                                            LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
-                                                                                           isMSM1 = 1L),
+                                                                                           isMSM1 = 1L, spCont),
                             x = opt, y = start.yearZ)
     stopCluster(cl)
     nll.vec <- vapply(opt, returnNAoptvalue, numeric(1))
@@ -212,7 +214,7 @@ deltamethod_MSM3 <- function(Z, delta, M, cov) {
 }
 
 
-.MSM23_profile <- function(tmb.dat, stZ, parallel, ygrid, model) {
+.MSM23_profile <- function(tmb.dat, stZ, parallel, ygrid, model, spCont) {
   nspec <- tmb.dat$nspec
   ncp <- tmb.dat$nbreaks
   startZ1 <- rep(stZ, nspec)
@@ -236,7 +238,7 @@ deltamethod_MSM3 <- function(Z, delta, M, cov) {
       opt <- try(optim(stpar, MSM23_profile, year = as.numeric(ygrid[i, ]),
                        Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                        LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks, isMSM3 = MSM3.switch,
-                       method = "BFGS", control = list(maxit = 1e7)))
+                       spCont = spCont, method = "BFGS", control = list(maxit = 1e7)))
       if(inherits(opt, "try-error")) {
         nll.vec[i] <- NA
         loglikesp[i, ] <- rep(NA, nspec)
@@ -245,7 +247,7 @@ deltamethod_MSM3 <- function(Z, delta, M, cov) {
         data.pred <- MSM23_pred(c(opt$par, as.numeric(ygrid[i, ])),
                                    Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                                    LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
-                                   isMSM3 = MSM3.switch)
+                                   isMSM3 = MSM3.switch, spCont = spCont)
         loglikesp[i, ] <- -1 * data.pred[[3]]
       }
     }
@@ -259,11 +261,12 @@ deltamethod_MSM3 <- function(Z, delta, M, cov) {
     opt <- parLapply(cl, start.yearZ, function(x) try(optim(stpar, MSM23_profile, year = x,
                                                             Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                                                             LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
-                                                            isMSM3 = MSM3.switch, method = "BFGS", control = list(maxit = 1e7))))
+                                                            isMSM3 = MSM3.switch, spCont = spCont,
+                                                            method = "BFGS", control = list(maxit = 1e7))))
     data.pred <- clusterMap(cl, function(x, y) if(!inherits(x, "try-error")) MSM23_pred(c(x$par, y),
                                                                                         Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                                                                                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks,
-                                                                                        isMSM3 = MSM3.switch),
+                                                                                        isMSM3 = MSM3.switch, spCont = spCont),
                             x = opt, y = start.yearZ)
     stopCluster(cl)
     nll.vec <- vapply(opt, returnNAoptvalue, numeric(1))

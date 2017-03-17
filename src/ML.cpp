@@ -3,7 +3,7 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 double MLnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss,
-               NumericVector LH, double Lc, int nbreaks) {
+               NumericVector LH, double Lc, int nbreaks, int spCont) {
 
   int i;
   int j;
@@ -67,11 +67,17 @@ double MLnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss,
           r(i,m) *= exp(-(Z[nbr+1-j] + K) * dy(nbr-j,m));
         }
       }
-
-      if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/Z[nbr+1-i];
-      if(i==nbr+1) denom[m] += a(i,m)/Z[nbr+1-i];
-
-      numsum[m] += r(i,m) * s(i,m) / (Z[nbr+1-i] + K);
+      
+      if(spCont == 1) {
+        if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/Z[nbr+1-i];
+        if(i==nbr+1) denom[m] += a(i,m)/Z[nbr+1-i];
+        numsum[m] += r(i,m) * s(i,m) / (Z[nbr+1-i] + K);
+      }
+      if(spCont == 0) {
+        if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/(1 - exp(-Z[nbr+1-i]));
+        if(i==nbr+1) denom[m] += a(i,m)/(1 - exp(-Z[nbr+1-i]));
+        numsum[m] += r(i,m) * s(i,m) / (1 - exp(-(Z[nbr+1-i] + K)));
+      }
     }
 
     num[m] = Linf * (denom[m] - (1. - Lc/Linf) * numsum[m]);
@@ -93,7 +99,7 @@ double MLnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss,
 
 // [[Rcpp::export]]
 double MLprofile(NumericVector Z, NumericVector yearZ, NumericVector Lbar, NumericVector ss,
-                 NumericVector LH, double Lc, int nbreaks) {
+                 NumericVector LH, double Lc, int nbreaks, int spCont) {
 
   int i;
   int j;
@@ -149,11 +155,17 @@ double MLprofile(NumericVector Z, NumericVector yearZ, NumericVector Lbar, Numer
           r(i,m) *= exp(-(Z[nbr+1-j] + K) * dy(nbr-j,m));
         }
       }
-
-      if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/Z[nbr+1-i];
-      if(i==nbr+1) denom[m] += a(i,m)/Z[nbr+1-i];
-
-      numsum[m] += r(i,m) * s(i,m) / (Z[nbr+1-i] + K);
+      
+      if(spCont == 1) {
+        if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/Z[nbr+1-i];
+        if(i==nbr+1) denom[m] += a(i,m)/Z[nbr+1-i];
+        numsum[m] += r(i,m) * s(i,m) / (Z[nbr+1-i] + K);
+      }
+      if(spCont == 0) {
+        if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/(1 - exp(-Z[nbr+1-i]));
+        if(i==nbr+1) denom[m] += a(i,m)/(1 - exp(-Z[nbr+1-i]));
+        numsum[m] += r(i,m) * s(i,m) / (1 - exp(-(Z[nbr+1-i] + K)));
+      }
     }
 
     num[m] = Linf * (denom[m] - (1. - Lc/Linf) * numsum[m]);
@@ -176,7 +188,7 @@ double MLprofile(NumericVector Z, NumericVector yearZ, NumericVector Lbar, Numer
 
 // [[Rcpp::export]]
 List MLpred(NumericVector stpar, NumericVector Lbar, NumericVector ss,
-            NumericVector LH, double Lc, int nbreaks) {
+            NumericVector LH, double Lc, int nbreaks, int spCont) {
 
   int i;
   int j;
@@ -239,11 +251,17 @@ List MLpred(NumericVector stpar, NumericVector Lbar, NumericVector ss,
           r(i,m) *= exp(-(Z[nbr+1-j] + K) * dy(nbr-j,m));
         }
       }
-
-      if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/Z[nbr+1-i];
-      if(i==nbr+1) denom[m] += a(i,m)/Z[nbr+1-i];
-
-      numsum[m] += r(i,m) * s(i,m) / (Z[nbr+1-i] + K);
+      
+      if(spCont == 1) {
+        if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/Z[nbr+1-i];
+        if(i==nbr+1) denom[m] += a(i,m)/Z[nbr+1-i];
+        numsum[m] += r(i,m) * s(i,m) / (Z[nbr+1-i] + K);
+      }
+      if(spCont == 0) {
+        if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/(1 - exp(-Z[nbr+1-i]));
+        if(i==nbr+1) denom[m] += a(i,m)/(1 - exp(-Z[nbr+1-i]));
+        numsum[m] += r(i,m) * s(i,m) / (1 - exp(-(Z[nbr+1-i] + K)));
+      }
     }
 
     num[m] = Linf * (denom[m] - (1. - Lc/Linf) * numsum[m]);
@@ -263,7 +281,7 @@ List MLpred(NumericVector stpar, NumericVector Lbar, NumericVector ss,
 
 // [[Rcpp::export]]
 double MLfullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss,
-                   NumericVector LH, double Lc, int nbreaks) {
+                   NumericVector LH, double Lc, int nbreaks, int spCont) {
 
   int i;
   int j;
@@ -326,11 +344,17 @@ double MLfullnegLL(NumericVector stpar, NumericVector Lbar, NumericVector ss,
           r(i,m) *= exp(-(Z[nbr+1-j] + K) * dy(nbr-j,m));
         }
       }
-
-      if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/Z[nbr+1-i];
-      if(i==nbr+1) denom[m] += a(i,m)/Z[nbr+1-i];
-
-      numsum[m] += r(i,m) * s(i,m) / (Z[nbr+1-i] + K);
+      
+      if(spCont == 1) {
+        if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/Z[nbr+1-i];
+        if(i==nbr+1) denom[m] += a(i,m)/Z[nbr+1-i];
+        numsum[m] += r(i,m) * s(i,m) / (Z[nbr+1-i] + K);
+      }
+      if(spCont == 0) {
+        if(i<=nbr) denom[m] += a(i,m)*(1. - exp(-Z[nbr+1-i] * dy(nbr-i,m)))/(1 - exp(-Z[nbr+1-i]));
+        if(i==nbr+1) denom[m] += a(i,m)/(1 - exp(-Z[nbr+1-i]));
+        numsum[m] += r(i,m) * s(i,m) / (1 - exp(-(Z[nbr+1-i] + K)));
+      }
     }
 
     num[m] = Linf * (denom[m] - (1. - Lc/Linf) * numsum[m]);
