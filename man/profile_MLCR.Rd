@@ -5,8 +5,9 @@
 \title{Grid search for the mean length with catch rate estimator}
 \usage{
 profile_MLCR(MLZ_data, ncp, CPUE.type = c("NPUE", "WPUE"),
-  loglikeCPUE = c("lognormal", "normal"), stZ = 0.5, min.time = 3,
-  parallel = FALSE, figure = TRUE, color = TRUE)
+  loglikeCPUE = c("lognormal", "normal"), spawn = c("continuous", "annual"),
+  stZ = 0.5, min.time = 3, parallel = ifelse(ncp > 2, TRUE, FALSE),
+  figure = TRUE, color = TRUE)
 }
 \arguments{
 \item{MLZ_data}{An object of class \code{MLZ_data}.}
@@ -17,6 +18,8 @@ profile_MLCR(MLZ_data, ncp, CPUE.type = c("NPUE", "WPUE"),
 
 \item{loglikeCPUE}{Indicates whether the log-likelihood for the CPUE will be lognormally or
 normally distributed.}
+
+\item{spawn}{Whether 'continuous' or 'annual' (pulse) spawning is modeled.}
 
 \item{stZ}{The starting value of total mortality rate used in the grid search.}
 

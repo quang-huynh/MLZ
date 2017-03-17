@@ -4,9 +4,10 @@
 \alias{MLCR}
 \title{Mean length with catch rate mortality estimator}
 \usage{
-MLCR(MLZ_data, ncp, CPUE.type = c(NULL, "WPUE", "NPUE"),
-  loglikeCPUE = c("lognormal", "normal"), start = NULL,
-  grid.search = TRUE, parallel = FALSE, min.time = 3, figure = TRUE)
+MLCR(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"),
+  loglikeCPUE = c("lognormal", "normal"), spawn = c("continuous", "annual"),
+  start = NULL, grid.search = TRUE, parallel = ifelse(ncp > 2, TRUE,
+  FALSE), min.time = 3, figure = TRUE)
 }
 \arguments{
 \item{MLZ_data}{An object of class \code{\linkS4class{MLZ_data}} containing mean lengths and
@@ -20,13 +21,15 @@ mortality rates will be estimated.}
 \item{loglikeCPUE}{Indicates whether the log-likelihood for the CPUE will be lognormally or
 normally distributed.}
 
-\item{start}{A list of starting values. See details.}
+\item{spawn}{Whether 'continuous' or 'annual' (pulse) spawning is modeled.}
+
+\item{start}{An optional list of starting values. See details.}
 
 \item{grid.search}{If \code{TRUE}, a grid search will be performed using the \code{\link{profile_MLCR}}
 function to find the best starting values for the change points (the years when mortality changes).
-Ignored if \code{ncp = 0}. Ignored if \code{start} is provided.}
+Ignored if \code{ncp = 0} or if \code{start} is provided.}
 
-\item{parallel}{Whether grid search is performed with parallel processing.}
+\item{parallel}{Whether grid search is performed with parallel processing. Ignored if \code{grid.search = FALSE}.}
 
 \item{min.time}{The minimum number of years between each change point for the grid search, passed
 to \code{\link{profile_MLCR}}. Not used if \code{grid.search = FALSE}.}
