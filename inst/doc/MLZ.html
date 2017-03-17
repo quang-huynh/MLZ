@@ -158,6 +158,9 @@ new.dataset@ss</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model1 &lt;-<span class="st"> </span><span class="kw">ML</span>(Goosefish, <span class="dt">ncp =</span> <span class="dv">0</span>)
 model2 &lt;-<span class="st"> </span><span class="kw">ML</span>(Goosefish, <span class="dt">ncp =</span> <span class="dv">1</span>)
 model3 &lt;-<span class="st"> </span><span class="kw">ML</span>(Goosefish, <span class="dt">ncp =</span> <span class="dv">2</span>)</code></pre></div>
+<p>The Gedamke-Hoenig model (along with the equilibrium Beverton-Holt equation) is derived assuming continuous spawning and recruitment. A similar derivation is available for annual (pulse) recruitment using the <code>spawn</code> argument (the default option uses continuous recruitment).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ML</span>(Goosefish, <span class="dt">ncp =</span> <span class="dv">2</span>, <span class="dt">spawn =</span> <span class="st">&quot;annual&quot;</span>)</code></pre></div>
+<p>This may be useful if recruitment is highly seasonal (a single year class) and/or for a comparison with another assessment method that assumes annual recruitment.</p>
 </div>
 <div id="model-selection" class="section level3">
 <h3>2.3 Model selection</h3>
@@ -211,12 +214,13 @@ MuttonSnapper@CPUE</code></pre></div>
 </div>
 <div id="mlmulti-multispecies-mean-length-estimator" class="section level3">
 <h3>4.2 MLmulti (Multispecies Mean Length estimator)</h3>
-<p>For a multispecies or multi-stock analysis (Huynh et al. 2017), seperate <code>MLZ_data</code> objects are created for seperate stocks/species and should be stored in a list:</p>
+<p>For a multispecies analysis (Huynh et al. 2017), seperate <code>MLZ_data</code> objects are created for seperate stocks/species and should be stored in a list:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(PRSnapper)
 <span class="kw">typeof</span>(PRSnapper)</code></pre></div>
 <pre><code>## [1] &quot;list&quot;</code></pre>
 <p>The corresponding estimation function and grid search function are <code>MLmulti</code> and <code>profile_MLmulti</code>, respectively. For both functions, the Single Species Model or Multispecies 1, 2, or 3 must also be identified in the <code>model</code> argument:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">MLmulti</span>(PRSnapper, <span class="dt">ncp =</span> <span class="dv">1</span>, <span class="dt">model =</span> <span class="st">&quot;MSM1&quot;</span>)</code></pre></div>
+<p>In component <code>estimates</code> of the output object, the mortality estimates <code>Z[i,n]</code> are indexed by time period <code>i</code> and species <code>n</code>, change points <code>yearZ[i]</code> are indexed by time period <code>i</code>, and <code>sigma[n]</code> is indexed by species <code>n</code>. For models <code>MSM2</code> and <code>MSM3</code>, <code>Z[i,n]</code> are estimated for <code>i = 1</code> and derived for <code>i &gt; 1</code>. The <code>compare_models</code> function will correctly count the number of estimated parameters for AIC calculation.</p>
 </div>
 <div id="mleffort-mean-length-with-effort" class="section level3">
 <h3>4.3 MLeffort (Mean Length with Effort)</h3>

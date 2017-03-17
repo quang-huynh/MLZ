@@ -112,7 +112,12 @@ model2 <- ML(Goosefish, ncp = 1, figure = FALSE)
 model3 <- ML(Goosefish, ncp = 2, figure = FALSE)
 ```
 
+The Gedamke-Hoenig model (along with the equilibrium Beverton-Holt equation) is derived assuming continuous spawning and recruitment. A similar derivation is available for annual (pulse) recruitment using the `spawn` argument (the default option uses continuous recruitment). 
+```r
+ML(Goosefish, ncp = 2, spawn = "annual")
+```
 
+This may be useful if recruitment is highly seasonal (a single year class) and/or for a comparison with another assessment method that assumes annual recruitment.
 
 ### 2.3 Model selection
 Model runs with different change points can be compared using AIC. The `compare_models` function facilitates
@@ -194,7 +199,7 @@ MLCR(MuttonSnapper, ncp = 2, "WPUE")
 ```
 
 ### 4.2 MLmulti (Multispecies Mean Length estimator)
-For a multispecies or multi-stock analysis (Huynh et al. 2017), seperate `MLZ_data` objects are created for seperate stocks/species and should be stored in a list:
+For a multispecies analysis (Huynh et al. 2017), seperate `MLZ_data` objects are created for seperate stocks/species and should be stored in a list:
 ```{r}
 data(PRSnapper)
 typeof(PRSnapper)
@@ -204,6 +209,7 @@ in the `model` argument:
 ```{r, eval = FALSE}
 MLmulti(PRSnapper, ncp = 1, model = "MSM1")
 ```
+In component `estimates` of the output object, the mortality estimates `Z[i,n]` are indexed by time period `i` and species `n`, change points `yearZ[i]` are indexed by time period `i`, and `sigma[n]` is indexed by species `n`. For models `MSM2` and `MSM3`, `Z[i,n]` are estimated for `i = 1` and derived for `i > 1`. The `compare_models` function will correctly count the number of estimated parameters for AIC calculation.
 
 ### 4.3 MLeffort (Mean Length with Effort)
 `MLeffort` uses a time series of mean length and effort to estimate a catchability coefficient `q` and natural mortality `M` (Then et al.). Parameter $t_0$ from the von Bertalanffy equation
