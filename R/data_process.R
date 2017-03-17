@@ -7,7 +7,7 @@
 #' @param MLZ_data An object of class \code{MLZ_data}.
 #' @param length.slot Name of slot in \code{\linkS4class{MLZ_data}} from which to calculate
 #' modal lengths, either: \code{Len_df} or \code{Len_matrix}. Only used if there are data in both slots.
-#' @param breaks Only used for \code{Len_df}. An optional vector for breaks for \code{\link{create_bin}}.
+#' @param breaks Only used for \code{Len_df}. An optional vector for breaks for \code{\link{bin_length}}.
 #' @param figure If TRUE, a plot is also drawn.
 #' @return A data frame of plotted values.
 #' @details 
