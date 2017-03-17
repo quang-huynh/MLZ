@@ -92,6 +92,10 @@ typeof(PRSnapper)
 #  MLmulti(PRSnapper, ncp = 1, model = "MSM1")
 
 ## ---- eval = FALSE-------------------------------------------------------
+#  res <- MLmulti(PRSnapper, ncp = 1, model = "MSM1")
+#  names(res@opt$par)
+
+## ---- eval = FALSE-------------------------------------------------------
 #  data(Nephrops)
 #  Nephrops@Effort
 #  Nephrops@vbt0 <- 0

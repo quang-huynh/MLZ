@@ -209,7 +209,13 @@ in the `model` argument:
 ```{r, eval = FALSE}
 MLmulti(PRSnapper, ncp = 1, model = "MSM1")
 ```
-In component `estimates` of the output object, the mortality estimates `Z[i,n]` are indexed by time period `i` and species `n`, change points `yearZ[i]` are indexed by time period `i`, and `sigma[n]` is indexed by species `n`. For models `MSM2` and `MSM3`, `Z[i,n]` are estimated for `i = 1` and derived for `i > 1`. The `compare_models` function will correctly count the number of estimated parameters for AIC calculation.
+In component `estimates` of the output object, the mortality estimates `Z[i,n]` are indexed by time period `i` and species `n`, change points `yearZ[i]` are indexed by time period `i`, and `sigma[n]` is indexed by species `n`. For models `MSM2` and `MSM3`, `Z[i,n]` are estimated for `i = 1` and derived for `i > 1`. Esimated parameters can be viewed by checking component `opt` from the output:
+```{r, eval = FALSE}
+res <- MLmulti(PRSnapper, ncp = 1, model = "MSM1")
+names(res@opt$par)
+```
+
+The `compare_models` function will correctly count the number of estimated parameters for AIC calculation.
 
 ### 4.3 MLeffort (Mean Length with Effort)
 `MLeffort` uses a time series of mean length and effort to estimate a catchability coefficient `q` and natural mortality `M` (Then et al.). Parameter $t_0$ from the von Bertalanffy equation
