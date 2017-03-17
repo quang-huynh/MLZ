@@ -82,7 +82,7 @@ ML <- function(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
                          LH = tmb.dat$LH, Lc = tmb.dat$Lc, spCont = spawn.cont)
 
     results.matrix <- matrix(c(opt$par, sqrt(diag(covariance))), ncol = 2)
-    rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- c("Z", "sigma")
+    rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- names(opt$par) <- names(opt$gradient) <- c("Z", "sigma")
   }
   if(ncp > 0) {
     if(!is.null(start)) {
@@ -127,7 +127,7 @@ ML <- function(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
     results.matrix <- matrix(c(opt$par, sqrt(diag(covariance))), ncol = 2)
     Z.name <- paste0("Z[", 1:(ncp+1), "]")
     yearZ.name <- paste0("yearZ[", 1:ncp, "]")
-    rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- c(Z.name, yearZ.name, "sigma")
+    rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- names(opt$par) <- names(opt$gradient) <- c(Z.name, yearZ.name, "sigma")
     year.ind <- grep("yearZ", rownames(results.matrix))
     results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] + MLZ_data@Year[1] - 1
   }
@@ -273,7 +273,7 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
   results.matrix <- matrix(c(opt$par, sqrt(diag(covariance))), ncol = 2)
   Z.name <- paste0("Z[", 1:(ncp+1), "]")
   yearZ.name <- paste0("yearZ[", 1:ncp, "]")
-  rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- c(Z.name, yearZ.name, "q", "sigmaL", "sigmaI")
+  rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- names(opt$par) <- names(opt$gradient) <- c(Z.name, yearZ.name, "q", "sigmaL", "sigmaI")
   colnames(results.matrix) <- c("Estimate", "Std. Error")
   year.ind <- grep("yearZ", rownames(results.matrix))
   results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] + MLZ_data@Year[1] - 1
@@ -603,7 +603,7 @@ MLeffort <- function(MLZ_data, start, n_age, estimate.M = TRUE, log.par = FALSE,
       std.err <- sqrt(c(diag(variance.normal)[1:2], diag(covariance)[3]))
     }
     results.matrix <- matrix(c(opt$par, std.err), ncol = 2)
-    rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- c("q", "M", "sigma")
+    rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- names(opt$par) <- names(opt$gradient) <- c("q", "M", "sigma")
   } else {
     opt <- optim(start$q, MLefixM, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, eff = tmb.dat$Effort,
                  LH = tmb.dat$LH, Lc = tmb.dat$Lc, eff_init = tmb.dat$eff_init,
@@ -633,7 +633,7 @@ MLeffort <- function(MLZ_data, start, n_age, estimate.M = TRUE, log.par = FALSE,
       std.err <- sqrt(c(variance.normal, diag(covariance)[2]))
     }
     results.matrix <- matrix(c(opt$par, std.err), ncol = 2)
-    rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- c("q", "sigma")
+    rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- names(opt$par) <- names(opt$gradient) <- c("q", "sigma")
   }
   colnames(results.matrix) <- c("Estimate", "Std. Err.")
   time.series <- data.frame(Year = MLZ_data@Year, MeanLength = MLZ_data@MeanLength,

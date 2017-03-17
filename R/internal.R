@@ -30,7 +30,7 @@
   if(model == "MSM1") yearZ.name <- paste0("yearZ[", 1:ncp, "]")
   sigma.name <- paste0("sigma[", 1:nspec, "]")
 
-  rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- c(Z.name, yearZ.name, sigma.name)
+  rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- names(opt$par) <- names(opt$gradient) <- c(Z.name, yearZ.name, sigma.name)
   colnames(results.matrix) <- c("Estimate", "Std. Error")
   return(list(opt = opt, results.matrix = results.matrix))
 }
@@ -67,13 +67,13 @@
   sigma.name <- paste0("sigma[", 1:nspec, "]")
   if(model == "MSM2") {
     eps.name <- paste0("epsilon[", 2:nspec, "]")
-    rownames(opt$corr) <- colnames(opt$corr) <- c(Z1.name, delta.name, eps.name, yearZ.name, sigma.name)
+    rownames(opt$corr) <- colnames(opt$corr) <- names(opt$par) <- names(opt$gradient) <- c(Z1.name, delta.name, eps.name, yearZ.name, sigma.name)
     Z.var <- deltamethod_MSM2(Z = data.pred[[4]], delta = opt$par[(nspec+1):(nspec+ncp)],
                               epsilon = opt$par[(nspec+ncp+1):(nspec+ncp+nspec-1)],
                               M = tmb.dat$LH[, 3], cov = covariance[1:(nspec+ncp+nspec-1), 1:(nspec+ncp+nspec-1)])
     results.rownames <- c(Z.name, delta.name, eps.name, yearZ.name, sigma.name)
   } else {
-    rownames(opt$corr) <- colnames(opt$corr) <- c(Z1.name, delta.name, yearZ.name, sigma.name)
+    rownames(opt$corr) <- colnames(opt$corr) <- names(opt$par) <- names(opt$gradient) <- c(Z1.name, delta.name, yearZ.name, sigma.name)
     Z.var <- deltamethod_MSM3(Z = data.pred[[4]], delta = opt$par[(nspec+1):(nspec+ncp)],
                               M = tmb.dat$LH[, 3], cov = covariance[1:(nspec+ncp), 1:(nspec+ncp)])
     results.rownames <- c(Z.name, delta.name, yearZ.name, sigma.name)
