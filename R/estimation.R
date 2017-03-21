@@ -139,6 +139,7 @@ ML <- function(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
   MLZ_model <- new("MLZ_model", Stock = MLZ_data@Stock, Model = "ML", time.series = time.series,
                    estimates = results.matrix, negLL = opt$value, n.changepoint = ncp, n.species = 1L,
                    opt = opt, length.units = MLZ_data@length.units)
+  attr(MLZ_model, "spawn") <- spawn
   if(exists("grid.output")) MLZ_model@grid.search <- grid.output
   if(figure) plot(MLZ_model)
   return(MLZ_model)
@@ -290,6 +291,7 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
   MLZ_model <- new("MLZ_model", Stock = MLZ_data@Stock, Model = "MLCR", time.series = time.series,
                    estimates = results.matrix, negLL = opt$value, n.changepoint = ncp, n.species = 1L,
                    opt = opt, length.units = MLZ_data@length.units)
+  attr(MLZ_model, "spawn") <- spawn
   if(exists("grid.output")) MLZ_model@grid.search <- grid.output
   if(figure) plot(MLZ_model)
   return(MLZ_model)
@@ -507,6 +509,7 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
                    negLL = opt$value, n.changepoint = ncp, n.species = nspec,
                    opt = opt, length.units = length.units)
   attr(MLZ_model, "multimodel") <- model
+  attr(MLZ_model, "spawn") <- spawn
   if(grid.search) {
     grid.output <- as.data.frame(ygrid + min(years) - 1)
     grid.output <- cbind(grid.output, pr$negLL, pr$loglikesp)
