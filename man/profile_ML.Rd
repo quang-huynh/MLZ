@@ -27,13 +27,25 @@ if \code{ncp = 1} or \code{2}.}
 \item{color}{If \code{TRUE}, creates a color plot for the likelihood surface. Only used if
 \code{ncp = 2}.}
 }
+\value{
+A matrix of change points with the negative log-likelihood values.
+}
 \description{
 A grid search is performed over the time series, which can be used to identify local and global minima. A
-plot of the likelihood surface is also created similar to Figure 6 of Gedamke and Hoenig (2006).
+plot of the likelihood surface is also created similar to Figure 6 of Gedamke and Hoenig (2006) or
+Figure 3 of Huynh et al. (2017).
 }
 \examples{
 data(Goosefish)
 profile_ML(Goosefish, ncp = 1)
 profile_ML(Goosefish, ncp = 2)
 
+}
+\references{
+Gedamke, T. and Hoenig, J.M. 2006. Estimating mortality from mean length data in
+nonequilibrium situations, with application to the assessment of goosefish.
+Transactions of the American Fisheries Society 135:476-487.
+
+Huynh, Q.C, Gedamke, T., Hoenig, J.M, and Porch C. 2017. Multispecies Extensions
+to a Nonequilibrium Length-Based Mortality Estimator. Marine and Coastal Fisheries 9:68-78.
 }

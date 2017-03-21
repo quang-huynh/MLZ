@@ -1,7 +1,8 @@
 #' Grid search for the mean length estimator
 #'
 #' A grid search is performed over the time series, which can be used to identify local and global minima. A
-#' plot of the likelihood surface is also created similar to Figure 6 of Gedamke and Hoenig (2006).
+#' plot of the likelihood surface is also created similar to Figure 6 of Gedamke and Hoenig (2006) or
+#' Figure 3 of Huynh et al. (2017).
 #'
 #' @param MLZ_data An object of class \code{MLZ_data}.
 #' @param ncp The number of change points.
@@ -13,10 +14,19 @@
 #' if \code{ncp = 1} or \code{2}.
 #' @param color If \code{TRUE}, creates a color plot for the likelihood surface. Only used if
 #' \code{ncp = 2}.
+#' @return A matrix of change points with the negative log-likelihood values.
 #' @examples
 #' data(Goosefish)
 #' profile_ML(Goosefish, ncp = 1)
 #' profile_ML(Goosefish, ncp = 2)
+#' 
+#' @references 
+#' Gedamke, T. and Hoenig, J.M. 2006. Estimating mortality from mean length data in
+#' nonequilibrium situations, with application to the assessment of goosefish.
+#' Transactions of the American Fisheries Society 135:476-487.
+#' 
+#' Huynh, Q.C, Gedamke, T., Hoenig, J.M, and Porch C. 2017. Multispecies Extensions
+#' to a Nonequilibrium Length-Based Mortality Estimator. Marine and Coastal Fisheries 9:68-78.
 #'
 #' @export
 profile_ML <- function(MLZ_data, ncp, stZ = 0.5, spawn = c("continuous", "annual"),
@@ -112,8 +122,10 @@ profile_ML <- function(MLZ_data, ncp, stZ = 0.5, spawn = c("continuous", "annual
 
 #' Grid search for the mean length with catch rate estimator
 #'
-#' A grid search is performed over the time series. Can be used to identify local and global minima.
-#'
+#' A grid search is performed over the time series, which can be used to identify local and global minima. A
+#' plot of the likelihood surface is also created similar to Figure 6 of Gedamke and Hoenig (2006) or
+#' Figure 3 of Huynh et al. (2017).
+#' 
 #' @param MLZ_data An object of class \code{MLZ_data}.
 #' @param ncp The number of change points.
 #' @param CPUE.type Indicates whether CPUE time series is abundance or biomass based.
@@ -127,6 +139,17 @@ profile_ML <- function(MLZ_data, ncp, stZ = 0.5, spawn = c("continuous", "annual
 #' if \code{ncp = 1} or \code{2}.
 #' @param color If \code{TRUE}, creates a color plot for the likelihood surface. Only used if
 #' \code{ncp = 2}.
+#' @return A matrix of change points with the total negative log-likelihood values and values 
+#' from the mean lengths and catch rates.
+#' 
+#' @references 
+#' Gedamke, T. and Hoenig, J.M. 2006. Estimating mortality from mean length data in
+#' nonequilibrium situations, with application to the assessment of goosefish.
+#' Transactions of the American Fisheries Society 135:476-487.
+#' 
+#' Huynh, Q.C, Gedamke, T., Hoenig, J.M, and Porch C. 2017. Multispecies Extensions
+#' to a Nonequilibrium Length-Based Mortality Estimator. Marine and Coastal Fisheries 9:68-78.
+#'
 #' @examples
 #' data(MuttonSnapper)
 #' profile_MLCR(MuttonSnapper, ncp = 1)
@@ -247,8 +270,10 @@ profile_MLCR <- function(MLZ_data, ncp, CPUE.type = c("NPUE", "WPUE"), loglikeCP
 
 #' Grid search for the multispecies mean length estimator
 #'
-#' A grid search is performed over the time series. Can be used to identify local and global minima.
-#'
+#' A grid search is performed over the time series, which can be used to identify local and global minima. A
+#' plot of the likelihood surface is also created similar to Figure 6 of Gedamke and Hoenig (2006) or
+#' Figure 3 of Huynh et al. (2017).
+#' 
 #' @param MLZ.list A list containing an object of class \code{MLZ_data} for each species or stock.
 #' @param ncp The number of change points.
 #' @param model The name of the multispecies model for the grid search.
@@ -259,7 +284,18 @@ profile_MLCR <- function(MLZ_data, ncp, CPUE.type = c("NPUE", "WPUE"), loglikeCP
 #' @param figure If \code{TRUE}, creates a plot of the likelihood over the grid search. Only used
 #' if \code{ncp = 1} or \code{2}.
 #' @param color If \code{TRUE}, creates a color plot for the likelihood surface. Only used if
-#' \code{ncp = 2}.
+#' \code{ncp = 2}.#' 
+#' @return A matrix of change points with the total negative log-likelihood values and values 
+#' from the each species.
+#' 
+#' @references 
+#' Gedamke, T. and Hoenig, J.M. 2006. Estimating mortality from mean length data in
+#' nonequilibrium situations, with application to the assessment of goosefish.
+#' Transactions of the American Fisheries Society 135:476-487.
+#' 
+#' Huynh, Q.C, Gedamke, T., Hoenig, J.M, and Porch C. 2017. Multispecies Extensions
+#' to a Nonequilibrium Length-Based Mortality Estimator. Marine and Coastal Fisheries 9:68-78.
+#'
 #' @examples
 #' data(PRSnapper)
 #' profile_MLmulti(PRSnapper, ncp = 1, model = "MSM1")
