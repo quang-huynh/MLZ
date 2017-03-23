@@ -86,6 +86,7 @@ profile_ML <- function(MLZ_data, ncp, stZ = 0.5, spawn = c("continuous", "annual
   if(figure) {
     old_par <- par(no.readonly = TRUE)
     on.exit(par(list = old_par), add = TRUE)
+    par(las = 1)
 
     if(ncp == 1) plot(negLL ~ Year1, output, xlab = "Change Point",
                       ylab = "Negative log likelihood", typ = "o", pch = 16, las = 1)
@@ -241,6 +242,7 @@ profile_MLCR <- function(MLZ_data, ncp, CPUE.type = c("NPUE", "WPUE"), loglikeCP
   if(figure) {
     old_par <- par(no.readonly = TRUE)
     on.exit(par(list = old_par), add = TRUE)
+    par(las = 1)
 
     if(ncp == 1) {
       nll.vec2 <- nll.vec - min(nll.vec, na.rm = TRUE)
@@ -359,6 +361,7 @@ profile_MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM
   if(figure) {
     old_par <- par(no.readonly = TRUE)
     on.exit(par(list = old_par), add = TRUE)
+    par(las = 1)
 
     sp.name <- lapply(MLZ.list, getElement, "Stock")
     sp.ind <- vapply(sp.name, length, numeric(1))

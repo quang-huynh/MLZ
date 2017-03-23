@@ -185,6 +185,7 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
         ggplot_layer
     }
   }
+  if(exists("zz")) zz
   if(!no.ML) {
     nplots <- 1
     summary.MLZ <- summary(MLZ_data)
@@ -192,6 +193,10 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
     if("CPUE" %in% names(summary.MLZ)) nplots <- nplots + 1
     if(nplots == 3) layout(matrix(c(1,1,1,1,2,3), nrow = 2))
     if(nplots < 3) par(mfrow = c(nplots, 1))
+    par(las = 1)
+    browser()
+    ylabel <- parse(text = paste0("Mean~Length~(L[c])~", length.units))
+    
     plot(MeanLength ~ Year, data = summary.MLZ, pch = 16, typ = "o",
          xlab = "Year", ylab = paste("Mean Length (> Lc)", length.units))
     if("CPUE" %in% names(summary.MLZ)) plot(CPUE ~ Year, data = summary.MLZ, pch = 16, typ = "o",
@@ -199,7 +204,7 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
     if("Effort" %in% names(summary.MLZ)) plot(Effort ~ Year, data = summary.MLZ, pch = 16, typ = "o",
                                               xlab = "Year", ylab = "Effort")
   }
-  if(exists("zz")) return(zz) else invisible()
+  return(invisible())
 }
 )
 

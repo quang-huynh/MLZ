@@ -62,6 +62,7 @@ sensitivity_Lc <- function(MLZ_data, MLZ_model, Lc.vec, grid.search = FALSE, fig
   if(figure) {
     old_par <- par(no.readonly = TRUE)
     on.exit(par(list = old_par), add = TRUE)
+    par(las = 1)
     if(ncp > 0) par(mfrow = c(1,2))
     
     Z <- matrix(output[, Z.ind], nrow = length(Lc.vec))
@@ -74,7 +75,6 @@ sensitivity_Lc <- function(MLZ_data, MLZ_model, Lc.vec, grid.search = FALSE, fig
     plot(Lc.vec, Z[, 1], typ = 'o', pch = 16, ylim = c(0, 1.1 * Z.max), lwd = 2, las = 1, 
          xlab = Lc.label, ylab = "Total Mortality Z", col = color.vec[1])
     abline(v = Lc.base, lty = 2)
-    #points(rep(Lc.base, ncp + 1), MLZ_model@estimates[Z.ind, 1], pch = 16, cex = 2)
     if(ncp > 0) {
       for(i in 2:(ncp+1)) lines(Lc.vec, Z[, i], typ = 'o', pch = 16, col = color.vec[i], lwd = 2)
       legend("topright", paste0("Z[", 1:(ncp+1), "]"), lwd = 2, lty = 1, pch = 16, col = color.vec, bty = "n")

@@ -51,8 +51,10 @@ compare_models <- function(MLZ_model.list, figure = TRUE, color = NULL) {
     output <- matrix(c(negLL, npar, AIC, delta.AIC), nrow = length(MLZ_model.list))
     dimnames(output) <- list(ncp.text, c("negLL", "npar", "AIC", "delta.AIC"))
     if(figure) {
+      par(las = 1)
       if(is.null(color)) color <- rich.colors(length(MLZ_model.list))
-      plot(MeanLength ~ Year, MLZ_model.list[[1]]@time.series, ylab = "Mean Length (> Lc)", typ = "o", pch = 16)
+      plot(MeanLength ~ Year, MLZ_model.list[[1]]@time.series, ylab = paste("Mean Length (> Lc)", length.units), 
+           typ = "o", pch = 16)
       for(i in 1:length(MLZ_model.list)) {
         lines(Predicted ~ Year, MLZ_model.list[[i]]@time.series, col = color[i], lwd = 2)
       }
@@ -67,8 +69,8 @@ compare_models <- function(MLZ_model.list, figure = TRUE, color = NULL) {
     dimnames(output) <- list(ncp.text, c("negLL", "npar", "AIC", "delta.AIC"))
     if(figure) {
       if(is.null(color)) color <- rich.colors(length(MLZ_model.list))
-      par(mfrow = c(1,2), mar = c(5,4,1,1))
-      plot(MeanLength ~ Year, MLZ_model.list[[1]]@time.series, ylab = "Mean Length (> Lc)",
+      par(mfrow = c(1,2), mar = c(5,4,1,1), las = 1)
+      plot(MeanLength ~ Year, MLZ_model.list[[1]]@time.series, ylab = paste("Mean Length (> Lc)", length.units),
            typ = "o", pch = 16)
       for(i in 1:length(MLZ_model.list)) {
         lines(Predicted.ML ~ Year, MLZ_model.list[[i]]@time.series, col = color[i], lwd = 2)
@@ -110,7 +112,7 @@ compare_models <- function(MLZ_model.list, figure = TRUE, color = NULL) {
     colnames(output) <- c("n.changepoint", "negLL", "npar", "AIC", "delta.AIC")
 
     if(figure) {
-      par(mfrow = c(2,2))
+      par(mfrow = c(2,2), las = 1)
       if(is.null(color)) color <- rich.colors(length(MLZ_model.list))
       nyrs <- nrow(MLZ_model.list[[1]]@time.series)/nspec
 
