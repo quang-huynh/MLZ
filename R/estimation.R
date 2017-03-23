@@ -65,6 +65,7 @@ ML <- function(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
       start <- list(Z = MLZ_data@vbK * (MLZ_data@vbLinf - MLZ_data@MeanLength[1]) /
                       (MLZ_data@MeanLength[1] - MLZ_data@Lc))
       start$Z[is.na(start$Z) | start$Z <= 0 | is.infinite(start$Z)] <- 0.5
+      start$Z[start$Z > 1] <- 1
     }
     opt <- optim(start$Z, MLeqnegLL, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
                  LH = tmb.dat$LH, Lc = tmb.dat$Lc, spCont = spawn.cont, 
@@ -104,6 +105,7 @@ ML <- function(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
       stZ <- MLZ_data@vbK * (MLZ_data@vbLinf - MLZ_data@MeanLength[c(1,styearZ)]) /
         (MLZ_data@MeanLength[c(1,styearZ)] - MLZ_data@Lc)
       stZ[is.na(stZ) | stZ <= 0 | is.infinite(stZ)] <- 0.5
+      stZ[stZ > 1] <- 1
       start <- list(Z = stZ, yearZ = styearZ)
     }
     opt <- optim(c(start$Z, start$yearZ), MLnegLL, Lbar = tmb.dat$Lbar,
@@ -243,6 +245,7 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
     stZ <- MLZ_data@vbK * (MLZ_data@vbLinf - MLZ_data@MeanLength[c(1,styearZ)]) /
       (MLZ_data@MeanLength[c(1,styearZ)] - MLZ_data@Lc)
     stZ[is.na(stZ) | stZ <= 0] <- 0.5
+    stZ[stZ > 1] <- 1
     start <- list(Z = stZ, yearZ = styearZ)
   }
 
@@ -467,10 +470,16 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
     else {
       styearZ <- nrow(max.years) * (1:ncp) / (ncp+1)
     }
-    stZ1 <- K * (Linf - tmb.dat$Lbar[, 1]) / (tmb.dat$Lbar[, 1] - Lc)
-    stZ <- K * (Linf - tmb.dat$Lbar[, styearZ]) / (tmb.dat$Lbar[, styearZ] - Lc)
-    stZ[is.na(stZ) | stZ <= 0] <- 0.5
-    stZ1[is.na(stZ1) | stZ1 <= 0] <- 0.5
+    if("SSM" %in% model || "MSM1" %in% model) {
+      stZ <- K * (Linf - tmb.dat$Lbar[, styearZ]) / (tmb.dat$Lbar[, styearZ] - Lc)
+      stZ[is.na(stZ) | stZ <= 0] <- 0.5
+      stZ[stZ > 1] <- 1
+    }
+    if("MSM2" %in% model || "MSM3" %in% model) {
+      stZ1 <- K * (Linf - tmb.dat$Lbar[, 1]) / (tmb.dat$Lbar[, 1] - Lc)
+      stZ1[is.na(stZ1) | stZ1 <= 0] <- 0.5
+      stZ[stZ > 1] <- 1
+    }
     if(model == "SSM") {
       stZ.new <- matrix(NA, nrow = nspec, ncol = ncp)
       for(i in 1:ncp) stZ.new[, i] <- diag(stZ[, ((i-1)*nspec+1):(i*nspec)])
