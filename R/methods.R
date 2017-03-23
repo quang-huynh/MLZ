@@ -194,9 +194,6 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
     if(nplots == 3) layout(matrix(c(1,1,1,1,2,3), nrow = 2))
     if(nplots < 3) par(mfrow = c(nplots, 1))
     par(las = 1)
-    browser()
-    ylabel <- parse(text = paste0("Mean~Length~(L[c])~", length.units))
-    
     plot(MeanLength ~ Year, data = summary.MLZ, pch = 16, typ = "o",
          xlab = "Year", ylab = paste("Mean Length (> Lc)", length.units))
     if("CPUE" %in% names(summary.MLZ)) plot(CPUE ~ Year, data = summary.MLZ, pch = 16, typ = "o",
