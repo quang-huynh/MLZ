@@ -126,7 +126,7 @@ calc_ML <- function(MLZ_data, length.slot = c("Len_df", "Len_matrix"), sample.si
     time.series <- data.frame(Year = MLZ_data@Year, MeanLength = rowSums(num)/denom, ss = ss)
   }
 
-  MLZ_data@MeanLength <- time.series$MeanLength
+  MLZ_data@MeanLength <- ifelse(is.nan(time.series$MeanLength), NA, time.series$MeanLength)
   MLZ_data@ss <- time.series$ss
 
   return(MLZ_data)
