@@ -134,6 +134,7 @@ ML <- function(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
     results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] + MLZ_data@Year[1] - 1
   }
   colnames(results.matrix) <- c("Estimate", "Std. Error")
+  if(any(results.matrix[, 1] < 0)) warning("There are negative estimates from model.")
   time.series <- full
   time.series$Predicted <- opt$Lpred
   time.series$Residual <- time.series$MeanLength - time.series$Predicted
@@ -281,6 +282,8 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
   colnames(results.matrix) <- c("Estimate", "Std. Error")
   year.ind <- grep("yearZ", rownames(results.matrix))
   results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] + MLZ_data@Year[1] - 1
+  
+  if(any(results.matrix[, 1] < 0)) warning("There are negative estimates from model.")
 
   time.series <- data.frame(Predicted.ML = opt$Lpred, Predicted.CPUE = opt$Ipred)
   time.series <- cbind(full, time.series)
@@ -500,6 +503,8 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
   results.matrix <- est$results.matrix
   year.ind <- grep("yearZ", rownames(results.matrix))
   results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] + min(years) - 1
+  
+  if(any(results.matrix[grep("Z", rownames(results.matrix)), 1] < 0)) warning("There are negative mortality estimates from model.")
 
   opt <- est$opt
   Lbar.df$Predicted <- as.numeric(t(opt$Lpred))
