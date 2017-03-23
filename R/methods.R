@@ -185,7 +185,7 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
         ggplot_layer
     }
   }
-  if(exists("zz")) zz
+  if(exists("zz")) print(zz)
   if(!no.ML) {
     nplots <- 1
     summary.MLZ <- summary(MLZ_data)
