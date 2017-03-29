@@ -115,7 +115,7 @@ setMethod("summary", signature(object = "MLZ_data"), function(object) {
 #'
 #' @export
 setMethod("summary", signature(object = "MLZ_model"), function(object)
-  list(Stock = object@Stock, Model = object@Model, Estimates = object@estimates))
+  list(Stock = object@Stock, Model = object@Model, Estimates = round(object@estimates, 3)))
 
 
 
@@ -156,7 +156,11 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
     colnames(Len_matrix) <- MLZ_data@Len_bins
     Len_matrix <- melt(Len_matrix)
     names(Len_matrix) <- c("Year", "Length", "Frequency")
-
+    
+    Len_matrix <- mutate(group_by(Len_matrix, Year), newF = Frequency/max(Frequency), 
+                         sumF = sum(Frequency))
+    Len_matrix_N <- summarise(group_by(Len_matrix, Year), N = sum(Frequency))
+    
     if(length(MLZ_data@Lc) != 0 || !is.null(MLZ_data@Lc)) z <- geom_vline(xintercept = MLZ_data@Lc, colour = "red")
     else z <- NULL
     ggplot_layer <- sapply(ggplot_layer, eval)
@@ -164,8 +168,9 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
     theme_clean <- theme_bw() + theme(panel.spacing = unit(0, "inches"),
                                       panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
-    zz <- ggplot(Len_matrix, aes(x = Length, y = Frequency)) + geom_line() + facet_wrap(~ Year) + theme_clean + z +
-      ggplot_layer
+    zz <- ggplot(Len_matrix, aes(x = Length, y = newF)) + geom_line() + facet_wrap(~ Year) + 
+      geom_text(data = Len_matrix_N, hjust = "right", vjust = "top", x = max(Len_matrix$Length), y = 1, aes(label = paste("N =", N))) +
+      labs(y = "Relative Frequency") + theme_clean + z + ggplot_layer
 
   }
   if(!no.Len_df) {
@@ -173,6 +178,7 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
     if(no.Len_matrix) {
       Len_df <- MLZ_data@Len_df
       names(Len_df) <- c("Year", "Length")
+      Len_df_N <- summarise(group_by(Len_df, Year), N = n())
 
       if(length(MLZ_data@Lc) != 0 || !is.null(MLZ_data@Lc)) z <- geom_vline(xintercept = MLZ_data@Lc, colour = "red")
       else z <- NULL
@@ -180,9 +186,10 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
 
       theme_clean <- theme_bw() + theme(panel.spacing = unit(0, "inches"),
                                         panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-
-      zz <- ggplot(Len_df, aes(x = Length)) + geom_histogram() + facet_wrap(~ Year) + theme_clean + z +
-        ggplot_layer
+      
+      zz <- ggplot(Len_df, aes(x = Length)) + geom_freqpoly(closed = "left", aes(y = ..ncount..)) + facet_wrap(~ Year) + 
+        geom_text(data = Len_df_N, hjust = "right", vjust = "top", x = max(Len_df$Length), y = 1, aes(label = paste("N =", N))) +
+        labs(y = "Relative Frequency") + theme_clean + z + ggplot_layer
     }
   }
   if(exists("zz")) print(zz)
@@ -223,6 +230,7 @@ setMethod("plot", signature(x = "MLZ_model"), function(x, residuals = TRUE) {
   
   old_par <- par(no.readonly = TRUE)
   on.exit(par(list = old_par), add = TRUE)
+  par(las = 1)
 
   if(MLZ_model@Model == "ML") {
     if(residuals) par(mfrow = c(1, 2))
