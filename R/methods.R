@@ -27,6 +27,7 @@
 #'
 #' new("MLZ_data")
 #' @export
+#' @import TMB
 #' @import ggplot2
 #' @import dplyr
 #' @import parallel
@@ -34,12 +35,15 @@
 #' @importFrom reshape2 acast melt
 #' @importFrom methods new
 #' @importFrom gplots rich.colors
-#' @importFrom Rcpp sourceCpp
-#' @importFrom stats optim cov2cor
+#' @importFrom stats nlminb
 #' @importFrom grDevices cm.colors
-#' @importFrom numDeriv hessian grad
-#' @importFrom msm deltamethod
-#' @useDynLib MLZ
+#' @useDynLib ML
+#' @useDynLib MLe
+#' @useDynLib MLeq
+#' @useDynLib MLWPUE
+#' @useDynLib MLNPUE
+#' @useDynLib MSM1S
+#' @useDynLib MSM23
 setClass("MLZ_data", slots = c(Stock = "character", Year = "vector", Len_df = "data.frame", Len_bins = "vector",
                                Len_matrix = "matrix", vbLinf = "numeric", vbK = "numeric", vbt0 = "numeric",
                                M = "numeric", Lc = "numeric", lwb = "numeric", MeanLength = "numeric", ss = "numeric",
@@ -53,16 +57,16 @@ setClass("MLZ_data", slots = c(Stock = "character", Year = "vector", Len_df = "d
 #' @slot Stock Name of stock (obtained from an object of class \code{MLZ_data}).
 #' @slot Model Name of model used for mortality estimation.
 #' @slot time.series A data frame summarizing observed time series data and predicted values from model.
-#' @slot estimates A matrix of parameter estimates and derived values and their standard errors. Standard errors
-#' of derived quantities are obtained from call to \code{\link[msm]{deltamethod}}.
+#' @slot estimates A matrix of parameter estimates and derived values and their standard errors, from
+#' \code{\link[TMB]{sdreport}}.
 #' @slot negLL The negative log-likelihood from the model.
 #' @slot n.changepoint The number of change points in the model.
 #' @slot n.species The number of species/stocks in the model.
 #' @slot grid.search A data frame reporting the log-likelihood values from a grid search over change points.
 #' See \code{\link{profile_ML}}, \code{\link{profile_MLCR}}, and \code{\link{profile_MLmulti}}.
-#' @slot opt A list with components from \code{\link[stats]{optim}}, including
-#' correlation matrix and gradient vector at estimated minimum from call to \code{\link[numDeriv]{hessian}} and
-#' \code{\link[numDeriv]{grad}}, respectively.
+#' @slot obj A list with components from \code{\link[TMB]{MakeADFun}}.
+#' @slot opt A list with components from calling \code{\link[stats]{optim}} to \code{obj}.
+#' @slot sdrep A list with components from calling \code{\link[TMB]{sdreport}} to \code{obj}.
 #' @slot length.units Unit of measurement for lengths, i.e. "cm" or "mm".
 #'
 #' @examples
@@ -77,7 +81,7 @@ setClass("MLZ_data", slots = c(Stock = "character", Year = "vector", Len_df = "d
 setClass("MLZ_model", slots = c(Stock = "character", Model = "character", time.series = "data.frame",
                                 estimates = "matrix", negLL = "numeric",
                                 n.changepoint = "integer", n.species = "integer", grid.search = "data.frame",
-                                opt = "list", length.units = "character"))
+                                obj = "list", opt = "list", sdrep = "list", length.units = "character"))
 
 #' \code{summary} method for S4 class \code{MLZ_data}
 #'

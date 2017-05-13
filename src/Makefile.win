@@ -1,0 +1,26 @@
+all: ML.dll MLe.dll MLeq.dll MLWPUE.dll MLNPUE.dll MSM1S.dll MSM23.dll 
+
+ML.dll: ML.cpp
+	Rscript --vanilla -e "TMB::compile('ML.cpp')"
+
+MLe.dll: MLe.cpp
+	Rscript --vanilla -e "TMB::compile('MLe.cpp')"
+
+MLeq.dll: MLeq.cpp
+	Rscript --vanilla -e "TMB::compile('MLeq.cpp')"
+
+MLWPUE.dll: MLWPUE.cpp
+	Rscript --vanilla -e "TMB::compile('MLWPUE.cpp')"
+	
+MLNPUE.dll: MLNPUE.cpp
+	Rscript --vanilla -e "TMB::compile('MLNPUE.cpp')"
+	
+MSM1S.dll: MSM1S.cpp
+	Rscript --vanilla -e "TMB::compile('MSM1S.cpp')"
+	
+MSM23.dll: MSM23.cpp
+	Rscript --vanilla -e "TMB::compile('MSM23.cpp')"
+
+clean:
+	rm -rf *o
+	

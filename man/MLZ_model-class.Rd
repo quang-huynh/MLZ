@@ -17,8 +17,8 @@ Method functions \code{summary} and \code{plot} are available for this class (se
 
 \item{\code{time.series}}{A data frame summarizing observed time series data and predicted values from model.}
 
-\item{\code{estimates}}{A matrix of parameter estimates and derived values and their standard errors. Standard errors
-of derived quantities are obtained from call to \code{\link[msm]{deltamethod}}.}
+\item{\code{estimates}}{A matrix of parameter estimates and derived values and their standard errors, from
+\code{\link[TMB]{sdreport}}.}
 
 \item{\code{negLL}}{The negative log-likelihood from the model.}
 
@@ -29,9 +29,11 @@ of derived quantities are obtained from call to \code{\link[msm]{deltamethod}}.}
 \item{\code{grid.search}}{A data frame reporting the log-likelihood values from a grid search over change points.
 See \code{\link{profile_ML}}, \code{\link{profile_MLCR}}, and \code{\link{profile_MLmulti}}.}
 
-\item{\code{opt}}{A list with components from \code{\link[stats]{optim}}, including
-correlation matrix and gradient vector at estimated minimum from call to \code{\link[numDeriv]{hessian}} and
-\code{\link[numDeriv]{grad}}, respectively.}
+\item{\code{obj}}{A list with components from \code{\link[TMB]{MakeADFun}}.}
+
+\item{\code{opt}}{A list with components from calling \code{\link[stats]{optim}} to \code{obj}.}
+
+\item{\code{sdrep}}{A list with components from calling \code{\link[TMB]{sdreport}} to \code{obj}.}
 
 \item{\code{length.units}}{Unit of measurement for lengths, i.e. "cm" or "mm".}
 }}

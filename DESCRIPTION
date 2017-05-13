@@ -1,6 +1,6 @@
 Package: MLZ
-Title: Mean Length-based Estimators of Mortality
-Version: 0.0.0.9000
+Title: Mean Length-based Estimators of Mortality using TMB
+Version: 0.0.0.9001
 Authors@R: c(person("Quang", "Huynh", email = "qhuynh@vims.edu", role = c("aut", "cre")),
   person("Todd", "Gedamke", rol = "ctb"), person("Amy", "Then", rol = "ctb"))
 Maintainer: Quang Huynh <qhuynh@vims.edu>
@@ -19,16 +19,14 @@ Imports:
     gplots,
     ggplot2 (>= 2.0.0),
     reshape2 (>= 1.4.1),
-    numDeriv,
     parallel,
-    msm,
-    Rcpp
+    TMB
 RoxygenNote: 6.0.1
 Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-LinkingTo: Rcpp, RcppArmadillo
+LinkingTo: TMB, RcppEigen
 NeedsCompilation: yes
 Packaged: 2017-03-01 18:29:13 UTC; qhuynh
 Author: Quang Huynh [aut, cre],

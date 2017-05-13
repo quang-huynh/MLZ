@@ -41,17 +41,16 @@ ML <- function(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
                grid.search = TRUE, parallel = ifelse(ncp > 2, TRUE, FALSE), min.time = 3, figure = TRUE) {
   if(!inherits(MLZ_data, "MLZ_data")) stop("No object of class 'MLZ_data' found.")
   ncp <- as.integer(ncp)
-  parallel <- as.logical(parallel)
   spawn <- match.arg(spawn)
   if(spawn == "continuous") spawn.cont <- 1L else spawn.cont <- 0L
   
   years <- MLZ_data@Year
   max.years <- data.frame(Year = min(years):max(years))
-  data.df <- data.frame(Year = MLZ_data@Year, MeanLength = MLZ_data@MeanLength, ss = MLZ_data@ss)
+  data.df <- summary_ML(MLZ_data)
   full <- left_join(max.years, data.df, by = "Year")
 
-  tmb.dat <- list(LH = c(MLZ_data@vbLinf, MLZ_data@vbK), Lc = MLZ_data@Lc, nbreaks = ncp,
-                  Lbar = full$MeanLength, ss = full$ss)
+  tmb.dat <- list(Linf = MLZ_data@vbLinf, K = MLZ_data@vbK, Lc = MLZ_data@Lc, nbreaks = ncp,
+                  Lbar = full$MeanLength, ss = full$ss, spCont = spawn.cont)
   tmb.dat$Lbar[is.na(tmb.dat$ss) | tmb.dat$ss <= 0] <- -99
   tmb.dat$ss[is.na(tmb.dat$ss) | tmb.dat$Lbar < 0 | tmb.dat$ss <= 0] <- 0
 
@@ -67,23 +66,11 @@ ML <- function(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
       start$Z[is.na(start$Z) | start$Z <= 0 | is.infinite(start$Z)] <- 0.5
       start$Z[start$Z > 1] <- 1
     }
-    opt <- optim(start$Z, MLeqnegLL, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
-                 LH = tmb.dat$LH, Lc = tmb.dat$Lc, spCont = spawn.cont, 
-                 method = "BFGS", control = list(maxit = 1e7))
-    data.pred <- MLeqpred(opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, LH = tmb.dat$LH, 
-                          Lc = tmb.dat$Lc, spCont = spawn.cont)
-    opt$Lpred <- rep(data.pred[[1]], length(tmb.dat$Lbar))
-    sigmaL <- data.pred[[2]]
-    opt$par <- c(opt$par, sigmaL)
-    MLhessian <- hessian(MLeqfullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
-                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, spCont = spawn.cont)
-    covariance <- solve(MLhessian)
-    opt$corr <- cov2cor(covariance)
-    opt$gradient <- grad(MLeqfullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
-                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, spCont = spawn.cont)
-
-    results.matrix <- matrix(c(opt$par, sqrt(diag(covariance))), ncol = 2)
-    rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- names(opt$par) <- names(opt$gradient) <- c("Z", "sigma")
+    obj <- MakeADFun(data = tmb.dat, parameters = start, hessian = TRUE, DLL = "MLeq", silent = TRUE)
+    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he)
+    sdrep <- sdreport(obj)
+    
+    results.matrix <- summary(sdrep)
   }
   if(ncp > 0) {
     if(!is.null(start)) {
@@ -94,7 +81,8 @@ ML <- function(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
     }
     else {
       if(grid.search) {
-        grid.output <- profile_ML(MLZ_data, ncp, min.time = min.time, parallel = parallel, spawn = spawn, figure = FALSE)
+        grid.output <- profile_ML(MLZ_data, ncp, min.time = min.time, parallel = as.logical(parallel), 
+                                  spawn = spawn, figure = FALSE)
         index.min <- which.min(grid.output$negLL)
         styearZ <- as.numeric(grid.output[index.min, 1:ncp])
         styearZ <- styearZ - MLZ_data@Year[1] + 1
@@ -108,40 +96,26 @@ ML <- function(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
       stZ[stZ > 1] <- 1
       start <- list(Z = stZ, yearZ = styearZ)
     }
-    opt <- optim(c(start$Z, start$yearZ), MLnegLL, Lbar = tmb.dat$Lbar,
-                 ss = tmb.dat$ss, LH = tmb.dat$LH, Lc = tmb.dat$Lc,
-                 nbreaks = tmb.dat$nbreaks, spCont = spawn.cont, 
-                 method = "BFGS", control = list(maxit = 1e7))
-    data.pred <- MLpred(opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, LH = tmb.dat$LH, 
-                        Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks, spCont = spawn.cont)
-    opt$Lpred <- data.pred[[1]]
-    sigmaL <- data.pred[[2]]
-    opt$par <- c(opt$par, sigmaL)
-    MLhessian <- hessian(MLfullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
-                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks, 
-                         spCont = spawn.cont)
-    covariance <- solve(MLhessian)
-    opt$corr <- cov2cor(covariance)
-    opt$gradient <- grad(MLfullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
-                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks, 
-                         spCont = spawn.cont)
+    obj <- MakeADFun(data = tmb.dat, parameters = start, hessian = TRUE, DLL = "ML", silent = TRUE)
+    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he)
+    sdrep <- sdreport(obj)
 
-    results.matrix <- matrix(c(opt$par, sqrt(diag(covariance))), ncol = 2)
+    results.matrix <- summary(sdrep)
     Z.name <- paste0("Z[", 1:(ncp+1), "]")
     yearZ.name <- paste0("yearZ[", 1:ncp, "]")
-    rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- names(opt$par) <- names(opt$gradient) <- c(Z.name, yearZ.name, "sigma")
+    rownames(results.matrix) <- c(Z.name, yearZ.name, "sigma")
     year.ind <- grep("yearZ", rownames(results.matrix))
     results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] + MLZ_data@Year[1] - 1
   }
-  colnames(results.matrix) <- c("Estimate", "Std. Error")
   if(any(results.matrix[, 1] < 0)) warning("There are negative estimates from model.")
   time.series <- full
-  time.series$Predicted <- opt$Lpred
+  time.series$Predicted <- obj$report()$Lpred
   time.series$Residual <- time.series$MeanLength - time.series$Predicted
   opt$message <- c(opt$message, paste0("Spawning is assumed to be ", spawn, " in model."))
+  class(sdrep) <- "list"
   MLZ_model <- new("MLZ_model", Stock = MLZ_data@Stock, Model = "ML", time.series = time.series,
-                   estimates = results.matrix, negLL = opt$value, n.changepoint = ncp, n.species = 1L,
-                   opt = opt, length.units = MLZ_data@length.units)
+                   estimates = results.matrix, negLL = opt$objective, n.changepoint = ncp, n.species = 1L,
+                   obj = obj, opt = opt, sdrep = sdrep, length.units = MLZ_data@length.units)
   attr(MLZ_model, "spawn") <- spawn
   if(exists("grid.output")) MLZ_model@grid.search <- grid.output
   if(figure) plot(MLZ_model)
@@ -195,14 +169,14 @@ ML <- function(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
 MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE = c("lognormal", "normal"),
                  spawn = c("continuous", "annual"), start = NULL, grid.search = TRUE, 
                  parallel = ifelse(ncp > 2, TRUE, FALSE), min.time = 3, figure = TRUE) {
-
+  
   if(!inherits(MLZ_data, "MLZ_data")) stop("No object of class 'MLZ_data' found.")
   if(ncp == 0L) stop("Zero changepoints is not currently supported. Use ML().")
-  parallel <- as.logical(parallel)
   
   CPUE.type <- match.arg(CPUE.type)
   if(is.na(CPUE.type)) stop("Argument CPUE.type must be identified in either: weight 'WPUE' or abundance 'NPUE'.")
   loglikeCPUE <- match.arg(loglikeCPUE)
+  ll.int <- ifelse(loglikeCPUE == "lognormal", 0L, 1L)
   
   spawn <- match.arg(spawn)
   if(CPUE.type == "WPUE" & spawn == "annual") {
@@ -218,10 +192,10 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
   full <- left_join(max.years, data.df, by = "Year")
 
   ncp <- as.integer(ncp)
-  ll.int <- ifelse(loglikeCPUE == "lognormal", 0L, 1L)
-  tmb.dat <- list(LH = c(MLZ_data@vbLinf, MLZ_data@vbK), Lc = MLZ_data@Lc, nbreaks = ncp,
-                  Lbar = full$MeanLength, ss = full$ss, CPUE = full$CPUE, loglikeCPUE = ll.int)
-  if(CPUE.type == "WPUE") tmb.dat$LH <- c(tmb.dat$LH, MLZ_data@lwb)
+  tmb.dat <- list(Linf = MLZ_data@vbLinf, K = MLZ_data@vbK, Lc = MLZ_data@Lc, nbreaks = ncp,
+                  Lbar = full$MeanLength, ss = full$ss, CPUE = full$CPUE, 
+                  loglikeCPUE = ll.int, spCont = spawn.cont)
+  if(CPUE.type == "WPUE") tmb.dat$b <- MLZ_data@lwb
   tmb.dat$Lbar[is.na(tmb.dat$ss) | tmb.dat$ss <= 0] <- -99
   tmb.dat$ss[is.na(tmb.dat$ss) | tmb.dat$Lbar < 0 | tmb.dat$ss <= 0] <- 0
   tmb.dat$CPUE[is.na(tmb.dat$CPUE) | tmb.dat$CPUE < 0] <- -99
@@ -235,7 +209,7 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
   else {
     if(grid.search) {
       grid.output <- profile_MLCR(MLZ_data, ncp, CPUE.type, loglikeCPUE, spawn = spawn, 
-                                  min.time = min.time, parallel = parallel, figure = FALSE)
+                                  min.time = min.time, parallel = as.logical(parallel), figure = FALSE)
       index.min <- which.min(grid.output$negLL)
       styearZ <- as.numeric(grid.output[index.min, 1:ncp])
       styearZ <- styearZ - MLZ_data@Year[1] + 1
@@ -249,54 +223,33 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
     stZ[stZ > 1] <- 1
     start <- list(Z = stZ, yearZ = styearZ)
   }
-
-  fx <- get(paste0("ML", CPUE.type, "negLL"))
-  gx <- get(paste0("ML", CPUE.type, "pred"))
-  hx <- get(paste0("ML", CPUE.type, "fullnegLL"))
-
-  opt <- optim(c(start$Z, start$yearZ), fx, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss,
-               CPUE = tmb.dat$CPUE, LH = tmb.dat$LH, Lc = tmb.dat$Lc,
-               nbreaks = tmb.dat$nbreaks, loglikeCPUE = tmb.dat$loglikeCPUE, spCont = spawn.cont,
-               method = "BFGS", control = list(maxit = 1e7))
-  data.pred <- gx(opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, CPUE = tmb.dat$CPUE,
-                  LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks, 
-                  loglikeCPUE = tmb.dat$loglikeCPUE, spCont = spawn.cont)
-  opt$Lpred <- data.pred[[1]]
-  opt$Ipred <- data.pred[[2]]
-  q <- data.pred[[3]]
-  sigmav <- data.pred[[4]]
-  opt$par <- c(opt$par, q, sigmav)
-  MLCRhessian <- hessian(hx, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, CPUE = tmb.dat$CPUE, 
-                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks, 
-                         loglikeCPUE = tmb.dat$loglikeCPUE, spCont = spawn.cont)
-  covariance <- solve(MLCRhessian)
-  opt$corr <- cov2cor(covariance)
-  opt$gradient <- grad(hx, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, CPUE = tmb.dat$CPUE, 
-                       LH = tmb.dat$LH, Lc = tmb.dat$Lc, nbreaks = tmb.dat$nbreaks, 
-                       loglikeCPUE = tmb.dat$loglikeCPUE, spCont = spawn.cont)
-
-  results.matrix <- matrix(c(opt$par, sqrt(diag(covariance))), ncol = 2)
+  
+  fx <- paste0("ML", CPUE.type)
+  obj <- MakeADFun(data = tmb.dat, parameters = start, hessian = TRUE, DLL = fx, silent = TRUE)
+  opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he)
+  sdrep <- sdreport(obj)
+  
+  results.matrix <- summary(sdrep)
   Z.name <- paste0("Z[", 1:(ncp+1), "]")
   yearZ.name <- paste0("yearZ[", 1:ncp, "]")
-  rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- names(opt$par) <- names(opt$gradient) <- c(Z.name, yearZ.name, "q", "sigmaL", "sigmaI")
-  colnames(results.matrix) <- c("Estimate", "Std. Error")
+  rownames(results.matrix) <- c(Z.name, yearZ.name, "q", "sigmaL", "sigmaI")
   year.ind <- grep("yearZ", rownames(results.matrix))
   results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] + MLZ_data@Year[1] - 1
   
   if(any(results.matrix[, 1] < 0)) warning("There are negative estimates from model.")
 
-  time.series <- data.frame(Predicted.ML = opt$Lpred, Predicted.CPUE = opt$Ipred)
+  time.series <- data.frame(Predicted.ML = obj$report()$Lpred, Predicted.CPUE = obj$report()$Ipred)
   time.series <- cbind(full, time.series)
   time.series$Residual.ML <- time.series$MeanLength - time.series$Predicted.ML
   time.series$Residual.CPUE <- time.series$CPUE - time.series$Predicted.CPUE
 
-  opt$message <- c(opt$message, paste0("Catch rate assumed to be ", CPUE.type), 
+  opt$message <- c(opt$message, paste0("Catch rate assumed to be ", CPUE.type, "."), 
                    paste0("Catch rate likelihood used ", loglikeCPUE, " distribution."),
                    paste0("Spawning is assumed to be ", spawn, " in model."))
-  
+  class(sdrep) <- "list"
   MLZ_model <- new("MLZ_model", Stock = MLZ_data@Stock, Model = "MLCR", time.series = time.series,
-                   estimates = results.matrix, negLL = opt$value, n.changepoint = ncp, n.species = 1L,
-                   opt = opt, length.units = MLZ_data@length.units)
+                   estimates = results.matrix, negLL = opt$objective, n.changepoint = ncp, n.species = 1L,
+                   obj = obj, opt = opt, sdrep = sdrep, length.units = MLZ_data@length.units)
   attr(MLZ_model, "spawn") <- spawn
   if(exists("grid.output")) MLZ_model@grid.search <- grid.output
   if(figure) plot(MLZ_model)
@@ -353,6 +306,12 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
 #' \code{yearZ} \tab a vector with \code{length = I}.\cr
 #' \code{delta} \tab a vector with \code{length = I}.\cr
 #' }
+#' 
+#' If \code{ncp = 0} change points is specified, then the method simplifies to the Single Species Model.
+#' The \code{start} list should contain a single entry:
+#' \tabular{ll}{
+#' \code{Z} \tab a vector with \code{length = N}.\cr
+#' }
 #'
 #' \code{start} can be \code{NULL}, in which case, the supplied starting values depend on
 #' the value of \code{grid.search}. If \code{grid.search = TRUE}, starting values will use the
@@ -366,6 +325,7 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
 #'
 #' @examples
 #' data(PRSnapper)
+#' MLmulti(PRSnapper, ncp = 0, start = list(Z = rep(0.5, 3)))
 #' MLmulti(PRSnapper, ncp = 1, model = "SSM")
 #'
 #' MSM1.start.Z <- matrix(0.5, nrow = 3, ncol = 2)
@@ -383,9 +343,8 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
 MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), start = NULL,
                     spawn = c("continuous", "annual"), grid.search = TRUE, parallel = ifelse(ncp > 2, TRUE, FALSE), 
                     min.time = 3, figure = TRUE) {
-
+  
   model <- match.arg(model)
-  parallel <- as.logical(parallel)
   if(!is.list(MLZ.list)) stop("No list found.")
   class.test <- vapply(MLZ.list, inherits, TRUE, "MLZ_data")
   if(!all(class.test)) stop("Not all entries in list are of class 'MLZ_data'")
@@ -394,7 +353,6 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
   if(length(length.units) > 1) stop("Different length units among species. All lengths should be the same units, e.g. cm.")
   
   ncp <- as.integer(ncp)
-  if(ncp == 0) stop("Zero change points not supported. Use ML().")
   spawn <- match.arg(spawn)
   if(spawn == "continuous") spawn.cont <- 1L else spawn.cont <- 0L
   
@@ -403,113 +361,173 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
   years <- unique(do.call(c, years))
 
   max.years <- data.frame(Year = min(years):max(years))
-  Lbar.df <- lapply(MLZ.list, timeseries_multi)
+  Lbar.df <- lapply(MLZ.list, summary_ML)
   Lbar.df <- do.call(rbind, Lbar.df)
   full <- left_join(max.years, Lbar.df, by = "Year")
   full$Sp <- rep(1:nspec, nrow(max.years))
-  Lbar <- acast(full, Sp ~ Year, value.var = "MeanLength")
-  ss <- acast(full, Sp ~ Year, value.var = "ss")
+  Lbar <- acast(full, Year ~ Sp, value.var = "MeanLength")
+  ss <- acast(full, Year ~ Sp, value.var = "ss")
+  Lbar[is.na(ss) | ss == 0] <- -99
+  ss[is.na(ss) | Lbar < 0] <- 0
 
   Linf <- vapply(MLZ.list, getElement, numeric(1), "vbLinf")
   K <- vapply(MLZ.list, getElement, numeric(1), "vbK")
-  if("MSM2" %in% model || "MSM3" %in% model) {
-    M <- vapply(MLZ.list, getElement, numeric(1), "M")
-    LH <- matrix(c(Linf, K, M), ncol = 3)
-  } else LH <- matrix(c(Linf, K), ncol = 2)
   Lc <- vapply(MLZ.list, getElement, numeric(1), "Lc")
-
-  tmb.dat <- list(LH = LH, Lc = Lc, nbreaks = ncp, Lbar = Lbar, ss = ss, nspec = nspec)
-  tmb.dat$Lbar[is.na(tmb.dat$ss) | tmb.dat$ss == 0] <- -99
-  tmb.dat$ss[is.na(tmb.dat$ss) | tmb.dat$Lbar < 0] <- 0
-
-  if(!is.null(start)) {
-    if("SSM" %in% model) {
-      if(!"Z" %in% names(start) || !"yearZ" %in% names(start)) stop("Error in names of start list.")
-      if(nrow(start$Z) != ncp+1 || ncol(start$Z) != nspec || nrow(start$yearZ) != ncp ||
-         ncol(start$yearZ) != nspec) stop("Error in dimension of entries of start list.")
-    }
-    if("MSM1" %in% model) {
-      if(!"Z" %in% names(start) || !"yearZ" %in% names(start)) stop("Error in names of start list.")
-      if(nrow(start$Z) != ncp+1 || ncol(start$Z) != nspec ||
-         length(start$yearZ) != ncp) stop("Error in dimension of entries of start list.")
-    }
-    if("MSM2" %in% model) {
-      if(!"Z1" %in% names(start) || !"yearZ" %in% names(start) || !"delta" %in% names(start) ||
-         !"epsilon" %in% names(start)) stop("Error in names of start list.")
-      if(length(start$Z1) != nspec || length(start$yearZ) != ncp || length(start$delta) != ncp ||
-         length(start$epsilon) != nspec-1) stop("Error in dimension of entries of start list.")
-    }
-    if("MSM3" %in% model) {
-      if(!"Z1" %in% names(start) || !"yearZ" %in% names(start) ||
-         !"delta" %in% names(start)) stop("Error in names of start list.")
-      if(length(start$Z1) != nspec || length(start$yearZ) != ncp ||
-         length(start$delta) != ncp) stop("Error in dimension of entries of start list.")
-    }
-    start$yearZ <- start$yearZ - max.years[1, 1] + 1
-  } else {
-    if(grid.search) {
-      year.range <- min(years):max(years) - min(years) + 1
-      year.range <- year.range[2:(length(year.range) - 1)]
-      ygrid <- list()
-      for(i in 1:ncp) ygrid[[i]] <- year.range
-      ygrid <- expand.grid(ygrid)
-      if(ncp > 1) {
-        for(i in 1:(ncp-1)) {
-          truncate.index <- (ygrid[, i] < ygrid[, i+1]) & (ygrid[, i+1] - ygrid[, i] >= min.time)
-          ygrid <- ygrid[truncate.index, ]
-        }
-      }
-      if("SSM" %in% model || "MSM1" %in% model) pr <- .SSM_MSM1_profile(tmb.dat, 0.5, parallel, ygrid, spawn.cont)
-      if("MSM2" %in% model || "MSM3" %in% model) pr <- .MSM23_profile(tmb.dat, 0.5, parallel, ygrid, model, spawn.cont)
-
-      if(model == "SSM") {
-        index.min <- apply(pr$loglikesp, 2, which.min)
-        styearZ <- t(as.matrix(ygrid[index.min, ]))
-      } else {
-        index.min <- which.min(pr$negLL)
-        styearZ <- as.numeric(ygrid[index.min, ])
-      }
+  
+  if(ncp == 0) {
+    grid.search <- FALSE
+    model <- "SSM"
+    if(!is.null(start)) {
+      if(!"Z" %in% names(start)) stop("Error in start list. Entry of name 'Z' not found.")
+      if(length(start$Z) != nspec)
+        stop("Length of 'Z' in start list is not equal to the number of species.")
     }
     else {
-      styearZ <- nrow(max.years) * (1:ncp) / (ncp+1)
+      Z <- K * (Linf - Lbar[1, ]) / (Lbar[1, ] - Lc)
+      Z[is.na(Z) | Z <= 0 | is.infinite(Z)] <- 0.5
+      Z[Z > 1] <- 1
+      start <- list(Z = Z)
     }
-    if("SSM" %in% model || "MSM1" %in% model) {
-      stZ <- K * (Linf - tmb.dat$Lbar[, styearZ]) / (tmb.dat$Lbar[, styearZ] - Lc)
-      stZ[is.na(stZ) | stZ <= 0] <- 0.5
-      stZ[stZ > 1] <- 1
-    }
-    if("MSM2" %in% model || "MSM3" %in% model) {
-      stZ1 <- K * (Linf - tmb.dat$Lbar[, 1]) / (tmb.dat$Lbar[, 1] - Lc)
-      stZ1[is.na(stZ1) | stZ1 <= 0] <- 0.5
-      stZ[stZ > 1] <- 1
-    }
-    if(model == "SSM") {
-      stZ.new <- matrix(NA, nrow = nspec, ncol = ncp)
-      for(i in 1:ncp) stZ.new[, i] <- diag(stZ[, ((i-1)*nspec+1):(i*nspec)])
-      stZ <- cbind(stZ1, stZ.new)
-      start <- list(Z = t(stZ), yearZ = styearZ)
-    }
-    if(model == "MSM1") {
-      stZ <- cbind(stZ1, stZ)
-      start <- list(Z = t(stZ), yearZ = styearZ)
-    }
-    if(model == "MSM2") start <- list(Z1 = stZ1, delta = rep(1, ncp), epsilon = rep(1, nspec - 1), yearZ = styearZ)
-    if(model == "MSM3") start <- list(Z1 = stZ1, delta = rep(1, ncp), yearZ = styearZ)
+    
+    start <- Map(list, Z = start$Z)
+    tmb.dat <- Map(list, Linf = Linf, K = K, Lc = Lc, Lbar = split(Lbar, rep(1:nspec, each = nrow(Lbar))),
+                   ss = split(ss, rep(1:nspec, each = nrow(ss))), spCont = spawn.cont)
+    obj <- Map(MakeADFun, data = tmb.dat, parameters = start, 
+               MoreArgs = list(hessian = TRUE, DLL = "MLeq", silent = TRUE))
+    opt <- lapply(obj, function(x) nlminb(x$par, x$fn, x$gr, x$he))
+    sdrep <- lapply(obj, sdreport)
+    
+    res <- vapply(sdrep, function(x) summary(x)[1, ], numeric(2))
+    res2 <- vapply(sdrep, function(x) summary(x)[2, ], numeric(2))
+    results.matrix <- rbind(t(res), t(res2))
+    rownames(results.matrix) <- c(paste0("Z[", 1:nspec, "]"), paste0("sigma[", 1:nspec, "]"))
+    
+    Lbar.df$Predicted <- as.numeric(vapply(obj, function(x) x$report()$Lpred, numeric(nrow(Lbar))))
   }
+  if(ncp > 0) {
+    tmb.dat <- list(Linf = Linf, K = K, Lc = Lc, nbreaks = ncp, nspec = nspec, Lbar = Lbar, ss = ss, 
+                    spCont = spawn.cont)
+    if("MSM2" %in% model || "MSM3" %in% model) tmb.dat$M <- vapply(MLZ.list, getElement, numeric(1), "M")
 
-  if("SSM" %in% model || "MSM1" %in% model) est <- .SSM_MSM1_est(tmb.dat, start, model, spawn.cont)
-  if("MSM2" %in% model || "MSM3" %in% model) est <- .MSM23_est(tmb.dat, start, model, spawn.cont)
-
-  results.matrix <- est$results.matrix
-  year.ind <- grep("yearZ", rownames(results.matrix))
-  results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] + min(years) - 1
+    
+    if(!is.null(start)) {
+      if("SSM" %in% model) {
+        if(!"Z" %in% names(start) || !"yearZ" %in% names(start)) stop("Error in names of start list.")
+        if(nrow(start$Z) != ncp+1 || ncol(start$Z) != nspec || nrow(start$yearZ) != ncp ||
+           ncol(start$yearZ) != nspec) stop("Error in dimension of entries of start list.")
+      }
+      if("MSM1" %in% model) {
+        if(!"Z" %in% names(start) || !"yearZ" %in% names(start)) stop("Error in names of start list.")
+        if(nrow(start$Z) != ncp+1 || ncol(start$Z) != nspec ||
+           length(start$yearZ) != ncp) stop("Error in dimension of entries of start list.")
+        new.yearZ <- matrix(start$yearZ, nrow = ncp, ncol = nspec)
+        start$yearZ <- new.yearZ
+      }
+      if("MSM2" %in% model) {
+        if(!"Z1" %in% names(start) || !"yearZ" %in% names(start) || !"delta" %in% names(start) ||
+           !"epsilon" %in% names(start)) stop("Error in names of start list.")
+        if(length(start$Z1) != nspec || length(start$yearZ) != ncp || length(start$delta) != ncp ||
+           length(start$epsilon) != nspec-1) stop("Error in dimension of entries of start list.")
+      }
+      if("MSM3" %in% model) {
+        if(!"Z1" %in% names(start) || !"yearZ" %in% names(start) ||
+           !"delta" %in% names(start)) stop("Error in names of start list.")
+        if(length(start$Z1) != nspec || length(start$yearZ) != ncp ||
+           length(start$delta) != ncp) stop("Error in dimension of entries of start list.")
+        start$epsilon <- rep(1, nspec - 1)
+      }
+      start$yearZ <- start$yearZ - max.years[1, 1] + 1
+    } else {
+      if(grid.search) {
+        pr <- profile_MLmulti(MLZ.list, ncp, model, spawn, parallel = as.logical(parallel), 
+                              min.time = min.time, figure = FALSE)
+        if(model == "SSM") {
+          index.min <- apply(pr[, -c(1:(ncp+1))], 2, which.min)
+          styearZ <- t(as.matrix(pr[index.min, 1:ncp]))
+        } else {
+          index.min <- which.min(pr$negLL)
+          styearZ <- as.numeric(pr[index.min, 1:ncp])
+        }
+        styearZ <- styearZ - max.years[1, 1] + 1
+      }
+      else {
+        styearZ <- nrow(max.years) * (1:ncp) / (ncp+1)
+      }
+      stZ1 <- K * (Linf - tmb.dat$Lbar[1, ]) / (tmb.dat$Lbar[1, ] - Lc)
+      stZ1[is.na(stZ1) | stZ1 <= 0] <- 0.5
+      stZ1[stZ1 > 1] <- 1
+      if("SSM" %in% model || "MSM1" %in% model) {
+        styearZ <- matrix(styearZ, nrow = ncp, ncol = nspec)
+        stZ <- matrix(NA, nrow = ncp, ncol = nspec)
+        for(i in 1:ncp) {
+          tmp <- K * (Linf - tmb.dat$Lbar[styearZ[i, ], ]) / (tmb.dat$Lbar[styearZ[i, ], ] - Lc)
+          stZ[i, ] <- diag(tmp)
+        }
+        stZ[is.na(stZ) | stZ <= 0] <- 0.5
+        stZ[stZ > 1] <- 1
+      }
+      if("SSM" %in% model || "MSM1" %in% model) {
+        stZ <- rbind(stZ1, stZ)
+        start <- list(Z = stZ, yearZ = matrix(styearZ, nrow = ncp, ncol = nspec))
+      }
+      if("MSM2" %in% model || "MSM3" %in% model) {
+        start <- list(Z1 = stZ1, delta = rep(1, ncp), epsilon = rep(1, nspec - 1), yearZ = styearZ)
+      }
+    }
+    
+    if("SSM" %in% model) {
+      fx <- "MSM1S"    
+      map <- list()
+    }
+    if("MSM1" %in% model) {
+      fx <- "MSM1S"
+      map <- list(yearZ = factor(rep(1:ncp, nspec)))
+    }
+    if("MSM2" %in% model) {
+      fx <- "MSM23"
+      map <- list()
+    }
+    if("MSM3" %in% model) {
+      fx <- "MSM23"
+      map <- list(epsilon = factor(rep(NA, nspec - 1)))
+    }
+    obj <- MakeADFun(data = tmb.dat, parameters = start, hessian = TRUE, 
+                     map = map, DLL = fx, silent = TRUE)
+    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he)
+    sdrep <- sdreport(obj)
+    
+    results.matrix <- summary(sdrep)
+    year.ind <- grep("yearZ", rownames(results.matrix))
+    results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] + min(years) - 1
+    
+    if("SSM" %in% model || "MSM1" %in% model) {
+      Z.name <- paste0(rep(paste0("Z[",1:(ncp+1)), nspec), rep(paste0(",", 1:nspec, "]"), each = ncp+1))
+      if(model == "SSM") yearZ.name <- paste0(rep(paste0("yearZ[", 1:ncp), nspec), rep(paste0(",", 1:nspec, "]"), each = ncp))
+      if(model == "MSM1") yearZ.name <- paste0("yearZ[", 1:ncp, "]")
+      sigma.name <- paste0("sigma[", 1:nspec, "]")
+      rownames(results.matrix) <- c(Z.name, yearZ.name, sigma.name)
+    }
+    
+    if("MSM2" %in% model || "MSM3" %in% model) {
+      results.matrix <- results.matrix[-c(1:nspec), ]
+      delta.name <- paste0("delta[", 1:ncp, ",1]")
+      yearZ.name <- paste0("yearZ[", 1:ncp, "]")
+      Z.name <- paste0(rep(paste0("Z[",1:(ncp+1)), nspec), rep(paste0(",", 1:nspec, "]"), each = ncp+1))
+      sigma.name <- paste0("sigma[", 1:nspec, "]")
+      if(model == "MSM2") {
+        epsilon.name <- paste0("epsilon[", 2:nspec, "]")
+        rownames(results.matrix) <- c(delta.name, epsilon.name, yearZ.name, Z.name, sigma.name)
+      }
+      if(model == "MSM3") rownames(results.matrix) <- c(delta.name, yearZ.name, Z.name, sigma.name)
+    }
+    
+    Lbar.df$Predicted <- as.numeric(obj$report()$Lpred)
+    class(sdrep) <- "list"
+  }
   
   if(any(results.matrix[grep("Z", rownames(results.matrix)), 1] < 0)) warning("There are negative mortality estimates from model.")
-
-  opt <- est$opt
-  Lbar.df$Predicted <- as.numeric(t(opt$Lpred))
+  
   Lbar.df$Residual <- Lbar.df$MeanLength - Lbar.df$Predicted
-
   sp.name <- lapply(MLZ.list, getElement, "Stock")
   sp.ind <- vapply(sp.name, length, numeric(1))
   num <- which(sp.ind == 0L)
@@ -517,25 +535,20 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
   Lbar.df$Stock <- rep(do.call(c, sp.name), each = length(years))
   
   opt$message <- c(opt$message, paste0("Spawning is assumed to be ", spawn, " in model."))
-
+  
+  if(ncp == 0) negLL <- sum(vapply(opt[1:nspec], getElement, numeric(1), "objective"))
+  if(ncp > 0) negLL <- opt$objective
   MLZ_model <- new("MLZ_model", Stock = do.call(c, sp.name), Model = "MLmulti",
                    time.series = Lbar.df, estimates = results.matrix,
-                   negLL = opt$value, n.changepoint = ncp, n.species = nspec,
-                   opt = opt, length.units = length.units)
+                   negLL = negLL, n.changepoint = ncp, n.species = nspec,
+                   obj = obj, opt = opt, sdrep = sdrep, length.units = length.units)
   attr(MLZ_model, "multimodel") <- model
   attr(MLZ_model, "spawn") <- spawn
-  if(grid.search) {
-    grid.output <- as.data.frame(ygrid + min(years) - 1)
-    grid.output <- cbind(grid.output, pr$negLL, pr$loglikesp)
-    names(grid.output) <- c(paste0("Year", 1:ncp), "negLL", paste0("Species_", 1:nspec))
-    rownames(grid.output) <- 1:nrow(grid.output)
-    MLZ_model@grid.search <- grid.output
-  }
-
+  if(grid.search) MLZ_model@grid.search <- pr
   if(figure) plot(MLZ_model)
   return(MLZ_model)
 }
-
+ 
 #' Mean length with effort mortality estimator
 #'
 #' Estimator of fishing and natural mortality from a time series of mean length and effort data.
@@ -579,91 +592,59 @@ MLeffort <- function(MLZ_data, start, n_age, estimate.M = TRUE, log.par = FALSE,
   obs_season <- as.integer(obs_season)
   if(obs_season > n_season) stop("obs_season is greater than n_season.")
   if(timing < 0 || timing > 1) stop("timing must be between 0 or 1.")
+  
+  years <- MLZ_data@Year
+  max.years <- data.frame(Year = min(years):max(years))
+  data.df <- data.frame(Year = MLZ_data@Year, MeanLength = MLZ_data@MeanLength, ss = MLZ_data@ss,
+                        Effort = MLZ_data@Effort)
+  full <- left_join(max.years, data.df, by = "Year")
+  if(any(is.na(full$Effort))) {
+    yr.missing <- full$Year[is.na(full$Effort)]
+    stop(paste("Missing effort data in Year(s): ", yr.missing))
+  }
 
-  tmb.dat <- list(LH = c(MLZ_data@vbLinf, MLZ_data@vbK, MLZ_data@vbt0, MLZ_data@M),
-                  Lc = MLZ_data@Lc, Lbar = MLZ_data@MeanLength, ss = MLZ_data@ss,
-                  Effort = MLZ_data@Effort, n_age = n_age, eff_init = eff_init)
+  tmb.dat <- list(Linf = MLZ_data@vbLinf, K = MLZ_data@vbK, a0 = MLZ_data@vbt0, Lc = MLZ_data@Lc, 
+                  Lbar = full$MeanLength, ss = full$ss, eff = full$Effort, 
+                  eff_init = eff_init, n_age = n_age, n_season = n_season, obs_season = obs_season,
+                  timing = timing)
   tmb.dat$Lbar[is.na(tmb.dat$ss) | tmb.dat$ss == 0] <- -99
   tmb.dat$ss[is.na(tmb.dat$ss) | tmb.dat$Lbar < 0] <- 0
+
+  if(estimate.M) {
+    map <- list()
+    start <- list(logq = start$q, logM = start$M)
+  } else {    
+    map <- list(logM = factor(NA))
+    start <- list(logq = start$q, logM = MLZ_data@M)
+  }
+  
   if(log.par) {
     tmb.dat$logpar <- 1L
     start <- lapply(start, log)
   } else tmb.dat$logpar <- 0L
-
-  if(estimate.M) {
-    opt <- optim(c(start$q, start$M), MLe, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, eff = tmb.dat$Effort,
-                 LH = tmb.dat$LH, Lc = tmb.dat$Lc, eff_init = tmb.dat$eff_init,
-                 n_age = tmb.dat$n_age, n_season = n_season, obs_season = obs_season,
-                 timing = timing, logpar = tmb.dat$logpar,
-                 method = "BFGS", control = list(maxit = 1e7))
-    data.pred <- MLepred(opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, eff = tmb.dat$Effort,
-                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, eff_init = tmb.dat$eff_init,
-                         n_age = tmb.dat$n_age, n_season = n_season, obs_season = obs_season,
-                         timing = timing, logpar = tmb.dat$logpar)
-    opt$Lpred <- data.pred[[1]]
-    opt$par <- c(opt$par, data.pred[[2]])
-    MLehess <- hessian(MLefullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, eff = tmb.dat$Effort,
-                       LH = tmb.dat$LH, Lc = tmb.dat$Lc, eff_init = tmb.dat$eff_init,
-                       n_age = tmb.dat$n_age, n_season = n_season, obs_season = obs_season,
-                       timing = timing, logpar = tmb.dat$logpar)
-    covariance <- solve(MLehess)
-    opt$corr <- cov2cor(covariance)
-    opt$gradient <- grad(MLefullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, eff = tmb.dat$Effort,
-                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, eff_init = tmb.dat$eff_init,
-                         n_age = tmb.dat$n_age, n_season = n_season, obs_season = obs_season,
-                         timing = timing, logpar = tmb.dat$logpar)
-
-    if(!log.par) std.err <- sqrt(diag(covariance))
-    if(log.par) {
-      variance.normal <- deltamethod(list(~exp(x1), ~exp(x2)), opt$par[1:2], covariance[1:2, 1:2],
-                                     ses = FALSE)
-      std.err <- sqrt(c(diag(variance.normal)[1:2], diag(covariance)[3]))
-    }
-    results.matrix <- matrix(c(opt$par, std.err), ncol = 2)
-    rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- names(opt$par) <- names(opt$gradient) <- c("q", "M", "sigma")
-  } else {
-    opt <- optim(start$q, MLefixM, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, eff = tmb.dat$Effort,
-                 LH = tmb.dat$LH, Lc = tmb.dat$Lc, eff_init = tmb.dat$eff_init,
-                 n_age = tmb.dat$n_age, n_season = n_season, obs_season = obs_season,
-                 timing = timing, logpar = tmb.dat$logpar,
-                 method = "BFGS", control = list(maxit = 1e7))
-    data.pred <- MLepred(c(opt$par, tmb.dat$LH[4]), Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, eff = tmb.dat$Effort,
-                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, eff_init = tmb.dat$eff_init,
-                         n_age = tmb.dat$n_age, n_season = n_season, obs_season = obs_season,
-                         timing = timing, logpar = tmb.dat$logpar)
-    opt$Lpred <- data.pred[[1]]
-    opt$par <- c(opt$par, data.pred[[2]])
-    MLehess <- hessian(MLefixMfullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, eff = tmb.dat$Effort,
-                       LH = tmb.dat$LH, Lc = tmb.dat$Lc, eff_init = tmb.dat$eff_init,
-                       n_age = tmb.dat$n_age, n_season = n_season, obs_season = obs_season,
-                       timing = timing, logpar = tmb.dat$logpar)
-    covariance <- solve(MLehess)
-    opt$corr <- cov2cor(covariance)
-    opt$gradient <- grad(MLefixMfullnegLL, opt$par, Lbar = tmb.dat$Lbar, ss = tmb.dat$ss, eff = tmb.dat$Effort,
-                         LH = tmb.dat$LH, Lc = tmb.dat$Lc, eff_init = tmb.dat$eff_init,
-                         n_age = tmb.dat$n_age, n_season = n_season, obs_season = obs_season,
-                         timing = timing, logpar = tmb.dat$logpar)
-
-    if(!log.par) std.err <- sqrt(diag(covariance))
-    if(log.par) {
-      variance.normal <- deltamethod(~exp(x1), opt$par[1], covariance[1,1], ses = FALSE)
-      std.err <- sqrt(c(variance.normal, diag(covariance)[2]))
-    }
-    results.matrix <- matrix(c(opt$par, std.err), ncol = 2)
-    rownames(results.matrix) <- rownames(opt$corr) <- colnames(opt$corr) <- names(opt$par) <- names(opt$gradient) <- c("q", "sigma")
+  
+  obj <- MakeADFun(data = tmb.dat, parameters = start, hessian = TRUE, map = map, 
+                   DLL = "MLe", silent = TRUE)
+  opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he)
+  sdrep <- sdreport(obj)
+  
+  results.matrix <- summary(sdrep)
+  if(!log.par) {
+    results.matrix <- results.matrix[-c(1,2), ]
+    if(any(results.matrix[, 1] < 0)) warning("There are negative estimates from model.")
   }
-  colnames(results.matrix) <- c("Estimate", "Std. Err.")
-  time.series <- data.frame(Year = MLZ_data@Year, MeanLength = MLZ_data@MeanLength,
-                            ss = MLZ_data@ss, Predicted = opt$Lpred)
-  time.series$Residual <- time.series$MeanLength - time.series$Predicted
-  time.series$F <- results.matrix[1,1] * tmb.dat$Effort
-  if(estimate.M) time.series$M <- rep(results.matrix[2,1], nrow(time.series))
-  if(!estimate.M) time.series$M <- rep(tmb.dat$LH[4], nrow(time.series))
-  time.series$Z <- time.series$F + time.series$M
+  
+  full$Predicted <- obj$report()$Lpred
+  full$Residual <- full$MeanLength - full$Predicted
+  full$Z <- obj$report()$Z
+  if(estimate.M) full$M <- rep(results.matrix[2, 1], nrow(full))
+  if(!estimate.M) full$M <- rep(MLZ_data@M, nrow(full))
+  full$F <- full$Z - full$M
 
-  MLZ_model <- new("MLZ_model", Stock = MLZ_data@Stock, Model = "MLeffort", time.series = time.series,
-                   estimates = results.matrix, negLL = opt$value, n.species = 1L, opt = opt,
-                   length.units = MLZ_data@length.units)
+  class(sdrep) <- "list"
+  MLZ_model <- new("MLZ_model", Stock = MLZ_data@Stock, Model = "MLeffort", time.series = full,
+                   estimates = results.matrix, negLL = opt$objective, n.species = 1L, 
+                   obj = obj, opt = opt, sdrep = sdrep, length.units = MLZ_data@length.units)
   if(figure) plot(MLZ_model)
   return(MLZ_model)
 }

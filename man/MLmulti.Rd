@@ -69,6 +69,12 @@ Multispecies Model 3 (MSM3):
 \code{delta} \tab a vector with \code{length = I}.\cr
 }
 
+If \code{ncp = 0} change points is specified, then the method simplifies to the Single Species Model.
+The \code{start} list should contain a single entry:
+\tabular{ll}{
+\code{Z} \tab a vector with \code{length = N}.\cr
+}
+
 \code{start} can be \code{NULL}, in which case, the supplied starting values depend on
 the value of \code{grid.search}. If \code{grid.search = TRUE}, starting values will use the
 values for \code{yearZ} which minimize the negative log-likelihood from the grid search.
@@ -76,6 +82,7 @@ Otherwise, the starting values for \code{yearZ} evenly divide the time series.
 }
 \examples{
 data(PRSnapper)
+MLmulti(PRSnapper, ncp = 0, start = list(Z = rep(0.5, 3)))
 MLmulti(PRSnapper, ncp = 1, model = "SSM")
 
 MSM1.start.Z <- matrix(0.5, nrow = 3, ncol = 2)

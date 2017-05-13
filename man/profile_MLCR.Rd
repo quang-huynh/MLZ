@@ -4,10 +4,10 @@
 \alias{profile_MLCR}
 \title{Grid search for the mean length with catch rate estimator}
 \usage{
-profile_MLCR(MLZ_data, ncp, CPUE.type = c("NPUE", "WPUE"),
+profile_MLCR(MLZ_data, ncp, CPUE.type = c(NA, "NPUE", "WPUE"),
   loglikeCPUE = c("lognormal", "normal"), spawn = c("continuous", "annual"),
-  stZ = 0.5, min.time = 3, parallel = ifelse(ncp > 2, TRUE, FALSE),
-  figure = TRUE, color = TRUE)
+  startZ = rep(0.5, ncp + 1), min.time = 3, parallel = ifelse(ncp > 2,
+  TRUE, FALSE), figure = TRUE, color = TRUE)
 }
 \arguments{
 \item{MLZ_data}{An object of class \code{MLZ_data}.}
@@ -21,7 +21,7 @@ normally distributed.}
 
 \item{spawn}{Whether 'continuous' or 'annual' (pulse) spawning is modeled.}
 
-\item{stZ}{The starting value of total mortality rate used in the grid search.}
+\item{startZ}{A vector of length \code{ncp+1} as the starting value of total mortality rate used in the grid search.}
 
 \item{min.time}{The minimum number of years between change points. Only used if \code{ncp > 1}.}
 

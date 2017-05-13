@@ -43,18 +43,23 @@ sensitivity_Lc <- function(MLZ_data, MLZ_model, Lc.vec, grid.search = FALSE, fig
   Z.ind <- startsWith(rownames(MLZ_model@estimates), "Z")
   if(ncp > 0) yearZ.ind <- startsWith(rownames(MLZ_model@estimates), "y")
   if(ncp == 0 || grid.search) start <- NULL
-  if(ncp > 0 & !grid.search) 
-    start <- list(Z = MLZ_model@estimates[Z.ind, 1], 
-                  yearZ = MLZ_model@estimates[yearZ.ind, 1])
-  
-  res <- list()
-  for(i in 1:length(Lc.vec)) {
-    MLZ.new <- MLZ_data
-    MLZ.new@Lc <- Lc.vec[i]
-    MLZ.new <- calc_ML(MLZ.new)
-    res[[i]] <- ML(MLZ.new, ncp = ncp, start = start, spawn = attr(MLZ_model, "spawn"),
-              grid.search = grid.search, figure = FALSE)
+  if(ncp > 0 & !grid.search) {
+    start <- list(Z = MLZ_model@estimates[Z.ind, 1], yearZ = MLZ_model@estimates[yearZ.ind, 1])
   }
+  #res <- list()
+  #for(i in 1:length(Lc.vec)) {
+  #  MLZ.new <- MLZ_data
+  #  MLZ.new@Lc <- Lc.vec[i]
+  #  MLZ.new <- calc_ML(MLZ.new)
+  #  res[[i]] <- ML(MLZ.new, ncp = ncp, start = start, spawn = attr(MLZ_model, "spawn"),
+  #            grid.search = grid.search, figure = FALSE)
+  #}
+  
+  MLZ.new <- Map(function(x, y, z) {y@Lc <- z; return(y)}, x = 1:length(Lc.vec), z = Lc.vec, 
+                 MoreArgs = list(y = MLZ_data))
+  MLZ.new <- lapply(MLZ.new, calc_ML)
+  res <- lapply(MLZ.new, ML, ncp = ncp, start = start, spawn = attr(MLZ_model, "spawn"), 
+                grid.search = grid.search, figure = FALSE)
   
   output <- lapply(res, function(x) x@estimates[, 1])
   output <- do.call(rbind, output)
