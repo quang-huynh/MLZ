@@ -630,14 +630,19 @@ MLeffort <- function(MLZ_data, start, n_age, estimate.M = TRUE, log.par = FALSE,
   
   results.matrix <- summary(sdrep)
   if(!log.par) {
-    results.matrix <- results.matrix[-c(1,2), ]
+    if(estimate.M) ind.remove <- 1:2
+    if(!estimate.M) ind.remove <- 1
+    results.matrix <- results.matrix[-ind.remove, ]
     if(any(results.matrix[, 1] < 0)) warning("There are negative estimates from model.")
   }
   
   full$Predicted <- obj$report()$Lpred
   full$Residual <- full$MeanLength - full$Predicted
   full$Z <- obj$report()$Z
-  if(estimate.M) full$M <- rep(results.matrix[2, 1], nrow(full))
+  if(estimate.M) {
+    ind.M <- which(rownames(results.matrix) == "M")
+    full$M <- rep(results.matrix[ind.M, 1], nrow(full))
+  }
   if(!estimate.M) full$M <- rep(MLZ_data@M, nrow(full))
   full$F <- full$Z - full$M
 
