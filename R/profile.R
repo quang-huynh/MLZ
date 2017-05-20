@@ -74,7 +74,7 @@ profile_ML <- function(MLZ_data, ncp, startZ = rep(0.5, ncp+1), spawn = c("conti
   output$negLL <- nll.vec
   names(output) <- c(paste0("Year", 1:ncp), "negLL")
   rownames(output) <- 1:nrow(output)
-
+  
   if(figure) {
     old_par <- par(no.readonly = TRUE)
     on.exit(par(list = old_par), add = TRUE)
@@ -92,7 +92,7 @@ profile_ML <- function(MLZ_data, ncp, startZ = rep(0.5, ncp+1), spawn = c("conti
                                plot.axes = {
                                  axis(1);
                                  axis(2);
-                                 lines(x.vec, y.vec);
+                                 lines(x.vec, x.vec + min.time);
                                  points(output[min.index, 1], output[min.index, 2], pch = 16, cex = 1.5);
                                  segments(x0 = x.vec[1], x1 = output[min.index, 1], y0 = output[min.index, 2], lty = 2, lwd = 2);
                                  segments(x0 = output[min.index, 1], y0 = y.vec[1], y1 = output[min.index, 2], lty = 2, lwd = 2)
@@ -101,7 +101,7 @@ profile_ML <- function(MLZ_data, ncp, startZ = rep(0.5, ncp+1), spawn = c("conti
       if(!color) {
         contour(x = x.vec, y = y.vec, z = z.matrix,
                 xlab = "First Change Point", ylab = "Second Change Point", labcex = 1, las = 1)
-        lines(x.vec, y.vec)
+        lines(x.vec, x.vec + min.time)
         points(output[min.index, 1], output[min.index, 2], pch = 16, cex = 1.5)
         segments(x0 = x.vec[1], x1 = output[min.index, 1], y0 = output[min.index, 2], lty = 2, lwd = 2)
         segments(x0 = output[min.index, 1], y0 = y.vec[1], y1 = output[min.index, 2], lty = 2, lwd = 2)
@@ -238,12 +238,12 @@ profile_MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "NPUE", "WPUE"), logli
     }
 
     if(ncp == 2) {
-      if(color) plot_mlcr_2ncp_filled.contour(output)
+      if(color) plot_mlcr_2ncp_filled.contour(output, min.time)
       if(!color) {
         layout(matrix(c(1,2,3,3,3,3), nrow = 2))
-        plot_mlcr_2ncp_contour(output, value.var = "ML")
-        plot_mlcr_2ncp_contour(output, value.var = "CR")
-        plot_mlcr_2ncp_contour(output, value.var = "negLL")
+        plot_mlcr_2ncp_contour(output, min.time, value.var = "ML")
+        plot_mlcr_2ncp_contour(output, min.time, value.var = "CR")
+        plot_mlcr_2ncp_contour(output, min.time, value.var = "negLL")
       }
     }
   }
@@ -362,7 +362,7 @@ profile_MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM
   output <- cbind(output, nll.vec, nll.data)
   names(output) <- c(paste0("Year", 1:ncp), "negLL", paste0("Species_", 1:nspec))
   rownames(output) <- 1:nrow(output)
-
+  
   if(figure) {
     old_par <- par(no.readonly = TRUE)
     on.exit(par(list = old_par), add = TRUE)
@@ -398,12 +398,13 @@ profile_MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM
         }
         x.vec <- as.numeric(rownames(z.matrix))
         y.vec <- as.numeric(colnames(z.matrix))
+        xyline <- union(x.vec, y.vec)
         if(color) filled.contour(x = x.vec, y = y.vec, z = z.matrix,
                                  xlab = "First Change Point", ylab = "Second Change Point",
                                  plot.axes = {
                                    axis(1);
                                    axis(2);
-                                   lines(x.vec, y.vec);
+                                   lines(x.vec, x.vec + min.time);
                                    points(output[min.index, 1], output[min.index, 2], pch = 16, cex = 1.5);
                                    segments(x0 = x.vec[1], x1 = output[min.index, 1], y0 = output[min.index, 2], lty = 2, lwd = 2);
                                    segments(x0 = output[min.index, 1], y0 = y.vec[1], y1 = output[min.index, 2], lty = 2, lwd = 2);
@@ -412,7 +413,7 @@ profile_MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM
         if(!color) {
           contour(x = x.vec, y = y.vec, z = z.matrix,
                   xlab = "First Change Point", ylab = "Second Change Point", labcex = 1, las = 1)
-          lines(x.vec, y.vec)
+          lines(x.vec, x.vec + min.time)
           points(output[min.index, 1], output[min.index, 2], pch = 16, cex = 1.5)
           segments(x0 = x.vec[1], x1 = output[min.index, 1], y0 = output[min.index, 2], lty = 2, lwd = 2)
           segments(x0 = output[min.index, 1], y0 = y.vec[1], y1 = output[min.index, 2], lty = 2, lwd = 2)

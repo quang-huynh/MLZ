@@ -1,5 +1,5 @@
 
-plot_mlcr_2ncp_contour <- function(output, value.var) {
+plot_mlcr_2ncp_contour <- function(output, min.time, value.var) {
   z.matrix <- acast(output, Year1 ~ Year2, value.var = value.var)
   output.vec <- getElement(output, value.var)
   min.index <- which.min(output.vec)
@@ -8,7 +8,7 @@ plot_mlcr_2ncp_contour <- function(output, value.var) {
 
   contour(x = x.vec, y = y.vec, z = z.matrix,
           xlab = "First Change Point", ylab = "Second Change Point", labcex = 1, las = 1)
-  lines(x.vec, y.vec)
+  lines(x.vec, x.vec + min.time)
   points(output[min.index, 1], output[min.index, 2], pch = 16, cex = 1.5)
   segments(x0 = x.vec[1], x1 = output[min.index, 1], y0 = output[min.index, 2], lty = 2, lwd = 2)
   segments(x0 = output[min.index, 1], y0 = y.vec[1], y1 = output[min.index, 2], lty = 2, lwd = 2)
@@ -22,7 +22,7 @@ plot_mlcr_2ncp_contour <- function(output, value.var) {
 }
 
 
-plot_mlcr_2ncp_filled.contour <- function(output) {
+plot_mlcr_2ncp_filled.contour <- function(output, min.time) {
   new.output <- output[3:5]
   mins <- apply(new.output, 2, min, na.rm = TRUE)
   new.output <- t(t(new.output) - mins)
@@ -43,7 +43,7 @@ plot_mlcr_2ncp_filled.contour <- function(output) {
                   plot.axes = {
                     axis(1);
                     axis(2);
-                    lines(x.vec, y.vec);
+                    lines(x.vec, x.vec + min.time);
                     points(output.tmp[min.index, 1], output.tmp[min.index, 2], pch = 16, cex = 1.5);
                     segments(x0 = x.vec[1], x1 = output.tmp[min.index, 1], y0 = output.tmp[min.index, 2], lty = 2, lwd = 2);
                     segments(x0 = output.tmp[min.index, 1], y0 = y.vec[1], y1 = output.tmp[min.index, 2], lty = 2, lwd = 2)
@@ -64,7 +64,7 @@ plot_mlcr_2ncp_filled.contour <- function(output) {
                   plot.axes = {
                     axis(1);
                     axis(2);
-                    lines(x.vec, y.vec);
+                    lines(x.vec, x.vec + min.time);
                     points(output.tmp[min.index, 1], output.tmp[min.index, 2], pch = 16, cex = 1.5);
                     segments(x0 = x.vec[1], x1 = output.tmp[min.index, 1], y0 = output.tmp[min.index, 2], lty = 2, lwd = 2);
                     segments(x0 = output.tmp[min.index, 1], y0 = y.vec[1], y1 = output.tmp[min.index, 2], lty = 2, lwd = 2)
@@ -86,7 +86,7 @@ plot_mlcr_2ncp_filled.contour <- function(output) {
                   plot.axes = {
                     axis(1);
                     axis(2);
-                    lines(x.vec, y.vec);
+                    lines(x.vec, x.vec + min.time);
                     points(output.tmp[min.index, 1], output.tmp[min.index, 2], pch = 16, cex = 1.5);
                     segments(x0 = x.vec[1], x1 = output.tmp[min.index, 1], y0 = output.tmp[min.index, 2], lty = 2, lwd = 2);
                     segments(x0 = output.tmp[min.index, 1], y0 = y.vec[1], y1 = output.tmp[min.index, 2], lty = 2, lwd = 2)
