@@ -11,8 +11,8 @@
 #' @slot vbLinf L-infinity from the von Bertalanffy growth function.
 #' @slot vbK Parameter K from the von Bertalanffy growth function.
 #' @slot vbt0 Parameter t0 from the von Bertalanffy growth function.
-#' @slot Lc Length of full selectivity.
-#' @slot M Natural mortality rate.
+#' @slot Lc Length of full selectivity. 
+#' @slot M Natural mortality rate. This is also the lower limit for Z in \code{\link{ML}} and \code{\link{MLCR}}.
 #' @slot lwb Exponent \code{b} from the allometric length-weight function \eqn{W = aL^b}.
 #' @slot MeanLength Vector of mean lengths of animals larger than Lc.
 #' @slot ss Annual sample sizes for MeanLength.
@@ -42,6 +42,7 @@
 #' @useDynLib MLeq
 #' @useDynLib MLWPUE
 #' @useDynLib MLNPUE
+#' @useDynLib MLCReq
 #' @useDynLib MSM1S
 #' @useDynLib MSM23
 setClass("MLZ_data", slots = c(Stock = "character", Year = "vector", Len_df = "data.frame", Len_bins = "vector",

@@ -53,6 +53,8 @@ ML <- function(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
                   Lbar = full$MeanLength, ss = full$ss, spCont = spawn.cont)
   tmb.dat$Lbar[is.na(tmb.dat$ss) | tmb.dat$ss <= 0] <- -99
   tmb.dat$ss[is.na(tmb.dat$ss) | tmb.dat$Lbar < 0 | tmb.dat$ss <= 0] <- 0
+  
+  if(length(MLZ_data@M) > 0) Z.limit <- MLZ_data@M else Z.limit <- 0.01
 
   if(ncp == 0) {
     if(!is.null(start)) {
@@ -67,7 +69,7 @@ ML <- function(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
       start$Z[start$Z > 1] <- 1
     }
     obj <- MakeADFun(data = tmb.dat, parameters = start, hessian = TRUE, DLL = "MLeq", silent = TRUE)
-    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he)
+    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = Z.limit)
     sdrep <- sdreport(obj)
     
     results.matrix <- summary(sdrep)
@@ -97,7 +99,7 @@ ML <- function(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
       start <- list(Z = stZ, yearZ = styearZ)
     }
     obj <- MakeADFun(data = tmb.dat, parameters = start, hessian = TRUE, DLL = "ML", silent = TRUE)
-    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he)
+    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = c(rep(Z.limit, ncp + 1), rep(-Inf, ncp)))
     sdrep <- sdreport(obj)
 
     results.matrix <- summary(sdrep)
@@ -107,7 +109,9 @@ ML <- function(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
     year.ind <- grep("yearZ", rownames(results.matrix))
     results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] + MLZ_data@Year[1] - 1
   }
-  if(any(results.matrix[, 1] < 0)) warning("There are negative estimates from model.")
+  if(any(results.matrix[1:(ncp+1), 1] == Z.limit)) {
+    warning("There are mortality estimates at boundary (Z = 0.01 or M).")
+  }
   time.series <- full
   time.series$Predicted <- obj$report()$Lpred
   time.series$Residual <- time.series$MeanLength - time.series$Predicted
@@ -171,10 +175,9 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
                  parallel = ifelse(ncp > 2, TRUE, FALSE), min.time = 3, figure = TRUE) {
   
   if(!inherits(MLZ_data, "MLZ_data")) stop("No object of class 'MLZ_data' found.")
-  if(ncp == 0L) stop("Zero changepoints is not currently supported. Use ML().")
   
   CPUE.type <- match.arg(CPUE.type)
-  if(is.na(CPUE.type)) stop("Argument CPUE.type must be identified in either: weight 'WPUE' or abundance 'NPUE'.")
+  if(is.na(CPUE.type)) stop("Argument CPUE.type must be either 'WPUE' (weight-based) or 'NPUE' (abundance/numbers-based)")
   loglikeCPUE <- match.arg(loglikeCPUE)
   ll.int <- ifelse(loglikeCPUE == "lognormal", 0L, 1L)
   
@@ -190,7 +193,7 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
   data.df <- data.frame(Year = MLZ_data@Year, MeanLength = MLZ_data@MeanLength, ss = MLZ_data@ss,
                         CPUE = MLZ_data@CPUE)
   full <- left_join(max.years, data.df, by = "Year")
-
+  
   ncp <- as.integer(ncp)
   tmb.dat <- list(Linf = MLZ_data@vbLinf, K = MLZ_data@vbK, Lc = MLZ_data@Lc, nbreaks = ncp,
                   Lbar = full$MeanLength, ss = full$ss, CPUE = full$CPUE, 
@@ -199,45 +202,75 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
   tmb.dat$Lbar[is.na(tmb.dat$ss) | tmb.dat$ss <= 0] <- -99
   tmb.dat$ss[is.na(tmb.dat$ss) | tmb.dat$Lbar < 0 | tmb.dat$ss <= 0] <- 0
   tmb.dat$CPUE[is.na(tmb.dat$CPUE) | tmb.dat$CPUE < 0] <- -99
-
-  if(!is.null(start)) {
-    if(!"Z" %in% names(start) || !"yearZ" %in% names(start)) stop("Error in setup of start list. See help file.")
-    if(length(start$Z) != ncp + 1) stop("Length of starting Z vector not equal to ncp + 1.")
-    if(length(start$yearZ) != ncp) stop("Length of starting yearZ vector not equal to ncp.")
-    start$yearZ <- start$yearZ - MLZ_data@Year[1] + 1
-  }
-  else {
-    if(grid.search) {
-      grid.output <- profile_MLCR(MLZ_data, ncp, CPUE.type, loglikeCPUE, spawn = spawn, 
-                                  min.time = min.time, parallel = as.logical(parallel), figure = FALSE)
-      index.min <- which.min(grid.output$negLL)
-      styearZ <- as.numeric(grid.output[index.min, 1:ncp])
-      styearZ <- styearZ - MLZ_data@Year[1] + 1
+  
+  if(length(MLZ_data@M) > 0) Z.limit <- MLZ_data@M else Z.limit <- 0.01
+  
+  if(ncp == 0) {
+    if(CPUE.type == "NPUE") {
+      tmb.dat$b <- 3
+      tmb.dat$isNPUE <- 1L
+    } else tmb.dat$isNPUE <- 0L
+    if(!is.null(start)) {
+      if(!"Z" %in% names(start)) stop("Error in start list. Entry of name 'Z' not found.")
+      if(length(start$Z) != 1)
+        stop("Entry in name 'Z' of start list is not a numeric of length 1.")
     }
     else {
-      styearZ <- length(tmb.dat$Lbar) * (1:ncp) / (ncp+1)
+      start <- list(Z = MLZ_data@vbK * (MLZ_data@vbLinf - MLZ_data@MeanLength[1]) /
+                      (MLZ_data@MeanLength[1] - MLZ_data@Lc))
+      start$Z[is.na(start$Z) | start$Z <= 0 | is.infinite(start$Z)] <- 0.5
+      start$Z[start$Z > 1] <- 1
     }
-    stZ <- MLZ_data@vbK * (MLZ_data@vbLinf - MLZ_data@MeanLength[c(1,styearZ)]) /
-      (MLZ_data@MeanLength[c(1,styearZ)] - MLZ_data@Lc)
-    stZ[is.na(stZ) | stZ <= 0] <- 0.5
-    stZ[stZ > 1] <- 1
-    start <- list(Z = stZ, yearZ = styearZ)
+    obj <- MakeADFun(data = tmb.dat, parameters = start, hessian = TRUE, DLL = "MLCReq", silent = TRUE)
+    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = Z.limit)
+    sdrep <- sdreport(obj)
+    
+    results.matrix <- summary(sdrep)
+    rownames(results.matrix) <- c("Z", "q", "sigmaL", "sigmaI")
+    
+  }
+  if(ncp > 0) {
+    if(!is.null(start)) {
+      if(!"Z" %in% names(start) || !"yearZ" %in% names(start)) stop("Error in setup of start list. See help file.")
+      if(length(start$Z) != ncp + 1) stop("Length of starting Z vector not equal to ncp + 1.")
+      if(length(start$yearZ) != ncp) stop("Length of starting yearZ vector not equal to ncp.")
+      start$yearZ <- start$yearZ - MLZ_data@Year[1] + 1
+    }
+    else {
+      if(grid.search) {
+        grid.output <- profile_MLCR(MLZ_data, ncp, CPUE.type, loglikeCPUE, spawn = spawn, 
+                                    min.time = min.time, parallel = as.logical(parallel), figure = FALSE)
+        index.min <- which.min(grid.output$negLL)
+        styearZ <- as.numeric(grid.output[index.min, 1:ncp])
+        styearZ <- styearZ - MLZ_data@Year[1] + 1
+      }
+      else {
+        styearZ <- length(tmb.dat$Lbar) * (1:ncp) / (ncp+1)
+      }
+      stZ <- MLZ_data@vbK * (MLZ_data@vbLinf - MLZ_data@MeanLength[c(1,styearZ)]) /
+        (MLZ_data@MeanLength[c(1,styearZ)] - MLZ_data@Lc)
+      stZ[is.na(stZ) | stZ <= 0] <- 0.5
+      stZ[stZ > 1] <- 1
+      start <- list(Z = stZ, yearZ = styearZ)
+    }
+    
+    fx <- paste0("ML", CPUE.type)
+    obj <- MakeADFun(data = tmb.dat, parameters = start, hessian = TRUE, DLL = fx, silent = TRUE)
+    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = c(rep(Z.limit, ncp + 1), rep(-Inf, ncp)))
+    sdrep <- sdreport(obj)
+    
+    results.matrix <- summary(sdrep)
+    Z.name <- paste0("Z[", 1:(ncp+1), "]")
+    yearZ.name <- paste0("yearZ[", 1:ncp, "]")
+    rownames(results.matrix) <- c(Z.name, yearZ.name, "q", "sigmaL", "sigmaI")
+    year.ind <- grep("yearZ", rownames(results.matrix))
+    results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] + MLZ_data@Year[1] - 1
+    
   }
   
-  fx <- paste0("ML", CPUE.type)
-  obj <- MakeADFun(data = tmb.dat, parameters = start, hessian = TRUE, DLL = fx, silent = TRUE)
-  opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he)
-  sdrep <- sdreport(obj)
-  
-  results.matrix <- summary(sdrep)
-  Z.name <- paste0("Z[", 1:(ncp+1), "]")
-  yearZ.name <- paste0("yearZ[", 1:ncp, "]")
-  rownames(results.matrix) <- c(Z.name, yearZ.name, "q", "sigmaL", "sigmaI")
-  year.ind <- grep("yearZ", rownames(results.matrix))
-  results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] + MLZ_data@Year[1] - 1
-  
-  if(any(results.matrix[, 1] < 0)) warning("There are negative estimates from model.")
-
+  if(any(results.matrix[1:(ncp+1), 1] == Z.limit)) {
+    warning("There are mortality estimates at boundary (Z = 0.01 or M).")
+  }
   time.series <- data.frame(Predicted.ML = obj$report()$Lpred, Predicted.CPUE = obj$report()$Ipred)
   time.series <- cbind(full, time.series)
   time.series$Residual.ML <- time.series$MeanLength - time.series$Predicted.ML
