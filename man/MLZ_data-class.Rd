@@ -29,7 +29,7 @@ Method functions \code{summary} and \code{plot} are available for this class (se
 
 \item{\code{Lc}}{Length of full selectivity.}
 
-\item{\code{M}}{Natural mortality rate.}
+\item{\code{M}}{Natural mortality rate. This is also the lower limit for Z in \code{\link{ML}} and \code{\link{MLCR}}.}
 
 \item{\code{lwb}}{Exponent \code{b} from the allometric length-weight function \eqn{W = aL^b}.}
 
