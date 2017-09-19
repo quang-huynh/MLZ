@@ -56,16 +56,19 @@ profile_ML <- function(MLZ_data, ncp, startZ = rep(0.5, ncp+1), spawn = c("conti
   tmb.dat$Lbar[is.na(tmb.dat$ss) | tmb.dat$ss <= 0] <- -99
   tmb.dat$ss[is.na(tmb.dat$ss) | tmb.dat$Lbar < 0 | tmb.dat$ss <= 0] <- 0
   
+  if(length(MLZ_data@M) > 0) Z.limit <- MLZ_data@M else Z.limit <- 0.01
+  
   start.yearZ <- split(ygrid, 1:nrow(ygrid))
   tmb.start <- Map(function(x, y) list(Z = x, yearZ = as.numeric(y)), y = start.yearZ, 
                    MoreArgs = list(x = startZ))
   obj <- Map(MakeADFun, parameters = tmb.start, 
              MoreArgs = list(data = tmb.dat, map = list(yearZ = factor(rep(NA, ncp))), 
                              DLL = "ML", silent = TRUE))
-  if(!parallel) opt <- lapply(obj, function(x) try(nlminb(x$par, x$fn, x$gr)))
+  if(!parallel) opt <- lapply(obj, function(x) try(nlminb(x$par, x$fn, x$gr, lower = rep(Z.limit, ncp + 1))))
   if(parallel) {
     cl <- makeCluster(detectCores())
-    opt <- parLapply(cl, obj, function(x) try(nlminb(x$par, x$fn, x$gr)))
+    clusterExport(cl, c('Z.limit', 'ncp'), envir = environment())
+    opt <- parLapply(cl, obj, function(x) try(nlminb(x$par, x$fn, x$gr, lower = rep(Z.limit, ncp + 1))))
     stopCluster(cl)
   }
   nll.vec <- vapply(opt, returnNAobjective, numeric(1))
@@ -145,7 +148,7 @@ profile_ML <- function(MLZ_data, ncp, startZ = rep(0.5, ncp+1), spawn = c("conti
 #'
 #' @examples
 #' data(MuttonSnapper)
-#' profile_MLCR(MuttonSnapper, ncp = 1)
+#' profile_MLCR(MuttonSnapper, ncp = 1, CPUE.type = 'WPUE')
 #' @export
 profile_MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "NPUE", "WPUE"), loglikeCPUE = c("lognormal", "normal"),
                          spawn = c("continuous", "annual"), startZ = rep(0.5, ncp+1), min.time = 3, 
@@ -182,43 +185,29 @@ profile_MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "NPUE", "WPUE"), logli
   tmb.dat$ss[is.na(tmb.dat$ss) | tmb.dat$Lbar < 0 | tmb.dat$ss <= 0] <- 0
   tmb.dat$CPUE[is.na(tmb.dat$CPUE) | tmb.dat$CPUE < 0] <- -99
   
-  fx <- paste0("ML", CPUE.type)
-  #start.yearZ <- split(ygrid, 1:nrow(ygrid))
-  #tmb.start <- Map(function(x, y) list(Z = x, yearZ = as.numeric(y)), y = start.yearZ, 
-  #                 MoreArgs = list(x = startZ))
-  #obj <- Map(MakeADFun, parameters = tmb.start, 
-  #           MoreArgs = list(data = tmb.dat, map = list(yearZ = factor(rep(NA, ncp))), 
-  #                           DLL = fx, silent = TRUE))
-  #if(!parallel) 
-  #opt <- lapply(obj, function(x) try(nlminb(x$par, x$fn, x$gr)))
-  #if(parallel) {
-  #  cl <- makeCluster(detectCores())
-  #  opt <- parLapply(cl, obj, function(x) try(nlminb(x$par, x$fn, x$gr)))
-  #  stopCluster(cl)
-  #}
-  #nll.vec <- vapply(opt, returnNAobjective, numeric(1))
-  #nll.data <- -1 * t(vapply(obj, function(x) x$report()$loglike, numeric(2)))
+  if(length(MLZ_data@M) > 0) Z.limit <- MLZ_data@M else Z.limit <- 0.01
   
-  # For some reason, lapply doesn't work with profile_MLCR
-  nll.vec <- numeric(nrow(ygrid))
-  nll.data <- matrix(0, nrow = nrow(ygrid), ncol = 2)
-  for(i in 1:nrow(ygrid)) {
-    obj <- MakeADFun(data = tmb.dat, parameters = list(Z = startZ, yearZ = as.numeric(ygrid[i, ])), 
-                     map = list(yearZ = factor(rep(NA, ncp))), DLL = fx, silent = TRUE)
-    opt <- nlminb(obj$par, obj$fn, obj$gr)
-    if(inherits(opt, "try-error")) {
-      nll.vec[i] <- NA
-      nll.data[i, ] <- rep(NA, 2)
-    } else {
-      nll.vec[i] <- opt$objective
-      nll.data[i, ] <- -1 * obj$report()$loglike
-    }
+  fx <- paste0("ML", CPUE.type)
+  start.yearZ <- split(ygrid, 1:nrow(ygrid))
+  tmb.start <- Map(function(x, y) list(Z = x, yearZ = as.numeric(y)), y = start.yearZ, 
+                   MoreArgs = list(x = startZ))
+  obj <- Map(MakeADFun, parameters = tmb.start, 
+             MoreArgs = list(data = tmb.dat, map = list(yearZ = factor(rep(NA, ncp))), 
+                             DLL = fx, silent = TRUE))
+  if(!parallel) opt <- lapply(obj, function(x) try(nlminb(x$par, x$fn, x$gr, lower = rep(Z.limit, ncp + 1))))
+  if(parallel) {
+    cl <- makeCluster(detectCores())
+    opt <- parLapply(cl, obj, function(x) try(nlminb(x$par, x$fn, x$gr, lower = rep(Z.limit, ncp + 1))))
+    stopCluster(cl)
   }
+  nll.vec <- vapply(opt, returnNAobjective, numeric(1))
+  nll.data <- -1 * t(vapply(obj, function(x) x$report()$loglike, numeric(2)))
+  
   output <- as.data.frame(ygrid + MLZ_data@Year[1] - 1)
   output <- cbind(output, nll.vec, nll.data)
   names(output) <- c(paste0("Year", 1:ncp), "negLL", "ML", "CR")
   rownames(output) <- 1:nrow(output)
-
+  
   if(figure) {
     old_par <- par(no.readonly = TRUE)
     on.exit(par(list = old_par), add = TRUE)
