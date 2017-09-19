@@ -89,9 +89,6 @@ Type objective_function<Type>::operator() ()
         int_upper(i,m-1) = 1.;
       }
       if(i>0 & i<nbr+1) {
-        //Type lower_test = CppAD::CondExpLe(mm, yearZ(i-1), Type(0), Type(1));
-        //if(lower_test == 1) lower_test = CppAD::CondExpLe(mm, yearZ(i), Lc/Linf, 1 - (1 - Lc/Linf) * exp(-K * sumy(i,m-1)));
-        //int_lower(i,m-1) = lower_test;
         int_lower(i,m-1) = CppAD::CondExpLe(mm, yearZ(i-1), Type(0), CppAD::CondExpLe(mm, yearZ(i), Lc/Linf, 
                                             1 - (1 - Lc/Linf) * exp(-K * sumy(i,m-1))));
         int_upper(i,m-1) = CppAD::CondExpLe(mm, yearZ(i-1), Type(0), 1 - (1 - Lc/Linf) * exp(-K * sumy(i-1,m-1)));
@@ -156,10 +153,10 @@ Type objective_function<Type>::operator() ()
 
   for(m=0;m<count;m++) {
     Ipred(m) = q * biomass(m);
-	if(CPUE(m)>0) {
-	  if(loglikeCPUE == 0) sum_square(1) += square(log(CPUE(m)/Ipred(m)));
-	  if(loglikeCPUE == 1) sum_square(1) += square(CPUE(m) - Ipred(m));
-	}
+	  if(CPUE(m)>0) {
+	    if(loglikeCPUE == 0) sum_square(1) += square(log(CPUE(m)/Ipred(m)));
+	    if(loglikeCPUE == 1) sum_square(1) += square(CPUE(m) - Ipred(m));
+	  }
   }
 
   REPORT(Ipred);
