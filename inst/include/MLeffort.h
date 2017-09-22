@@ -1,11 +1,6 @@
-#include <TMB.hpp>
-
-template<class Type> 
-Type square(Type x){return x*x;}
-
-template<class Type>
-Type objective_function<Type>::operator() ()
-{
+//template<class Type>
+//Type objective_function<Type>::operator() ()
+//{
   DATA_SCALAR(Linf);
   DATA_SCALAR(K);
   DATA_SCALAR(a0);
@@ -31,11 +26,10 @@ Type objective_function<Type>::operator() ()
   int a;
   int k;
   int obs_ind = obs_season - 1;
-  Type ndata = 0.;
   int astep = n_age * n_season;
   
-  Type q;
-  Type M;
+  Type q = 0.;
+  Type M = 0.;
   
   if(logpar == 0) {
     q = logq;
@@ -56,9 +50,6 @@ Type objective_function<Type>::operator() ()
   vector<Type> age(astep);
   
   vector<Type> Lpred(n_yr);
-  Type sum_square = 0.;
-  Type sigma;
-  Type nll;
   
   Type seasD = n_season;
   Type ac = a0 - log(1 - Lc/Linf)/K;
@@ -97,18 +88,13 @@ Type objective_function<Type>::operator() ()
       denom += Nobs(y,a);
     }
     Lpred(y) = num/denom;
-    if(ss(y)>0) {
-      ndata += 1.;
-      sum_square += ss(y) * square(Lbar(y)- Lpred(y));
-    }
   }
   REPORT(Lpred);
-  sigma = sqrt(sum_square/ndata);
+  
+  Type sigma = estimate_sigmaL(Lbar, Lpred, ss, n_yr);
   ADREPORT(sigma);
   
-  nll = -ndata * log(sigma) - 0.5 * sum_square/square(sigma);
-  nll *= -1;
+  Type nll = nll_Lbar(Lbar, Lpred, ss, sigma, n_yr); 
+  
   return nll;
-}
-
-
+//}
