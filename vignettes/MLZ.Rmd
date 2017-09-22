@@ -112,13 +112,6 @@ model2 <- ML(Goosefish, ncp = 1, figure = FALSE)
 model3 <- ML(Goosefish, ncp = 2, figure = FALSE)
 ```
 
-The Gedamke-Hoenig model (along with the equilibrium Beverton-Holt equation) is derived assuming continuous spawning and recruitment. A similar derivation is available for annual (pulse) recruitment using the `spawn` argument (the default option uses continuous recruitment). 
-```r
-ML(Goosefish, ncp = 2, spawn = "annual")
-```
-
-This may be useful if recruitment is highly seasonal (a single year class) and/or for a comparison with another assessment method that assumes annual recruitment.
-
 ### 2.3 Model selection
 Model runs with different change points can be compared using AIC. The `compare_models` function facilitates
 this feature and produces a plot of the predicted data.
@@ -172,8 +165,11 @@ zz <- profile_ML(Goosefish, ncp = 2, color = FALSE)
 
 `profile_MLCR`, and `profile_MLmulti` are also available for the respective models (Section 4).
 
-#### 3.2.2 Additional diagnostics
-Additional diagnostics, including sensitivity to growth, natural mortality, and Lc, as well as bootstrapping are in development.
+#### 3.2.2 Sensitivity to Lc
+The `sensitivity_Lc` function for the ML estimator plots estimates of Z and change points with different values of Lc.
+
+#### 3.2.3 Additional diagnostics
+Additional diagnostics, including sensitivity to life hitory (growth, natural mortality), and bootstrapping routines are in development.
 
 ## 4. Outline of other estimators
 ### 4.1 MLCR (Mean Length with Catch Rate)

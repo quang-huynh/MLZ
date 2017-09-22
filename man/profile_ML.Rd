@@ -4,9 +4,8 @@
 \alias{profile_ML}
 \title{Grid search for the mean length estimator}
 \usage{
-profile_ML(MLZ_data, ncp, startZ = rep(0.5, ncp + 1),
-  spawn = c("continuous", "annual"), min.time = 3, parallel = ifelse(ncp >
-  2, TRUE, FALSE), figure = TRUE, color = TRUE)
+profile_ML(MLZ_data, ncp, startZ = rep(0.5, ncp + 1), min.time = 3,
+  parallel = ifelse(ncp > 2, TRUE, FALSE), figure = TRUE, color = TRUE)
 }
 \arguments{
 \item{MLZ_data}{An object of class \code{MLZ_data}.}
@@ -14,8 +13,6 @@ profile_ML(MLZ_data, ncp, startZ = rep(0.5, ncp + 1),
 \item{ncp}{The number of change points.}
 
 \item{startZ}{A vector of length \code{ncp+1} as the starting value of total mortality rate used in the grid search.}
-
-\item{spawn}{Whether 'continuous' or 'annual' (pulse) spawning is modeled.}
 
 \item{min.time}{The minimum number of years between change points. Only used if \code{ncp > 1}.}
 

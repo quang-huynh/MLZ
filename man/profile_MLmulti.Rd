@@ -5,9 +5,8 @@
 \title{Grid search for the multispecies mean length estimator}
 \usage{
 profile_MLmulti(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"),
-  spawn = c("continuous", "annual"), startZ1 = rep(0.5, length(MLZ.list)),
-  parallel = ifelse(ncp > 2, TRUE, FALSE), min.time = 3, figure = TRUE,
-  color = TRUE)
+  startZ1 = rep(0.5, length(MLZ.list)), parallel = ifelse(ncp > 2, TRUE,
+  FALSE), min.time = 3, figure = TRUE, color = TRUE)
 }
 \arguments{
 \item{MLZ.list}{A list containing an object of class \code{MLZ_data} for each species or stock.}
@@ -15,8 +14,6 @@ profile_MLmulti(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"),
 \item{ncp}{The number of change points.}
 
 \item{model}{The name of the multispecies model for the grid search.}
-
-\item{spawn}{Whether 'continuous' or 'annual' (pulse) spawning is modeled.}
 
 \item{startZ1}{A vector of length \code{ncp+1} as the starting value of total mortality rate used in the grid search.}
 

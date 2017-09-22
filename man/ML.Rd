@@ -4,9 +4,8 @@
 \alias{ML}
 \title{Mean length-based mortality estimator}
 \usage{
-ML(MLZ_data, ncp, start = NULL, spawn = c("continuous", "annual"),
-  grid.search = TRUE, parallel = ifelse(ncp > 2, TRUE, FALSE),
-  min.time = 3, figure = TRUE)
+ML(MLZ_data, ncp, start = NULL, grid.search = TRUE, parallel = ifelse(ncp
+  > 2, TRUE, FALSE), min.time = 3, figure = TRUE)
 }
 \arguments{
 \item{MLZ_data}{An object of class \code{\linkS4class{MLZ_data}} containing mean lengths and
@@ -16,8 +15,6 @@ life history data of stock.}
 mortality rates will be estimated.}
 
 \item{start}{An optional list of starting values. See details.}
-
-\item{spawn}{Whether 'continuous' or 'annual' (pulse) spawning is modeled.}
 
 \item{grid.search}{If \code{TRUE}, a grid search will be performed using the \code{\link{profile_ML}}
 function to find the best starting values for the change points (the years when mortality changes).

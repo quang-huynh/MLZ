@@ -3,7 +3,7 @@
 \docType{data}
 \name{PRSnapper}
 \alias{PRSnapper}
-\title{Puerto Rico Snapper}
+\title{Puerto Rico Snapper (for MLmulti)}
 \format{A list containing objects of class \code{\linkS4class{MLZ_data}}.}
 \usage{
 PRSnapper

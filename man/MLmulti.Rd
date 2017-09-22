@@ -5,8 +5,8 @@
 \title{Multispecies mean length mortality estimator}
 \usage{
 MLmulti(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"),
-  start = NULL, spawn = c("continuous", "annual"), grid.search = TRUE,
-  parallel = ifelse(ncp > 2, TRUE, FALSE), min.time = 3, figure = TRUE)
+  start = NULL, grid.search = TRUE, parallel = ifelse(ncp > 2, TRUE,
+  FALSE), min.time = 3, figure = TRUE)
 }
 \arguments{
 \item{MLZ.list}{A list containing objects of class \code{\linkS4class{MLZ_data}}.}
@@ -17,8 +17,6 @@ mortality rates will be estimated.}
 \item{model}{The multispecies model to be used.}
 
 \item{start}{An optional list of starting values. See details.}
-
-\item{spawn}{Whether 'continuous' or 'annual' (pulse) spawning is modeled.}
 
 \item{grid.search}{If \code{TRUE}, a grid search will be performed using the \code{\link{profile_MLmulti}}
 function to find the best starting values for the change points (the years when mortality changes).

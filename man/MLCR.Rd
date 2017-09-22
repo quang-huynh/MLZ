@@ -5,9 +5,9 @@
 \title{Mean length with catch rate mortality estimator}
 \usage{
 MLCR(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"),
-  loglikeCPUE = c("lognormal", "normal"), spawn = c("continuous", "annual"),
-  start = NULL, grid.search = TRUE, parallel = ifelse(ncp > 2, TRUE,
-  FALSE), min.time = 3, figure = TRUE)
+  loglikeCPUE = c("lognormal", "normal"), start = NULL,
+  grid.search = TRUE, parallel = ifelse(ncp > 2, TRUE, FALSE),
+  min.time = 3, figure = TRUE)
 }
 \arguments{
 \item{MLZ_data}{An object of class \code{\linkS4class{MLZ_data}} containing mean lengths and
@@ -20,8 +20,6 @@ mortality rates will be estimated.}
 
 \item{loglikeCPUE}{Indicates whether the log-likelihood for the CPUE will be lognormally or
 normally distributed.}
-
-\item{spawn}{Whether 'continuous' or 'annual' (pulse) spawning is modeled.}
 
 \item{start}{An optional list of starting values. See details.}
 

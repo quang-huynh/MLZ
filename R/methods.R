@@ -37,14 +37,7 @@
 #' @importFrom gplots rich.colors
 #' @importFrom stats nlminb
 #' @importFrom grDevices cm.colors
-#' @useDynLib ML
-#' @useDynLib MLe
-#' @useDynLib MLeq
-#' @useDynLib MLWPUE
-#' @useDynLib MLNPUE
-#' @useDynLib MLCReq
-#' @useDynLib MSM1S
-#' @useDynLib MSM23
+#' @useDynLib MLZ
 setClass("MLZ_data", slots = c(Stock = "character", Year = "vector", Len_df = "data.frame", Len_bins = "vector",
                                Len_matrix = "matrix", vbLinf = "numeric", vbK = "numeric", vbt0 = "numeric",
                                M = "numeric", Lc = "numeric", lwb = "numeric", MeanLength = "numeric", ss = "numeric",
