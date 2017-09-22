@@ -1,4 +1,4 @@
-#' Male Nephrops FU 28-29
+#' Male Nephrops FU 28-29 (for MLeffort)
 #'
 #' An S4 object containing length and effort time series and life history parameters of male Nephrops in FU 28-29.
 #'
@@ -14,7 +14,7 @@
 #'
 "Nephrops"
 
-#' Puerto Rico Snapper
+#' Puerto Rico Snapper (for MLmulti)
 #'
 #' Mean lengths and life history for 3 species in the Puerto Rico Deepwater Snapper Complex (Unit 1):
 #' silk snapper, blackfin snapper, and vermilion snapper.
@@ -32,7 +32,7 @@
 
 
 
-#' Puerto Rico Mutton Snapper
+#' Puerto Rico Mutton Snapper (for ML, MLCR)
 #'
 #' Mean lengths, CPUE, and life history for Puerto Rico mutton snapper.
 #'
@@ -49,7 +49,7 @@
 "MuttonSnapper"
 
 
-#' Goosefish: Northern Management Region
+#' Goosefish: Northern Management Region (for ML)
 #'
 #' Mean lengths and life history for goosefish.
 #'
