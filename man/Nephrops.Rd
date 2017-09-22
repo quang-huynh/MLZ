@@ -3,7 +3,7 @@
 \docType{data}
 \name{Nephrops}
 \alias{Nephrops}
-\title{Male Nephrops FU 28-29}
+\title{Male Nephrops FU 28-29 (for MLeffort)}
 \format{An object of class \code{\linkS4class{MLZ_data}}.}
 \usage{
 Nephrops

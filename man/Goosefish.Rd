@@ -3,7 +3,7 @@
 \docType{data}
 \name{Goosefish}
 \alias{Goosefish}
-\title{Goosefish: Northern Management Region}
+\title{Goosefish: Northern Management Region (for ML)}
 \format{An object of class \code{\linkS4class{MLZ_data}}.}
 \usage{
 Goosefish

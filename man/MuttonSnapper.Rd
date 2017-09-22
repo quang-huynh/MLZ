@@ -3,7 +3,7 @@
 \docType{data}
 \name{MuttonSnapper}
 \alias{MuttonSnapper}
-\title{Puerto Rico Mutton Snapper}
+\title{Puerto Rico Mutton Snapper (for ML, MLCR)}
 \format{An object of class \code{\linkS4class{MLZ_data}}.}
 \usage{
 MuttonSnapper
