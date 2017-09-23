@@ -511,7 +511,6 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
       delta.limit <- rep(0, ncp)
       lower.limit <- c(Z.limit, yearZ.limit, delta.limit)
     }
-    browser()
     obj <- MakeADFun(data = tmb.dat, parameters = start, hessian = TRUE, 
                      map = map, DLL = "MLZ", silent = TRUE)
     opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = lower.limit)
