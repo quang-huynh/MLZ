@@ -18,11 +18,6 @@ The estimation models are written in TMB. As a result, Rtools is required if run
 The MLZ package can then be installed using the `devtools` package:
 
 ```r
-### install missing dependencies first
-depends <- list("methods", "stats", "graphics", "grDevices", "dplyr", "gplots", "ggplot2", "reshape2", 
-                "parallel", "TMB")
-lapply(depends, function(x) if(!x %in% installed.packages()) install.packages(x))
-
 devtools::install_github("quang-huynh/MLZ")
 ```
 
