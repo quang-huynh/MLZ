@@ -1,7 +1,6 @@
 #define TMB_LIB_INIT R_init_MLZ
 #include <TMB.hpp>
 #include <tiny_ad/beta/pbeta.hpp>
-#include <cppad/cppad.hpp>
 #include "../inst/include/functions.h"
 
 template<class Type>
