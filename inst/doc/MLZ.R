@@ -11,7 +11,7 @@ library(MLZ); data(Goosefish)
 data(SilkSnapper)
 new.dataset <- new("MLZ_data", Year = 1983:2013, Len_df = SilkSnapper, length.units = "mm")
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE, message = FALSE--------------------------------------
 #  bin_length(SilkSnapper)
 
 ## ---- fig.height = 5, fig.width = 6, message = FALSE---------------------
