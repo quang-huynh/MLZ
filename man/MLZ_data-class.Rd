@@ -13,13 +13,13 @@ Method functions \code{summary} and \code{plot} are available for this class (se
 \describe{
 \item{\code{Stock}}{Name of stock.}
 
-\item{\code{Year}}{A vector of years to be considered in the model. Need to be increments of a single year.}
-
-\item{\code{Len_df}}{A data frame containing individual length observations. The first column should be the Year and the second column should be the length.}
+\item{\code{Year}}{A vector of years to be considered in the model. Missing years are permitted.}
 
 \item{\code{Len_bins}}{A vector of midpoints of length bins for \code{Len_matrix}.}
 
-\item{\code{Len_matrix}}{A matrix of size data. Rows index \code{Year} and columns index \code{Len_bins}.}
+\item{\code{Len_matrix}}{A matrix of size data. The i-th row corresponds to the i-th year in \code{MLZ_data@Year}. The j-th column indexes the j-th length in \code{MLZ_data@Len_bins}.}
+
+\item{\code{Len_df}}{A data frame containing individual length observations. The first column should be the Year and the second column should be the length.}
 
 \item{\code{vbLinf}}{L-infinity from the von Bertalanffy growth function.}
 
@@ -29,17 +29,17 @@ Method functions \code{summary} and \code{plot} are available for this class (se
 
 \item{\code{Lc}}{Length of full selectivity.}
 
-\item{\code{M}}{Natural mortality rate. This is also the lower limit for Z in \code{\link{ML}} and \code{\link{MLCR}}.}
+\item{\code{M}}{Natural mortality rate. If specified, this is also the lower limit for Z.}
 
 \item{\code{lwb}}{Exponent \code{b} from the allometric length-weight function \eqn{W = aL^b}.}
 
-\item{\code{MeanLength}}{Vector of mean lengths of animals larger than Lc.}
+\item{\code{MeanLength}}{Vector of mean lengths of animals larger than Lc. The i-th entry corresponds to the i-th year in \code{MLZ_data@Year}.}
 
-\item{\code{ss}}{Annual sample sizes for MeanLength.}
+\item{\code{ss}}{Vector of annual sample sizes for MeanLength. The i-th entry corresponds to the i-th year in \code{MLZ_data@Year}.}
 
-\item{\code{CPUE}}{Vector of catch-per-unit-effort data.}
+\item{\code{CPUE}}{Vector of catch-per-unit-effort data. The i-th entry corresponds to the i-th year in \code{MLZ_data@Year}.}
 
-\item{\code{Effort}}{Vector of effort data.}
+\item{\code{Effort}}{Vector of effort data. The i-th entry corresponds to the i-th year in \code{MLZ_data@Year}.}
 
 \item{\code{length.units}}{Unit of measurement for lengths, i.e. "cm" or "mm".}
 }}

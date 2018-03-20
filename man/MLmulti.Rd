@@ -80,20 +80,21 @@ Otherwise, the starting values for \code{yearZ} evenly divide the time series.
 }
 \examples{
 data(PRSnapper)
-MLmulti(PRSnapper, ncp = 0, start = list(Z = rep(0.5, 3)))
+MLmulti(PRSnapper, ncp = 0, start = list(Z = matrix(0.5, nrow = 1, ncol = 3)))
 MLmulti(PRSnapper, ncp = 1, model = "SSM")
 
-MSM1.start.Z <- matrix(0.5, nrow = 3, ncol = 2)
+MSM1.start.Z <- matrix(0.5, nrow = 2, ncol = 3)
 MSM1.start.yearZ <- 1990
-MLmulti(PRSnapper, ncp = 1, model = "MSM1", start = list(Z = MSM1.start.Z, yearZ = MSM1.start.yearZ),
-grid.search = FALSE)
+start.list <- list(Z = MSM1.start.Z, yearZ = MSM1.start.yearZ)
+MLmulti(PRSnapper, ncp = 1, model = "MSM1", start = start.list, grid.search = FALSE)
 
 MLmulti(PRSnapper, ncp = 1, model = "MSM2")
 
 st.Z1 <- rep(0.5, 3)
 st.yearZ <- 1990
 st.delta <- 1
-MLmulti(PRSnapper, ncp = 1, model = "MSM3", start = list(Z1 = st.Z1, yearZ = st.yearZ, delta = st.delta))
+start.list <- list(Z1 = st.Z1, yearZ = st.yearZ, delta = st.delta)
+MLmulti(PRSnapper, ncp = 1, model = "MSM3", start = start.list)
 }
 \references{
 Huynh, Q.C, Gedamke, T., Hoenig, J.M, and Porch C. 2017. Multispecies Extensions

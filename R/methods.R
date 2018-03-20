@@ -4,20 +4,20 @@
 #' Method functions \code{summary} and \code{plot} are available for this class (see examples).
 #'
 #' @slot Stock Name of stock.
-#' @slot Year A vector of years to be considered in the model. Need to be increments of a single year.
-#' @slot Len_df A data frame containing individual length observations. The first column should be the Year and the second column should be the length.
+#' @slot Year A vector of years to be considered in the model. Missing years are permitted.
 #' @slot Len_bins A vector of midpoints of length bins for \code{Len_matrix}.
-#' @slot Len_matrix A matrix of size data. Rows index \code{Year} and columns index \code{Len_bins}.
+#' @slot Len_matrix A matrix of size data. The i-th row corresponds to the i-th year in \code{MLZ_data@Year}. The j-th column indexes the j-th length in \code{MLZ_data@Len_bins}.
+#' @slot Len_df A data frame containing individual length observations. The first column should be the Year and the second column should be the length.
 #' @slot vbLinf L-infinity from the von Bertalanffy growth function.
 #' @slot vbK Parameter K from the von Bertalanffy growth function.
 #' @slot vbt0 Parameter t0 from the von Bertalanffy growth function.
 #' @slot Lc Length of full selectivity. 
-#' @slot M Natural mortality rate. This is also the lower limit for Z in \code{\link{ML}} and \code{\link{MLCR}}.
+#' @slot M Natural mortality rate. If specified, this is also the lower limit for Z.
 #' @slot lwb Exponent \code{b} from the allometric length-weight function \eqn{W = aL^b}.
-#' @slot MeanLength Vector of mean lengths of animals larger than Lc.
-#' @slot ss Annual sample sizes for MeanLength.
-#' @slot CPUE Vector of catch-per-unit-effort data.
-#' @slot Effort Vector of effort data.
+#' @slot MeanLength Vector of mean lengths of animals larger than Lc. The i-th entry corresponds to the i-th year in \code{MLZ_data@Year}. 
+#' @slot ss Vector of annual sample sizes for MeanLength. The i-th entry corresponds to the i-th year in \code{MLZ_data@Year}. 
+#' @slot CPUE Vector of catch-per-unit-effort data. The i-th entry corresponds to the i-th year in \code{MLZ_data@Year}. 
+#' @slot Effort Vector of effort data. The i-th entry corresponds to the i-th year in \code{MLZ_data@Year}. 
 #' @slot length.units Unit of measurement for lengths, i.e. "cm" or "mm".
 #'
 #' @examples
@@ -38,8 +38,8 @@
 #' @importFrom stats nlminb
 #' @importFrom grDevices cm.colors
 #' @useDynLib MLZ
-setClass("MLZ_data", slots = c(Stock = "character", Year = "vector", Len_df = "data.frame", Len_bins = "vector",
-                               Len_matrix = "matrix", vbLinf = "numeric", vbK = "numeric", vbt0 = "numeric",
+setClass("MLZ_data", slots = c(Stock = "character", Year = "vector", Len_bins = "vector", Len_matrix = "matrix", 
+                               Len_df = "data.frame", vbLinf = "numeric", vbK = "numeric", vbt0 = "numeric",
                                M = "numeric", Lc = "numeric", lwb = "numeric", MeanLength = "numeric", ss = "numeric",
                                CPUE = "numeric", Effort = "numeric", length.units = "character"))
 
@@ -105,11 +105,9 @@ setMethod("summary", signature(object = "MLZ_data"), function(object) {
 #'
 #' @param object An object of class \code{MLZ_model}.
 #' @examples
-#' /dontrun{
 #' data(Goosefish)
 #' goose.model <- ML(Goosefish, ncp = 2, grid.search = FALSE)
 #' summary(goose.model)
-#' }
 #'
 #' @export
 setMethod("summary", signature(object = "MLZ_model"), function(object)
@@ -146,7 +144,7 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
   no.Len_df <- nrow(MLZ_data@Len_df) == 0
   no.ML <- length(MLZ_data@MeanLength) == 0
 
-  if(no.Len_matrix & no.Len_df & no.ML) stop("No length data available.")
+  if(no.Len_matrix && no.Len_df && no.ML) stop("No length data available.")
 
   if(!no.Len_matrix) {
     Len_matrix <- MLZ_data@Len_matrix
@@ -305,3 +303,9 @@ setMethod("plot", signature(x = "MLZ_model"), function(x, residuals = TRUE) {
 
 }
 )
+
+# calc_ML variables
+Length <- Year <- NULL
+
+# plot.MLZ_data variables
+Length <- Year <- Frequency <- newF <- N <- ..ncount.. <- NULL
