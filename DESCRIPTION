@@ -1,9 +1,9 @@
 Package: MLZ
 Title: Mean Length-based Estimators of Mortality using TMB
 Version: 0.1.0
-Authors@R: c(person("Quang", "Huynh", email = "qhuynh@vims.edu", role = c("aut", "cre")),
+Authors@R: c(person("Quang", "Huynh", email = "q.huynh@oceans.ubc.ca", role = c("aut", "cre")),
   person("Todd", "Gedamke", rol = "ctb"), person("Amy", "Then", rol = "ctb"))
-Maintainer: Quang Huynh <qhuynh@vims.edu>
+Maintainer: Quang Huynh <q.huynh@oceans.ubc.ca>
 Description: An R package for mean length-based estimators of total mortality Z.
 Depends:
     R (>= 3.4.0),
