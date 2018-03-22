@@ -211,7 +211,7 @@ profile_MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "NPUE", "WPUE"),
     stopCluster(cl)
   }
   nll.vec <- vapply(opt, returnNAobjective, numeric(1))
-  nll.data <- t(vapply(obj, function(x) x$report()$nllc, numeric(2)))
+  nll.data <- t(vapply(obj, function(x) x$report(x$env$last.par.best)$nllc, numeric(2)))
   
   output <- as.data.frame(ygrid + MLZ_data@Year[1] - 1)
   output <- cbind(output, nll.vec, nll.data)
@@ -367,7 +367,7 @@ profile_MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM
     stopCluster(cl)
   }
   nll.vec <- vapply(opt, returnNAobjective, numeric(1))
-  nll.data <- t(vapply(obj, function(x) x$report()$nllc, numeric(nspec)))
+  nll.data <- t(vapply(obj, function(x) x$report(x$env$last.par.best)$nllc, numeric(nspec)))
   
   output <- as.data.frame(ygrid + min(years) - 1)
   output <- cbind(output, nll.vec, nll.data)

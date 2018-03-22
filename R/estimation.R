@@ -112,7 +112,7 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE,
     warning("There are mortality estimates at boundary (Z = 0.01 or M).")
   }
   time.series <- full
-  time.series$Predicted <- obj$report()$Lpred
+  time.series$Predicted <- obj$report(obj$env$last.par.best)$Lpred
   time.series$Residual <- time.series$MeanLength - time.series$Predicted
   class(sdrep) <- "list"
   MLZ_model <- new("MLZ_model", Stock = MLZ_data@Stock, Model = "ML", time.series = time.series,
@@ -258,7 +258,8 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
   if(any(results.matrix[1:(ncp+1), 1] == Z.limit)) {
     warning("There are mortality estimates at boundary (Z = 0.01 or M).")
   }
-  time.series <- data.frame(Predicted.ML = obj$report()$Lpred, Predicted.CPUE = obj$report()$Ipred)
+  time.series <- data.frame(Predicted.ML = obj$report(obj$env$last.par.best)$Lpred, 
+                            Predicted.CPUE = obj$report(obj$env$last.par.best)$Ipred)
   time.series <- cbind(full, time.series)
   time.series$Residual.ML <- time.series$MeanLength - time.series$Predicted.ML
   time.series$Residual.CPUE <- time.series$CPUE - time.series$Predicted.CPUE
@@ -542,9 +543,10 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
       if(model == "MSM3") rownames(results.matrix) <- c(delta.name, yearZ.name, Z.name, sigma.name)
     }
   }
-  produce_MLmulti_warnings(Z = obj$report()$Z, Z.limit = vapply(MLZ.list, get_M_MSM1S, numeric(1)))
+  produce_MLmulti_warnings(Z = obj$report(obj$env$last.par.best)$Z, 
+                           Z.limit = vapply(MLZ.list, get_M_MSM1S, numeric(1)))
   
-  Lbar.df$Predicted <- as.numeric(obj$report()$Lpred)
+  Lbar.df$Predicted <- as.numeric(obj$report(obj$env$last.par.best)$Lpred)
   Lbar.df$Residual <- Lbar.df$MeanLength - Lbar.df$Predicted
   sp.name <- lapply(MLZ.list, getElement, "Stock")
   sp.ind <- vapply(sp.name, length, numeric(1))
@@ -654,9 +656,9 @@ MLeffort <- function(MLZ_data, start, n_age, estimate.M = TRUE, log.par = FALSE,
     results.matrix <- results.matrix[-ind.remove, ]
   }
   
-  full$Predicted <- obj$report()$Lpred
+  full$Predicted <- obj$report(obj$env$last.par.best)$Lpred
   full$Residual <- full$MeanLength - full$Predicted
-  full$Z <- obj$report()$Z
+  full$Z <- obj$report(obj$env$last.par.best)$Z
   if(estimate.M) {
     ind.M <- which(rownames(results.matrix) == "M")
     full$M <- rep(results.matrix[ind.M, 1], nrow(full))
