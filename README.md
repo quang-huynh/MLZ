@@ -1,5 +1,7 @@
 # MLZ: Mean Length-based Z Estimators
 
+[![Build Status](https://travis-ci.org/quang-huynh/MLZ.svg?branch=master)](https://travis-ci.org/quang-huynh/MLZ)
+
 ## Introduction
 MLZ is a R package that facilitates data preparation and estimation of mortality with statistical diagnostics using the mean length-based mortality estimator and several extensions.
 
