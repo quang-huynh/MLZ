@@ -644,7 +644,7 @@ MLeffort <- function(MLZ_data, start, n_age, estimate.M = TRUE, log.par = FALSE,
                    hessian = TRUE, DLL = "MLZ", silent = TRUE)
   if(log.par) opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he)
   if(!log.par) {
-    if(estimate.M) nrep <- 2 else nrep < -1
+    if(estimate.M) nrep <- 2 else nrep <- 1
     opt <- nlminb(obj$par, obj$fn, obj$gr, lower = rep(1e-4, nrep))
   }
   sdrep <- sdreport(obj)
