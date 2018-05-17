@@ -3,6 +3,7 @@
 \docType{class}
 \name{MLZ_data-class}
 \alias{MLZ_data-class}
+\alias{MLZ_data}
 \title{MLZ_data}
 \description{
 An S4 class for storing data and life history parameters for a single stock.

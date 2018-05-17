@@ -27,6 +27,7 @@
 #'
 #' new("MLZ_data")
 #' @export
+#' @exportClass MLZ_data
 #' @import TMB
 #' @import ggplot2
 #' @import dplyr
@@ -38,10 +39,10 @@
 #' @importFrom stats nlminb
 #' @importFrom grDevices cm.colors
 #' @useDynLib MLZ
-setClass("MLZ_data", slots = c(Stock = "character", Year = "vector", Len_bins = "vector", Len_matrix = "matrix", 
-                               Len_df = "data.frame", vbLinf = "numeric", vbK = "numeric", vbt0 = "numeric",
-                               M = "numeric", Lc = "numeric", lwb = "numeric", MeanLength = "numeric", ss = "numeric",
-                               CPUE = "numeric", Effort = "numeric", length.units = "character"))
+MLZ_data <- setClass("MLZ_data", slots = c(Stock = "character", Year = "vector", Len_bins = "vector", Len_matrix = "matrix", 
+                                           Len_df = "data.frame", vbLinf = "numeric", vbK = "numeric", vbt0 = "numeric",
+                                           M = "numeric", Lc = "numeric", lwb = "numeric", MeanLength = "numeric", ss = "numeric",
+                                           CPUE = "numeric", Effort = "numeric", length.units = "character"))
 
 #' MLZ_model
 #'
