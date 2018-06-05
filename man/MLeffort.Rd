@@ -40,8 +40,8 @@ Estimator of fishing and natural mortality from a time series of mean length and
 \examples{
 data(Nephrops)
 Nephrops <- calc_ML(Nephrops, sample.size = FALSE)
-MLeffort(Nephrops, start = list(q = 0.1, M = 0.2),
-         n_age = 24, eff_init = Nephrops@Effort[1])
+res <- MLeffort(Nephrops, start = list(q = 0.1, M = 0.2),
+                n_age = 24, eff_init = Nephrops@Effort[1])
 }
 \references{
 Then, A.Y, Hoenig, J.M, and Huynh, Q.C. In revision. Estimating fishing and natural

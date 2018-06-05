@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+MLZ.Rproj
+src/*.o
+src/*.so
+src/*.dll
+ML_templates/*
+.Rbuildignore

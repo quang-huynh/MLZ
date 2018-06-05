@@ -30,10 +30,10 @@
 #' @return An object of class \code{\linkS4class{MLZ_model}}.
 #' @examples
 #' data(Goosefish)
-#' ML(Goosefish, ncp = 2)
-#' ML(Goosefish, ncp = 2, start = list(Z = c(0.1, 0.3, 0.5), yearZ = c(1978, 1988)))
-#' ML(Goosefish, ncp = 2, grid.search = TRUE)
-#'
+#' res <- ML(Goosefish, ncp = 2)
+#' res <- ML(Goosefish, ncp = 2, start = list(Z = c(0.1, 0.3, 0.5), yearZ = c(1978, 1988)))
+#' res <- ML(Goosefish, ncp = 2, grid.search = TRUE)
+#' 
 #' @seealso \code{\link{profile_ML}}
 #' @export
 ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, 
@@ -160,9 +160,10 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE,
 #' Otherwise, the starting values for \code{yearZ} evenly divide the time series.
 #'
 #' @examples
+#' \dontrun{
 #' data(MuttonSnapper)
 #' MLCR(MuttonSnapper, ncp = 2, CPUE.type = "WPUE", grid.search = TRUE)
-#'
+#' }
 #' @seealso \code{\link{profile_MLCR}}
 #'
 #' @export
@@ -343,21 +344,21 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
 #'
 #' @examples
 #' data(PRSnapper)
-#' MLmulti(PRSnapper, ncp = 0, start = list(Z = matrix(0.5, nrow = 1, ncol = 3)))
-#' MLmulti(PRSnapper, ncp = 1, model = "SSM")
+#' res_eq <- MLmulti(PRSnapper, ncp = 0, start = list(Z = matrix(0.5, nrow = 1, ncol = 3)))
+#' res_SSM <- MLmulti(PRSnapper, ncp = 1, model = "SSM")
 #'
 #' MSM1.start.Z <- matrix(0.5, nrow = 2, ncol = 3)
 #' MSM1.start.yearZ <- 1990
 #' start.list <- list(Z = MSM1.start.Z, yearZ = MSM1.start.yearZ)
-#' MLmulti(PRSnapper, ncp = 1, model = "MSM1", start = start.list, grid.search = FALSE)
+#' res_MSM1 <- MLmulti(PRSnapper, ncp = 1, model = "MSM1", start = start.list, grid.search = FALSE)
 #'
-#' MLmulti(PRSnapper, ncp = 1, model = "MSM2")
+#' res_MSM2 <- MLmulti(PRSnapper, ncp = 1, model = "MSM2")
 #'
 #' st.Z1 <- rep(0.5, 3)
 #' st.yearZ <- 1990
 #' st.delta <- 1
 #' start.list <- list(Z1 = st.Z1, yearZ = st.yearZ, delta = st.delta)
-#' MLmulti(PRSnapper, ncp = 1, model = "MSM3", start = start.list)
+#' resMSM3 <- MLmulti(PRSnapper, ncp = 1, model = "MSM3", start = start.list)
 #' @export
 MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), start = NULL,
                     grid.search = TRUE, parallel = ifelse(ncp > 2, TRUE, FALSE), 
@@ -591,8 +592,8 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
 #' @examples
 #' data(Nephrops)
 #' Nephrops <- calc_ML(Nephrops, sample.size = FALSE)
-#' MLeffort(Nephrops, start = list(q = 0.1, M = 0.2),
-#'          n_age = 24, eff_init = Nephrops@Effort[1])
+#' res <- MLeffort(Nephrops, start = list(q = 0.1, M = 0.2),
+#'                 n_age = 24, eff_init = Nephrops@@Effort[1])
 #' @export
 MLeffort <- function(MLZ_data, start, n_age, estimate.M = TRUE, log.par = FALSE,
                      eff_init = 0, n_season = 1L, obs_season = 1L, timing = 0, figure = TRUE) {

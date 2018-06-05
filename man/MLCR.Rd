@@ -52,9 +52,10 @@ values for \code{yearZ} which minimize the negative log-likelihood from the grid
 Otherwise, the starting values for \code{yearZ} evenly divide the time series.
 }
 \examples{
+\dontrun{
 data(MuttonSnapper)
 MLCR(MuttonSnapper, ncp = 2, CPUE.type = "WPUE", grid.search = TRUE)
-
+}
 }
 \references{
 Huynh, Q.C., Gedamke, T., Porch, C.E., Hoenig, J.M., Walter, J.F, Bryan, M., and
