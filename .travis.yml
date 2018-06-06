@@ -7,14 +7,12 @@ r:
 sudo: false
 cache: packages
 
-install: travis_wait 30
-
 addons:
   apt:
     packages:
       - valgrind
       
-r_check_args: '--use-valgrind'
+r_check_args: travis_wait 30 '--use-valgrind --as-cran'
 
 env:
   - VALGRIND_OPTS = '--leak-check=full --track-origins=yes'
