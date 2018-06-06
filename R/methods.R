@@ -65,13 +65,14 @@ MLZ_data <- setClass("MLZ_data", slots = c(Stock = "character", Year = "vector",
 #' @slot length.units Unit of measurement for lengths, i.e. "cm" or "mm".
 #'
 #' @examples
+#' \dontrun{
 #' data(Goosefish)
 #' goose.model <- ML(Goosefish, ncp = 2, grid.search = FALSE, figure = FALSE)
 #' class(goose.model)
 #'
 #' summary(goose.model)
 #' plot(goose.model, residuals = FALSE)
-#'
+#' }
 #' @export
 setClass("MLZ_model", slots = c(Stock = "character", Model = "character", time.series = "data.frame",
                                 estimates = "matrix", negLL = "numeric",
@@ -106,10 +107,11 @@ setMethod("summary", signature(object = "MLZ_data"), function(object) {
 #'
 #' @param object An object of class \code{MLZ_model}.
 #' @examples
+#' \dontrun{
 #' data(Goosefish)
 #' goose.model <- ML(Goosefish, ncp = 2, grid.search = FALSE)
 #' summary(goose.model)
-#'
+#' }
 #' @export
 setMethod("summary", signature(object = "MLZ_model"), function(object)
   list(Stock = object@Stock, Model = object@Model, Estimates = round(object@estimates, 3)))
@@ -128,9 +130,10 @@ setMethod("summary", signature(object = "MLZ_model"), function(object)
 #' @param x An object of class \code{MLZ_data}.
 #' @param ggplot_layer Layers to add to ggplot2 plot.
 #' @examples
+#' \dontrun{
 #' data(Nephrops)
 #' plot(Nephrops)
-#'
+#' }
 #' @export
 setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
   MLZ_data <- x
@@ -216,9 +219,11 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
 #' @param x An object of class \code{MLZ_model}.
 #' @param residuals logical; whether a plot of residuals will also be produced.
 #' @examples
+#' \dontrun{
 #' data(Goosefish)
 #' goose.model <- ML(Goosefish, ncp = 2, grid.search = FALSE, figure = FALSE)
 #' plot(goose.model)
+#' }
 #' @export
 setMethod("plot", signature(x = "MLZ_model"), function(x, residuals = TRUE) {
   MLZ_model <- x

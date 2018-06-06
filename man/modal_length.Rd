@@ -29,6 +29,7 @@ Note: Modal length can change over time for many reasons, including a change in 
 Length frequency matrix from \code{Len_df} are created by using \code{\link[graphics]{hist}} function.
 }
 \examples{
+\dontrun{
 data(Nephrops)
 modal_length(Nephrops)
 
@@ -36,7 +37,7 @@ data(SilkSnapper)
 new.dataset <- new("MLZ_data", Year = 1983:2013, Len_df = SilkSnapper)
 modal_length(new.dataset)
 modal_length(new.dataset, breaks = seq(80, 830, 10))
-
+}
 }
 \references{
 Hordyk, A. Ono, K., Sainsbury, K., Loneragan, N., and Prince, J. 2015. Some explorations of the 

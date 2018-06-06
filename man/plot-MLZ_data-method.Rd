@@ -17,7 +17,8 @@ Plots annual length frequencies from slot \code{Len_matrix} or \code{Len_df}. If
 both slots, \code{Len_matrix} is preferentially plotted.
 }
 \examples{
+\dontrun{
 data(Nephrops)
 plot(Nephrops)
-
+}
 }

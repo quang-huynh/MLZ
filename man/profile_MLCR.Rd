@@ -41,8 +41,10 @@ plot of the likelihood surface is also created similar to Figure 6 of Gedamke an
 Figure 3 of Huynh et al. (2017).
 }
 \examples{
+\dontrun{
 data(MuttonSnapper)
 profile_MLCR(MuttonSnapper, ncp = 1, CPUE.type = 'WPUE')
+}
 }
 \references{
 Gedamke, T. and Hoenig, J.M. 2006. Estimating mortality from mean length data in

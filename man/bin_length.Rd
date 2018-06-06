@@ -22,10 +22,11 @@ A tool to bin raw length observations into a length frequency matrix.
 Length frequencies from \code{Len_df} are created by using \code{\link[graphics]{hist}} function.
 }
 \examples{
+\dontrun{
 data(SilkSnapper)
 Silk.matrix <- bin_length(SilkSnapper, breaks = seq(80, 830, 10))
 Silk.matrix <- bin_length(SilkSnapper)
 new.dataset <- new("MLZ_data", Year = Silk.matrix$Year, Len_bins = Silk.matrix$Len_bins,
 Len_matrix = Silk.matrix$Len_matrix)
- 
+} 
 }

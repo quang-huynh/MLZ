@@ -28,6 +28,7 @@ The function re-calculates mean lengths for each alternative value of Lc and
 re-estimates mortality. Currently supports only the ML estimator.
 }
 \examples{
+\dontrun{
 data(SilkSnapper)
 new.dataset <- new("MLZ_data", Year = 1983:2013, Len_df = SilkSnapper, length.units = "mm",
 vbLinf = 794, vbK = 0.1)
@@ -39,7 +40,7 @@ first.MLZmodel <- ML(new.dataset, 1)
 Lc.vec <- seq(240, 340, 5)
 
 sensitivity_Lc(new.dataset, first.MLZmodel, Lc.vec)
-
+}
 }
 \references{
 Huynh, Q.C, Gedamke, T., Hoenig, J.M, and Porch C. 2017. Multispecies Extensions

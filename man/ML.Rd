@@ -45,11 +45,12 @@ values for \code{yearZ} which minimize the negative log-likelihood from the grid
 Otherwise, the starting values for \code{yearZ} evenly divide the time series.
 }
 \examples{
+\dontrun{
 data(Goosefish)
 res <- ML(Goosefish, ncp = 2)
 res <- ML(Goosefish, ncp = 2, start = list(Z = c(0.1, 0.3, 0.5), yearZ = c(1978, 1988)))
 res <- ML(Goosefish, ncp = 2, grid.search = TRUE)
-
+}
 }
 \references{
 Gedamke, T. and Hoenig, J.M. 2006. Estimating mortality from mean length data in

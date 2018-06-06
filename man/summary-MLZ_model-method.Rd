@@ -14,8 +14,9 @@
 \code{summary} method for S4 class \code{MLZ_model}
 }
 \examples{
+\dontrun{
 data(Goosefish)
 goose.model <- ML(Goosefish, ncp = 2, grid.search = FALSE)
 summary(goose.model)
-
+}
 }

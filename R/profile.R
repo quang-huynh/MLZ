@@ -15,10 +15,11 @@
 #' \code{ncp = 2}.
 #' @return A matrix of change points with the negative log-likelihood values.
 #' @examples
+#' \dontrun{
 #' data(Goosefish)
 #' profile_ML(Goosefish, ncp = 1)
 #' profile_ML(Goosefish, ncp = 2)
-#' 
+#' }
 #' @references 
 #' Gedamke, T. and Hoenig, J.M. 2006. Estimating mortality from mean length data in
 #' nonequilibrium situations, with application to the assessment of goosefish.
@@ -148,8 +149,10 @@ profile_ML <- function(MLZ_data, ncp, startZ = rep(0.5, ncp+1), min.time = 3,
 #' to a Nonequilibrium Length-Based Mortality Estimator. Marine and Coastal Fisheries 9:68-78.
 #'
 #' @examples
+#' \dontrun{
 #' data(MuttonSnapper)
 #' profile_MLCR(MuttonSnapper, ncp = 1, CPUE.type = 'WPUE')
+#' }
 #' @export
 profile_MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "NPUE", "WPUE"), 
                          loglikeCPUE = c("normal", "lognormal"), startZ = rep(0.5, ncp+1), min.time = 3, 
@@ -277,9 +280,10 @@ profile_MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "NPUE", "WPUE"),
 #' to a Nonequilibrium Length-Based Mortality Estimator. Marine and Coastal Fisheries 9:68-78.
 #'
 #' @examples
+#' \dontrun{
 #' data(PRSnapper)
 #' profile_MLmulti(PRSnapper, ncp = 1, model = "MSM1")
-#'
+#' }
 #' @export
 profile_MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), 
                             startZ1 = rep(0.5, length(MLZ.list)), 

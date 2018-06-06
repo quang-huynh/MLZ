@@ -20,6 +20,7 @@ will be used.}
 Produces a matrix of AIC for model selection.
 }
 \examples{
+\dontrun{
 data(Goosefish)
 goose <- ML(Goosefish, ncp = 0)
 goose1 <- ML(Goosefish, ncp = 1)
@@ -34,5 +35,5 @@ msm2 <- MLmulti(PRSnapper, ncp = 1, model = "MSM2")
 msm3 <- MLmulti(PRSnapper, ncp = 1, model = "MSM3")
 
 compare_models(list(ssm, msm1, msm2, msm3))
-
+}
 }

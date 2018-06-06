@@ -29,11 +29,12 @@
 #' Transactions of the American Fisheries Society 135:476-487.
 #' @return An object of class \code{\linkS4class{MLZ_model}}.
 #' @examples
+#' \dontrun{
 #' data(Goosefish)
 #' res <- ML(Goosefish, ncp = 2)
 #' res <- ML(Goosefish, ncp = 2, start = list(Z = c(0.1, 0.3, 0.5), yearZ = c(1978, 1988)))
 #' res <- ML(Goosefish, ncp = 2, grid.search = TRUE)
-#' 
+#' }
 #' @seealso \code{\link{profile_ML}}
 #' @export
 ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, 
@@ -343,6 +344,7 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
 #' @seealso \code{\link{profile_MLmulti}}
 #'
 #' @examples
+#' \dontrun{
 #' data(PRSnapper)
 #' res_eq <- MLmulti(PRSnapper, ncp = 0, start = list(Z = matrix(0.5, nrow = 1, ncol = 3)))
 #' res_SSM <- MLmulti(PRSnapper, ncp = 1, model = "SSM")
@@ -359,6 +361,7 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
 #' st.delta <- 1
 #' start.list <- list(Z1 = st.Z1, yearZ = st.yearZ, delta = st.delta)
 #' resMSM3 <- MLmulti(PRSnapper, ncp = 1, model = "MSM3", start = start.list)
+#' }
 #' @export
 MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), start = NULL,
                     grid.search = TRUE, parallel = ifelse(ncp > 2, TRUE, FALSE), 
@@ -590,10 +593,12 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
 #' @return An object of class \code{\linkS4class{MLZ_model}}.
 #'
 #' @examples
+#' \dontrun{
 #' data(Nephrops)
 #' Nephrops <- calc_ML(Nephrops, sample.size = FALSE)
 #' res <- MLeffort(Nephrops, start = list(q = 0.1, M = 0.2),
 #'                 n_age = 24, eff_init = Nephrops@@Effort[1])
+#' }                
 #' @export
 MLeffort <- function(MLZ_data, start, n_age, estimate.M = TRUE, log.par = FALSE,
                      eff_init = 0, n_season = 1L, obs_season = 1L, timing = 0, figure = TRUE) {

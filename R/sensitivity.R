@@ -17,6 +17,7 @@
 #' to a Nonequilibrium Length-Based Mortality Estimator. Marine and Coastal Fisheries 9:68-78.
 #'
 #' @examples
+#' \dontrun{
 #' data(SilkSnapper)
 #' new.dataset <- new("MLZ_data", Year = 1983:2013, Len_df = SilkSnapper, length.units = "mm",
 #' vbLinf = 794, vbK = 0.1)
@@ -28,7 +29,7 @@
 #' Lc.vec <- seq(240, 340, 5)
 #' 
 #' sensitivity_Lc(new.dataset, first.MLZmodel, Lc.vec)
-#' 
+#' }
 #' @seealso \code{\link{ML}}
 #' @export
 sensitivity_Lc <- function(MLZ_data, MLZ_model, Lc.vec, grid.search = FALSE, figure = TRUE) {

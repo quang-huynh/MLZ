@@ -39,11 +39,12 @@ See \code{\link{profile_ML}}, \code{\link{profile_MLCR}}, and \code{\link{profil
 }}
 
 \examples{
+\dontrun{
 data(Goosefish)
 goose.model <- ML(Goosefish, ncp = 2, grid.search = FALSE, figure = FALSE)
 class(goose.model)
 
 summary(goose.model)
 plot(goose.model, residuals = FALSE)
-
+}
 }

@@ -14,6 +14,7 @@
 #' Length frequency matrix from \code{Len_df} are created by using \code{\link[graphics]{hist}} function.
 #' 
 #' @examples
+#' \dontrun{
 #' data(Nephrops)
 #' modal_length(Nephrops)
 #' 
@@ -21,7 +22,7 @@
 #' new.dataset <- new("MLZ_data", Year = 1983:2013, Len_df = SilkSnapper)
 #' modal_length(new.dataset)
 #' modal_length(new.dataset, breaks = seq(80, 830, 10))
-#' 
+#' }
 #' @references 
 #' Hordyk, A. Ono, K., Sainsbury, K., Loneragan, N., and Prince, J. 2015. Some explorations of the 
 #' life history ratios to describe length composition, spawning-per-recruit, and the 
@@ -94,10 +95,12 @@ modal_length <- function(MLZ_data, length.slot = c("Len_df", "Len_matrix"), brea
 #' (whether mean lengths are calculated).
 #' @return An object of class \code{\linkS4class{MLZ_data}} to fill slots \code{MeanLength}, \code{ss}.
 #' @examples
+#' \dontrun{
 #' data(Nephrops)
 #' Nephrops <- calc_ML(Nephrops, sample.size = FALSE)
 #' Nephrops@MeanLength
 #' plot(Nephrops)
+#' }
 #' @export
 calc_ML <- function(MLZ_data, length.slot = c("Len_df", "Len_matrix"), sample.size = TRUE) {
   length.slot <- match.arg(length.slot)
@@ -145,12 +148,13 @@ calc_ML <- function(MLZ_data, length.slot = c("Len_df", "Len_matrix"), sample.si
 #' 
 #' @return A list with length bins, years, and frequency matrix.
 #' @examples
+#' \dontrun{
 #' data(SilkSnapper)
 #' Silk.matrix <- bin_length(SilkSnapper, breaks = seq(80, 830, 10))
 #' Silk.matrix <- bin_length(SilkSnapper)
 #' new.dataset <- new("MLZ_data", Year = Silk.matrix$Year, Len_bins = Silk.matrix$Len_bins,
 #' Len_matrix = Silk.matrix$Len_matrix)
-#'  
+#' } 
 #' @export
 bin_length <- function(df, breaks = NULL) {
   df <- as.data.frame(df)

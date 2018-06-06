@@ -77,7 +77,8 @@
 #' Length-Based Mortality Estimator. Marine and Coastal Fisheries.
 #'
 #' @examples
+#' \dontrun{
 #' data(SilkSnapper)
 #' new("MLZ_data", Len_df = SilkSnapper)
-#'
+#' }
 "SilkSnapper"

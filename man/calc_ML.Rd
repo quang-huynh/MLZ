@@ -24,8 +24,10 @@ An object of class \code{\linkS4class{MLZ_data}} to fill slots \code{MeanLength}
 Calculates mean lengths from length data and Lc for class \code{\linkS4class{MLZ_data}}.
 }
 \examples{
+\dontrun{
 data(Nephrops)
 Nephrops <- calc_ML(Nephrops, sample.size = FALSE)
 Nephrops@MeanLength
 plot(Nephrops)
+}
 }

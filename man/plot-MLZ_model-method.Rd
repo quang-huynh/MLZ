@@ -16,7 +16,9 @@
 Plots time series of observed and predicted data from an object of class \code{MLZ_model}.
 }
 \examples{
+\dontrun{
 data(Goosefish)
 goose.model <- ML(Goosefish, ncp = 2, grid.search = FALSE, figure = FALSE)
 plot(goose.model)
+}
 }

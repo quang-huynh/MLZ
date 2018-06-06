@@ -79,6 +79,7 @@ values for \code{yearZ} which minimize the negative log-likelihood from the grid
 Otherwise, the starting values for \code{yearZ} evenly divide the time series.
 }
 \examples{
+\dontrun{
 data(PRSnapper)
 res_eq <- MLmulti(PRSnapper, ncp = 0, start = list(Z = matrix(0.5, nrow = 1, ncol = 3)))
 res_SSM <- MLmulti(PRSnapper, ncp = 1, model = "SSM")
@@ -95,6 +96,7 @@ st.yearZ <- 1990
 st.delta <- 1
 start.list <- list(Z1 = st.Z1, yearZ = st.yearZ, delta = st.delta)
 resMSM3 <- MLmulti(PRSnapper, ncp = 1, model = "MSM3", start = start.list)
+}
 }
 \references{
 Huynh, Q.C, Gedamke, T., Hoenig, J.M, and Porch C. 2017. Multispecies Extensions

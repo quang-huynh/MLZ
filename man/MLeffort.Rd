@@ -38,10 +38,12 @@ An object of class \code{\linkS4class{MLZ_model}}.
 Estimator of fishing and natural mortality from a time series of mean length and effort data.
 }
 \examples{
+\dontrun{
 data(Nephrops)
 Nephrops <- calc_ML(Nephrops, sample.size = FALSE)
 res <- MLeffort(Nephrops, start = list(q = 0.1, M = 0.2),
                 n_age = 24, eff_init = Nephrops@Effort[1])
+}                
 }
 \references{
 Then, A.Y, Hoenig, J.M, and Huynh, Q.C. In revision. Estimating fishing and natural

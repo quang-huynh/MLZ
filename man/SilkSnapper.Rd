@@ -12,9 +12,10 @@ SilkSnapper
 Length observed from the Puerto Rico Silk Snapper handline fishery.
 }
 \examples{
+\dontrun{
 data(SilkSnapper)
 new("MLZ_data", Len_df = SilkSnapper)
-
+}
 }
 \references{
 Huynh, Q.C, Gedamke, T., Hoenig, J.M, and Porch C. In press. Multispecies Extensions to a Nonequilibrium
