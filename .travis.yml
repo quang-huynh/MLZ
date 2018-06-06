@@ -8,6 +8,11 @@ r:
 sudo: false
 cache: packages
 
+addons:
+  apt:
+    packages:
+      - valgrind
+      
 r_check_args: '--use-valgrind'
 
 env:
