@@ -2,11 +2,12 @@
 
 language: r
 r:
-  - oldrel
   - release
   - devel
 sudo: false
 cache: packages
+
+install: travis_wait 30
 
 addons:
   apt:
