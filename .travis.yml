@@ -2,7 +2,13 @@
 
 language: r
 r:
+  - oldrel
   - release
   - devel
 sudo: false
 cache: packages
+
+r_check_args: '--use-valgrind'
+
+env:
+  - VALGRIND_OPTS = '--leak-check=full --track-origins=yes'
