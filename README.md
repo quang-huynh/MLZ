@@ -12,13 +12,15 @@ vignette("MLZ")
 ```
 
 ## Version
-Currently, the package is in active development, version 0.1.0. Testing, reporting issues, and pull requests are welcome.
+Currently, the package is in active development, version 0.1.1. Testing, reporting issues, and pull requests are welcome.
 
 ## Installation
-The estimation models are written in TMB. As a result, Rtools is required if running the package on a Windows machine. Rtools can be downloaded here: https://cran.r-project.org/bin/windows/Rtools/index.html
+The package is available on CRAN:
+```r
+install.packages("MLZ")
+```
 
-The MLZ package can then be installed using the `devtools` package:
-
+The estimation models are written in TMB. Rtools is required on a Windows machine for compilation if the source package is downloaded. Rtools can be downloaded here: https://cran.r-project.org/bin/windows/Rtools/index.html. The MLZ package can then be installed using the `devtools` package:
 ```r
 devtools::install_github("quang-huynh/MLZ")
 ```
