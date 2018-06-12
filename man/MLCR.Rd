@@ -7,7 +7,7 @@
 MLCR(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"),
   loglikeCPUE = c("lognormal", "normal"), start = NULL,
   grid.search = TRUE, parallel = ifelse(ncp > 2, TRUE, FALSE),
-  min.time = 3, figure = TRUE)
+  min.time = 3, Z.max = 5, figure = TRUE)
 }
 \arguments{
 \item{MLZ_data}{An object of class \code{\linkS4class{MLZ_data}} containing mean lengths and
@@ -31,6 +31,8 @@ Ignored if \code{ncp = 0} or if \code{start} is provided.}
 
 \item{min.time}{The minimum number of years between each change point for the grid search, passed
 to \code{\link{profile_MLCR}}. Not used if \code{grid.search = FALSE}.}
+
+\item{Z.max}{The upper boundary for Z estimates.}
 
 \item{figure}{If \code{TRUE}, a call to \code{plot} of observed and predicted mean lengths will be produced.}
 }

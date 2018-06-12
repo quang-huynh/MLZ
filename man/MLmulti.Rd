@@ -6,7 +6,7 @@
 \usage{
 MLmulti(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"),
   start = NULL, grid.search = TRUE, parallel = ifelse(ncp > 2, TRUE,
-  FALSE), min.time = 3, figure = TRUE)
+  FALSE), min.time = 3, Z.max = 5, figure = TRUE)
 }
 \arguments{
 \item{MLZ.list}{A list containing objects of class \code{\linkS4class{MLZ_data}}.}
@@ -27,6 +27,8 @@ Ignored if \code{start} is provided.}
 \item{min.time}{The minimum number of years between each change point for the grid search, passed
 to \code{\link{profile_MLmulti}}. Not used if \code{grid.search = FALSE}.}
 
+\item{Z.max}{The upper boundary for Z estimates.}
+
 \item{figure}{If \code{TRUE}, a call to \code{plot} of observed and predicted mean lengths will be produced.}
 }
 \value{
@@ -40,19 +42,19 @@ stocks that are fished together.
 For a model with \code{I} change points and \code{N} species, the starting values in
 \code{start} is a list with the following entries:
 
-Single Species Model (SSM):
+Single Species Model (SSM, independent trends in mortality among species):
 \tabular{ll}{
 \code{Z} \tab a matrix with \code{nrow = I+1} and \code{ncol = N}.\cr
 \code{yearZ} \tab a matrix with \code{nrow = I} and \code{ncol = N}.\cr
 }
 
-Multispecies Model 1 (MSM1):
+Multispecies Model 1 (MSM1, common mortality change points but changes in Z are independent):
 \tabular{ll}{
 \code{Z} \tab a matrix with \code{nrow = I+1} and \code{ncol = N}.\cr
 \code{yearZ} \tab a vector with \code{length = I}.\cr
 }
 
-Multispecies Model 2 (MSM2):
+Multispecies Model 2 (MSM2, common mortality change points. Changes in F vary by estimated relative catchabilities among species):
 \tabular{ll}{
 \code{Z1} \tab a vector with \code{length = N}.\cr
 \code{yearZ} \tab a vector with \code{length = I}.\cr
@@ -60,7 +62,7 @@ Multispecies Model 2 (MSM2):
 \code{epsilon} \tab a vector with \code{length = N-1}.\cr
 }
 
-Multispecies Model 3 (MSM3):
+Multispecies Model 3 (MSM3, common mortality change points and common proportional changes in F):
 \tabular{ll}{
 \code{Z1} \tab a vector with \code{length = N}.\cr
 \code{yearZ} \tab a vector with \code{length = I}.\cr

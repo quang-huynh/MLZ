@@ -16,9 +16,14 @@ get_M_MSM1S <- function(MLZ_data) {
   return(M)
 }
 
-produce_MLmulti_warnings <- function(Z, Z.limit) {
-  warning.flag <- logical(length = length(Z.limit))
-  for(i in 1:length(Z.limit)) warning.flag[i] <- any(Z[, i] <= Z.limit[i])
+# For SSM and MSM1, the Z's are estimated.
+# For MSM2 and MSM3, the Z's are derived.
+produce_MLmulti_warnings <- function(Z, Z.lower, Z.upper) {
+  warning.flag <- warning.flag2 <- logical(length = length(Z.lower))
+  for(i in 1:length(Z.lower)) warning.flag[i] <- any(Z[, i] <= Z.lower[i])
   if(any(warning.flag)) warning("There are mortality estimates at boundary (Z = 0.01 or M).")
+  
+  for(i in 1:length(Z.lower)) warning.flag2[i] <- any(Z[, i] >= Z.upper)
+  if(any(warning.flag2)) warning(paste0("There are mortality estimates at boundary (Z = ", Z.upper, ")."))
   invisible()
 }

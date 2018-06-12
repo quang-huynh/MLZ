@@ -13,6 +13,7 @@
 #' @param parallel Whether grid search is performed with parallel processing. Ignored if \code{grid.search = FALSE}.
 #' @param min.time The minimum number of years between each change point for the grid search, passed
 #' to \code{\link{profile_ML}}. Not used if \code{grid.search = FALSE}.
+#' @param Z.max The upper boundary for Z estimates.
 #' @param figure If \code{TRUE}, a call to \code{plot} of observed and predicted mean lengths will be produced.
 #' @details For a model with \code{I} change points, the starting values in
 #' \code{start} is a list with the following entries:
@@ -38,7 +39,7 @@
 #' @seealso \code{\link{profile_ML}}
 #' @export
 ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE, 
-               parallel = ifelse(ncp > 2, TRUE, FALSE), min.time = 3, figure = TRUE) {
+               parallel = ifelse(ncp > 2, TRUE, FALSE), min.time = 3, Z.max = 5, figure = TRUE) {
   if(!inherits(MLZ_data, "MLZ_data")) stop("No object of class 'MLZ_data' found.")
   ncp <- as.integer(ncp)
   
@@ -52,7 +53,7 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE,
   tmb.dat$Lbar[is.na(tmb.dat$ss) | tmb.dat$ss <= 0] <- -99
   tmb.dat$ss[is.na(tmb.dat$ss) | tmb.dat$Lbar < 0 | tmb.dat$ss <= 0] <- 0
   
-  if(length(MLZ_data@M) > 0) Z.limit <- MLZ_data@M else Z.limit <- 0.01
+  if(length(MLZ_data@M) > 0) Z.lower <- MLZ_data@M else Z.lower <- 0.01
 
   if(ncp == 0) {
     if(!is.null(start)) {
@@ -69,7 +70,7 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE,
     start$yearZ <- 0
     obj <- MakeADFun(data = tmb.dat, parameters = start, map = list(yearZ = factor(NA)), 
                      hessian = TRUE, DLL = "MLZ", silent = TRUE)
-    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = Z.limit)
+    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = Z.lower, upper = Z.max)
     sdrep <- sdreport(obj)
     
     results.matrix <- summary(sdrep)
@@ -99,7 +100,8 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE,
       start <- list(Z = stZ, yearZ = styearZ)
     }
     obj <- MakeADFun(data = tmb.dat, parameters = start, hessian = TRUE, DLL = "MLZ", silent = TRUE)
-    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = c(rep(Z.limit, ncp + 1), rep(-Inf, ncp)))
+    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = c(rep(Z.lower, ncp + 1), rep(-Inf, ncp)),
+                  upper = c(rep(Z.max, ncp + 1), rep(length(tmb.dat$Lbar), ncp)))
     sdrep <- sdreport(obj)
 
     results.matrix <- summary(sdrep)
@@ -109,8 +111,11 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE,
     year.ind <- grep("yearZ", rownames(results.matrix))
     results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] + MLZ_data@Year[1] - 1
   }
-  if(any(results.matrix[1:(ncp+1), 1] == Z.limit)) {
+  if(any(results.matrix[1:(ncp+1), 1] == Z.lower)) {
     warning("There are mortality estimates at boundary (Z = 0.01 or M).")
+  }
+  if(any(results.matrix[1:(ncp+1), 1] == Z.max)) {
+    warning(paste0("There are mortality estimates at boundary (Z = ", Z.max, ")."))
   }
   time.series <- full
   time.series$Predicted <- obj$report(obj$env$last.par.best)$Lpred
@@ -142,6 +147,7 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE,
 #' @param parallel Whether grid search is performed with parallel processing. Ignored if \code{grid.search = FALSE}.
 #' @param min.time The minimum number of years between each change point for the grid search, passed
 #' to \code{\link{profile_MLCR}}. Not used if \code{grid.search = FALSE}.
+#' @param Z.max The upper boundary for Z estimates.
 #' @param figure If \code{TRUE}, a call to \code{plot} of observed and predicted mean lengths will be produced.
 #'
 #' @references Huynh, Q.C., Gedamke, T., Porch, C.E., Hoenig, J.M., Walter, J.F, Bryan, M., and
@@ -170,7 +176,7 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE,
 #' @export
 MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE = c("lognormal", "normal"),
                  start = NULL, grid.search = TRUE, parallel = ifelse(ncp > 2, TRUE, FALSE), 
-                 min.time = 3, figure = TRUE) {
+                 min.time = 3, Z.max = 5, figure = TRUE) {
   
   if(!inherits(MLZ_data, "MLZ_data")) stop("No object of class 'MLZ_data' found.")
   
@@ -199,7 +205,7 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
   tmb.dat$ss[is.na(tmb.dat$ss) | tmb.dat$Lbar < 0 | tmb.dat$ss <= 0] <- 0
   tmb.dat$CPUE[is.na(tmb.dat$CPUE) | tmb.dat$CPUE < 0] <- -99
   
-  if(length(MLZ_data@M) > 0) Z.limit <- MLZ_data@M else Z.limit <- 0.01
+  if(length(MLZ_data@M) > 0) Z.lower <- MLZ_data@M else Z.lower <- 0.01
   
   if(ncp == 0) {
     if(!is.null(start)) {
@@ -216,7 +222,7 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
     start$yearZ <- 0
     obj <- MakeADFun(data = tmb.dat, parameters = start, map = list(yearZ = factor(NA)),
                      hessian = TRUE, DLL = "MLZ", silent = TRUE)
-    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = Z.limit)
+    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = Z.lower, upper = Z.max)
     sdrep <- sdreport(obj)
     
     results.matrix <- summary(sdrep)
@@ -246,7 +252,8 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
       start <- list(Z = stZ, yearZ = styearZ)
     }
     obj <- MakeADFun(data = tmb.dat, parameters = start, hessian = TRUE, DLL = "MLZ", silent = TRUE)
-    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = c(rep(Z.limit, ncp + 1), rep(-Inf, ncp)))
+    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = c(rep(Z.lower, ncp + 1), rep(-Inf, ncp)),
+                  upper = c(rep(Z.max, ncp + 1), rep(length(tmb.dat$Lbar), ncp)))
     sdrep <- sdreport(obj)
     
     results.matrix <- summary(sdrep)
@@ -257,8 +264,11 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
     results.matrix[year.ind, 1] <- results.matrix[year.ind, 1] + MLZ_data@Year[1] - 1
   }
   
-  if(any(results.matrix[1:(ncp+1), 1] == Z.limit)) {
+  if(any(results.matrix[1:(ncp+1), 1] == Z.lower)) {
     warning("There are mortality estimates at boundary (Z = 0.01 or M).")
+  }
+  if(any(results.matrix[1:(ncp+1), 1] == Z.max)) {
+    warning(paste0("There are mortality estimates at boundary (Z = ", Z.max, ")."))
   }
   time.series <- data.frame(Predicted.ML = obj$report(obj$env$last.par.best)$Lpred, 
                             Predicted.CPUE = obj$report(obj$env$last.par.best)$Ipred)
@@ -293,6 +303,7 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
 #' @param parallel Whether grid search is performed in parallel. Ignored if \code{grid.search = FALSE}.
 #' @param min.time The minimum number of years between each change point for the grid search, passed
 #' to \code{\link{profile_MLmulti}}. Not used if \code{grid.search = FALSE}.
+#' @param Z.max The upper boundary for Z estimates.
 #' @param figure If \code{TRUE}, a call to \code{plot} of observed and predicted mean lengths will be produced.
 #'
 #' @return An object of class \code{\linkS4class{MLZ_model}}.
@@ -300,19 +311,19 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
 #' @details For a model with \code{I} change points and \code{N} species, the starting values in
 #' \code{start} is a list with the following entries:
 #'
-#' Single Species Model (SSM):
+#' Single Species Model (SSM, independent trends in mortality among species):
 #' \tabular{ll}{
 #' \code{Z} \tab a matrix with \code{nrow = I+1} and \code{ncol = N}.\cr
 #' \code{yearZ} \tab a matrix with \code{nrow = I} and \code{ncol = N}.\cr
 #' }
 #'
-#' Multispecies Model 1 (MSM1):
+#' Multispecies Model 1 (MSM1, common mortality change points but changes in Z are independent):
 #' \tabular{ll}{
 #' \code{Z} \tab a matrix with \code{nrow = I+1} and \code{ncol = N}.\cr
 #' \code{yearZ} \tab a vector with \code{length = I}.\cr
 #' }
 #'
-#' Multispecies Model 2 (MSM2):
+#' Multispecies Model 2 (MSM2, common mortality change points. Changes in F vary by estimated relative catchabilities among species):
 #' \tabular{ll}{
 #' \code{Z1} \tab a vector with \code{length = N}.\cr
 #' \code{yearZ} \tab a vector with \code{length = I}.\cr
@@ -320,7 +331,7 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
 #' \code{epsilon} \tab a vector with \code{length = N-1}.\cr
 #' }
 #'
-#' Multispecies Model 3 (MSM3):
+#' Multispecies Model 3 (MSM3, common mortality change points and common proportional changes in F):
 #' \tabular{ll}{
 #' \code{Z1} \tab a vector with \code{length = N}.\cr
 #' \code{yearZ} \tab a vector with \code{length = I}.\cr
@@ -365,7 +376,7 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
 #' @export
 MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), start = NULL,
                     grid.search = TRUE, parallel = ifelse(ncp > 2, TRUE, FALSE), 
-                    min.time = 3, figure = TRUE) {
+                    min.time = 3, Z.max = 5, figure = TRUE) {
   
   model <- match.arg(model)
   if(!is.list(MLZ.list)) stop("No list found.")
@@ -413,10 +424,11 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
     }
     start$yearZ <- matrix(0, nrow = 1, ncol = 1)
     tmb.dat$model <- "MSM1S"
-    Z.limit <- vapply(MLZ.list, get_M_MSM1S, numeric(1))
+    Z.lower <- vapply(MLZ.list, get_M_MSM1S, numeric(1))
+    Z.upper <- rep(Z.max, nspec)
     obj <- MakeADFun(data = tmb.dat, parameters = start, map = list(yearZ = factor(NA)),
                      hessian = TRUE, DLL = "MLZ", silent = TRUE)
-    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = Z.limit)
+    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = Z.lower, upper = Z.upper)
     sdrep <- sdreport(obj)
     results.matrix <- summary(sdrep)
     rownames(results.matrix) <- c(paste0("Z[", 1:nspec, "]"), paste0("sigma[", 1:nspec, "]"))
@@ -489,37 +501,53 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
     if("SSM" %in% model) {
       tmb.dat$model <- "MSM1S"    
       map <- list()
-      Z.limit <- rep(vapply(MLZ.list, get_M_MSM1S, numeric(1)), each = ncp + 1)
-      yearZ.limit <- rep(-Inf, ncp * nspec)
-      lower.limit <- c(Z.limit, yearZ.limit)
+      
+      Z.lower <- rep(vapply(MLZ.list, get_M_MSM1S, numeric(1)), each = ncp + 1)
+      yearZ.lower <- rep(-Inf, ncp * nspec)
+      lower.limit <- c(Z.lower, yearZ.lower)
+      
+      Z.upper <- rep(Z.max, (ncp + 1) * nspec)
+      yearZ.upper <- rep(nrow(Lbar), ncp * nspec)
+      upper.limit <- c(Z.upper, yearZ.upper)
     }
     if("MSM1" %in% model) {
       tmb.dat$model <- "MSM1S"
       map <- list(yearZ = factor(rep(1:ncp, nspec)))
-      Z.limit <- rep(vapply(MLZ.list, get_M_MSM1S, numeric(1)), each = ncp + 1)
-      yearZ.limit <- rep(-Inf, ncp)
-      lower.limit <- c(Z.limit, yearZ.limit)
+      
+      Z.lower <- rep(vapply(MLZ.list, get_M_MSM1S, numeric(1)), each = ncp + 1)
+      yearZ.lower <- rep(-Inf, ncp)
+      lower.limit <- c(Z.lower, yearZ.lower)
+      
+      Z.upper <- rep(Z.max, (ncp + 1) * nspec)
+      yearZ.limit <- rep(nrow(Lbar), ncp)
+      upper.limit <- c(Z.upper, yearZ.limit)
     }
     if("MSM2" %in% model) {
       tmb.dat$model <- "MSM23"
       map <- list()
-      Z.limit <- tmb.dat$M
-      yearZ.limit <- rep(-Inf, ncp)
-      delta.limit <- rep(0, ncp)
-      eps.limit <- rep(0, nspec-1)
-      lower.limit <- c(Z.limit, yearZ.limit, delta.limit, eps.limit)
+      
+      Z.lower <- tmb.dat$M
+      yearZ.lower <- rep(-Inf, ncp)
+      delta.lower <- rep(0, ncp)
+      eps.lower <- rep(0, nspec-1)
+      lower.limit <- c(Z.lower, yearZ.lower, delta.lower, eps.lower)
+      
+      upper.limit <- c(rep(Z.max, nspec), rep(nrow(Lbar), ncp), rep(Inf, ncp + nspec - 1))
     }
     if("MSM3" %in% model) {
       tmb.dat$model <- "MSM23"
       map <- list(epsilon = factor(rep(NA, nspec - 1)))
-      Z.limit <- tmb.dat$M
-      yearZ.limit <- rep(-Inf, ncp)
-      delta.limit <- rep(0, ncp)
-      lower.limit <- c(Z.limit, yearZ.limit, delta.limit)
+      
+      Z.lower <- tmb.dat$M
+      yearZ.lower <- rep(-Inf, ncp)
+      delta.lower <- rep(0, ncp)
+      lower.limit <- c(Z.lower, yearZ.lower, delta.lower)
+      
+      upper.limit <- c(rep(Z.max, nspec), rep(nrow(Lbar), ncp), rep(Inf, ncp))
     }
     obj <- MakeADFun(data = tmb.dat, parameters = start, hessian = TRUE, 
                      map = map, DLL = "MLZ", silent = TRUE)
-    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = lower.limit)
+    opt <- nlminb(obj$par, obj$fn, obj$gr, obj$he, lower = lower.limit, upper = upper.limit)
     sdrep <- sdreport(obj)
     
     results.matrix <- summary(sdrep)
@@ -548,7 +576,8 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
     }
   }
   produce_MLmulti_warnings(Z = obj$report(obj$env$last.par.best)$Z, 
-                           Z.limit = vapply(MLZ.list, get_M_MSM1S, numeric(1)))
+                           Z.lower = vapply(MLZ.list, get_M_MSM1S, numeric(1)),
+                           Z.upper = Z.max)
   
   Lbar.df$Predicted <- as.numeric(obj$report(obj$env$last.par.best)$Lpred)
   Lbar.df$Residual <- Lbar.df$MeanLength - Lbar.df$Predicted
