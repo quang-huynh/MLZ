@@ -25,7 +25,7 @@ profile_MLmulti(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"),
 if \code{ncp = 1} or \code{2}.}
 
 \item{color}{If \code{TRUE}, creates a color plot for the likelihood surface. Only used if
-\code{ncp = 2}.#'}
+\code{ncp = 2}.}
 }
 \value{
 A matrix of change points with the total negative log-likelihood values and values 

@@ -267,7 +267,7 @@ profile_MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "NPUE", "WPUE"),
 #' @param figure If \code{TRUE}, creates a plot of the likelihood over the grid search. Only used
 #' if \code{ncp = 1} or \code{2}.
 #' @param color If \code{TRUE}, creates a color plot for the likelihood surface. Only used if
-#' \code{ncp = 2}.#' 
+#' \code{ncp = 2}.
 #' @return A matrix of change points with the total negative log-likelihood values and values 
 #' from the each species.
 #' 
