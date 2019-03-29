@@ -4,8 +4,9 @@
 \alias{ML}
 \title{Mean length-based mortality estimator}
 \usage{
-ML(MLZ_data, ncp, start = NULL, grid.search = TRUE, parallel = ifelse(ncp
-  > 2, TRUE, FALSE), min.time = 3, Z.max = 5, figure = TRUE)
+ML(MLZ_data, ncp, start = NULL, grid.search = TRUE,
+  parallel = ifelse(ncp > 2, TRUE, FALSE), min.time = 3, Z.max = 5,
+  figure = TRUE)
 }
 \arguments{
 \item{MLZ_data}{An object of class \code{\linkS4class{MLZ_data}} containing mean lengths and

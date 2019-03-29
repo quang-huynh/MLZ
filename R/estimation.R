@@ -74,6 +74,7 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE,
     sdrep <- sdreport(obj)
     
     results.matrix <- summary(sdrep)
+    results.matrix <- results.matrix[rownames(results.matrix) != "Z_yr", ]
   }
   if(ncp > 0) {
     if(!is.null(start)) {
@@ -105,6 +106,7 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE,
     sdrep <- sdreport(obj)
 
     results.matrix <- summary(sdrep)
+    results.matrix <- results.matrix[rownames(results.matrix) != "Z_yr", ]
     Z.name <- paste0("Z[", 1:(ncp+1), "]")
     yearZ.name <- paste0("yearZ[", 1:ncp, "]")
     rownames(results.matrix) <- c(Z.name, yearZ.name, "sigma")
@@ -120,7 +122,6 @@ ML <- function(MLZ_data, ncp, start = NULL, grid.search = TRUE,
   time.series <- full
   time.series$Predicted <- obj$report(obj$env$last.par.best)$Lpred
   time.series$Residual <- time.series$MeanLength - time.series$Predicted
-  class(sdrep) <- "list"
   MLZ_model <- new("MLZ_model", Stock = MLZ_data@Stock, Model = "ML", time.series = time.series,
                    estimates = results.matrix, negLL = opt$objective, n.changepoint = ncp, n.species = 1L,
                    obj = obj, opt = opt, sdrep = sdrep, length.units = MLZ_data@length.units)
@@ -278,7 +279,6 @@ MLCR <- function(MLZ_data, ncp, CPUE.type = c(NA, "WPUE", "NPUE"), loglikeCPUE =
 
   opt$message <- c(opt$message, paste0("Catch rate assumed to be ", CPUE.type, "."), 
                    paste0("Catch rate likelihood used ", loglikeCPUE, " distribution."))
-  class(sdrep) <- "list"
   MLZ_model <- new("MLZ_model", Stock = MLZ_data@Stock, Model = "MLCR", time.series = time.series,
                    estimates = results.matrix, negLL = opt$objective, n.changepoint = ncp, n.species = 1L,
                    obj = obj, opt = opt, sdrep = sdrep, length.units = MLZ_data@length.units)
@@ -587,7 +587,7 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
   sp.name[num] <- paste0("Species_", num)
   Lbar.df$Stock <- rep(do.call(c, sp.name), each = length(years))
   
-  class(sdrep) <- "list"
+  
   MLZ_model <- new("MLZ_model", Stock = do.call(c, sp.name), Model = "MLmulti",
                    time.series = Lbar.df, estimates = results.matrix,
                    negLL = opt$objective, n.changepoint = ncp, n.species = nspec,
@@ -701,7 +701,6 @@ MLeffort <- function(MLZ_data, start, n_age, estimate.M = TRUE, log.par = FALSE,
   if(!estimate.M) full$M <- rep(MLZ_data@M, nrow(full))
   full$F <- full$Z - full$M
 
-  class(sdrep) <- "list"
   MLZ_model <- new("MLZ_model", Stock = MLZ_data@Stock, Model = "MLeffort", time.series = full,
                    estimates = results.matrix, negLL = opt$objective, n.species = 1L, 
                    obj = obj, opt = opt, sdrep = sdrep, length.units = MLZ_data@length.units)

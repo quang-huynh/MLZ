@@ -1,3 +1,7 @@
+setOldClass("sdreport")
+
+setClassUnion("listsdreport", c("list", "sdreport"))
+
 #' MLZ_data
 #'
 #' An S4 class for storing data and life history parameters for a single stock.
@@ -61,7 +65,7 @@ MLZ_data <- setClass("MLZ_data", slots = c(Stock = "character", Year = "vector",
 #' See \code{\link{profile_ML}}, \code{\link{profile_MLCR}}, and \code{\link{profile_MLmulti}}.
 #' @slot obj A list with components from \code{\link[TMB]{MakeADFun}}.
 #' @slot opt A list with components from calling \code{\link[stats]{optim}} to \code{obj}.
-#' @slot sdrep A list with components from calling \code{\link[TMB]{sdreport}} to \code{obj}.
+#' @slot sdrep A class \code{sdreport} list with components from calling \code{\link[TMB]{sdreport}} to \code{obj}.
 #' @slot length.units Unit of measurement for lengths, i.e. "cm" or "mm".
 #'
 #' @examples
@@ -77,7 +81,7 @@ MLZ_data <- setClass("MLZ_data", slots = c(Stock = "character", Year = "vector",
 setClass("MLZ_model", slots = c(Stock = "character", Model = "character", time.series = "data.frame",
                                 estimates = "matrix", negLL = "numeric",
                                 n.changepoint = "integer", n.species = "integer", grid.search = "data.frame",
-                                obj = "list", opt = "list", sdrep = "list", length.units = "character"))
+                                obj = "list", opt = "list", sdrep = "listsdreport", length.units = "character"))
 
 #' \code{summary} method for S4 class \code{MLZ_data}
 #'
@@ -199,7 +203,7 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
     if("Effort" %in% names(summary.MLZ)) nplots <- nplots + 1
     if("CPUE" %in% names(summary.MLZ)) nplots <- nplots + 1
     if(nplots == 3) layout(matrix(c(1,1,1,1,2,3), nrow = 2))
-    if(nplots < 3) par(mfrow = c(nplots, 1))
+    if(nplots < 3) par(mfrow = c(nplots, 1), mar = c(5, 4, 1, 1))
     par(las = 1)
     plot(MeanLength ~ Year, data = summary.MLZ, pch = 16, typ = "o",
          xlab = "Year", ylab = paste("Mean Length (> Lc)", length.units))

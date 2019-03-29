@@ -5,7 +5,8 @@
 \title{Grid search for the mean length estimator}
 \usage{
 profile_ML(MLZ_data, ncp, startZ = rep(0.5, ncp + 1), min.time = 3,
-  parallel = ifelse(ncp > 2, TRUE, FALSE), figure = TRUE, color = TRUE)
+  parallel = ifelse(ncp > 2, TRUE, FALSE), figure = TRUE,
+  color = TRUE)
 }
 \arguments{
 \item{MLZ_data}{An object of class \code{MLZ_data}.}

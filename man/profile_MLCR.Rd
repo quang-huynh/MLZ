@@ -6,8 +6,8 @@
 \usage{
 profile_MLCR(MLZ_data, ncp, CPUE.type = c(NA, "NPUE", "WPUE"),
   loglikeCPUE = c("normal", "lognormal"), startZ = rep(0.5, ncp + 1),
-  min.time = 3, parallel = ifelse(ncp > 2, TRUE, FALSE), figure = TRUE,
-  color = TRUE)
+  min.time = 3, parallel = ifelse(ncp > 2, TRUE, FALSE),
+  figure = TRUE, color = TRUE)
 }
 \arguments{
 \item{MLZ_data}{An object of class \code{MLZ_data}.}

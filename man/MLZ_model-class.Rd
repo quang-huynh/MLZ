@@ -33,7 +33,7 @@ See \code{\link{profile_ML}}, \code{\link{profile_MLCR}}, and \code{\link{profil
 
 \item{\code{opt}}{A list with components from calling \code{\link[stats]{optim}} to \code{obj}.}
 
-\item{\code{sdrep}}{A list with components from calling \code{\link[TMB]{sdreport}} to \code{obj}.}
+\item{\code{sdrep}}{A class \code{sdreport} list with components from calling \code{\link[TMB]{sdreport}} to \code{obj}.}
 
 \item{\code{length.units}}{Unit of measurement for lengths, i.e. "cm" or "mm".}
 }}

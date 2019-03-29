@@ -5,8 +5,8 @@
 \title{Grid search for the multispecies mean length estimator}
 \usage{
 profile_MLmulti(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"),
-  startZ1 = rep(0.5, length(MLZ.list)), parallel = ifelse(ncp > 2, TRUE,
-  FALSE), min.time = 3, figure = TRUE, color = TRUE)
+  startZ1 = rep(0.5, length(MLZ.list)), parallel = ifelse(ncp > 2,
+  TRUE, FALSE), min.time = 3, figure = TRUE, color = TRUE)
 }
 \arguments{
 \item{MLZ.list}{A list containing an object of class \code{MLZ_data} for each species or stock.}
