@@ -117,11 +117,11 @@ Model runs with different change points can be compared using AIC. The `compare_
 this feature and produces a plot of the predicted data.
 
 ```{r, eval = FALSE}
-compare_models(list(model1, model2, model3))
+compare_models(model1, model2, model3)
 ```
 ```{r, fig.width = 5, echo = FALSE}
 par(mar = c(2,4,1,1))
-compare_models(list(model1, model2, model3))
+compare_models(model1, model2, model3)
 ```
 `compare_models` can also be used with `MLCR` and `MLmulti` (See section 4).
 

@@ -4,10 +4,10 @@
 \alias{compare_models}
 \title{Model selection}
 \usage{
-compare_models(MLZ_model.list, figure = TRUE, color = NULL)
+compare_models(..., figure = TRUE, color = NULL)
 }
 \arguments{
-\item{MLZ_model.list}{A list containing objects of class \code{MLZ_model}, all from the same mortality
+\item{...}{Multiple objects of class \code{MLZ_model}, all from the same mortality
 estimator and same data set.}
 
 \item{figure}{If \code{TRUE}, produces a figure of model fits to the observed data.}
@@ -34,6 +34,6 @@ msm1 <- MLmulti(PRSnapper, ncp = 1, model = "MSM1")
 msm2 <- MLmulti(PRSnapper, ncp = 1, model = "MSM2")
 msm3 <- MLmulti(PRSnapper, ncp = 1, model = "MSM3")
 
-compare_models(list(ssm, msm1, msm2, msm3))
+compare_models(ssm, msm1, msm2, msm3)
 }
 }

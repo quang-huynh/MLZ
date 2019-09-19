@@ -2,7 +2,7 @@
 #'
 #' Produces a matrix of AIC for model selection.
 #'
-#' @param MLZ_model.list A list containing objects of class \code{MLZ_model}, all from the same mortality
+#' @param ... Multiple objects of class \code{MLZ_model}, all from the same mortality
 #' estimator and same data set.
 #' @param figure If \code{TRUE}, produces a figure of model fits to the observed data.
 #' @param color Optional vector of colors for the figure each representing a separate model
@@ -24,10 +24,13 @@
 #' msm2 <- MLmulti(PRSnapper, ncp = 1, model = "MSM2")
 #' msm3 <- MLmulti(PRSnapper, ncp = 1, model = "MSM3")
 #'
-#' compare_models(list(ssm, msm1, msm2, msm3))
+#' compare_models(ssm, msm1, msm2, msm3)
 #' }
 #' @export
-compare_models <- function(MLZ_model.list, figure = TRUE, color = NULL) {
+compare_models <- function(..., figure = TRUE, color = NULL) {
+  MLZ_model.list <- list(...)
+  if(length(MLZ_model.list) == 1 && is.list(MLZ_model.list[[1]])) MLZ_model.list <- MLZ_model.list[[1]] # For backwards compatibility
+     
   model.names <- vapply(MLZ_model.list, getElement, c("x"), "Model")
   model <- unique(model.names)
   if(length(model) > 1) stop("More than one model identified in MLZ_model.list")
