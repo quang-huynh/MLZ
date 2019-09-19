@@ -16,7 +16,7 @@
 #' goose1 <- ML(Goosefish, ncp = 1)
 #' goose2 <- ML(Goosefish, ncp = 2, grid.search = TRUE, figure = FALSE)
 #'
-#' compare_models(list(goose, goose1, goose2))
+#' compare_models(goose, goose1, goose2)
 #'
 #' data(PRSnapper)
 #' ssm <- MLmulti(PRSnapper, ncp = 1, model = "SSM")
