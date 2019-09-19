@@ -28,9 +28,6 @@
 #' }
 #' @export
 compare_models <- function(MLZ_model.list, figure = TRUE, color = NULL) {
-  old_par <- par(no.readonly = TRUE)
-  on.exit(par(list = old_par), add = TRUE)
-
   model.names <- vapply(MLZ_model.list, getElement, c("x"), "Model")
   model <- unique(model.names)
   if(length(model) > 1) stop("More than one model identified in MLZ_model.list")
@@ -52,6 +49,9 @@ compare_models <- function(MLZ_model.list, figure = TRUE, color = NULL) {
     output <- matrix(c(negLL, npar, AIC, delta.AIC), nrow = length(MLZ_model.list))
     dimnames(output) <- list(ncp.text, c("negLL", "npar", "AIC", "delta.AIC"))
     if(figure) {
+      old_par <- par(no.readonly = TRUE)
+      on.exit(par(list = old_par))
+      
       par(las = 1)
       if(is.null(color)) color <- rich.colors(length(MLZ_model.list))
       plot(MeanLength ~ Year, MLZ_model.list[[1]]@time.series, ylab = paste("Mean Length (> Lc)", length.units), 
@@ -69,8 +69,11 @@ compare_models <- function(MLZ_model.list, figure = TRUE, color = NULL) {
     output <- matrix(c(negLL, npar, AIC, delta.AIC), nrow = length(MLZ_model.list))
     dimnames(output) <- list(ncp.text, c("negLL", "npar", "AIC", "delta.AIC"))
     if(figure) {
-      if(is.null(color)) color <- rich.colors(length(MLZ_model.list))
+      old_par <- par(no.readonly = TRUE)
+      on.exit(par(list = old_par))
       par(mfrow = c(1,2), mar = c(5,4,1,1), las = 1)
+      
+      if(is.null(color)) color <- rich.colors(length(MLZ_model.list))
       plot(MeanLength ~ Year, MLZ_model.list[[1]]@time.series, ylab = paste("Mean Length (> Lc)", length.units),
            typ = "o", pch = 16)
       for(i in 1:length(MLZ_model.list)) {
@@ -113,7 +116,10 @@ compare_models <- function(MLZ_model.list, figure = TRUE, color = NULL) {
     colnames(output) <- c("n.changepoint", "negLL", "npar", "AIC", "delta.AIC")
 
     if(figure) {
+      old_par <- par(no.readonly = TRUE)
+      on.exit(par(list = old_par))
       par(mfrow = c(2,2), las = 1)
+      
       if(is.null(color)) color <- rich.colors(length(MLZ_model.list))
       nyrs <- nrow(MLZ_model.list[[1]]@time.series)/nspec
 
