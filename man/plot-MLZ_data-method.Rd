@@ -3,14 +3,20 @@
 \docType{methods}
 \name{plot,MLZ_data-method}
 \alias{plot,MLZ_data-method}
+\alias{plot.MLZ_data}
 \title{\code{plot} method for S4 class \code{MLZ_data}}
 \usage{
-\S4method{plot}{MLZ_data}(x, ggplot_layer = NULL)
+\S4method{plot}{MLZ_data}(x, type = c("comp", "ML"),
+  ggplot_layer = NULL)
 }
 \arguments{
 \item{x}{An object of class \code{MLZ_data}.}
 
-\item{ggplot_layer}{Layers to add to ggplot2 plot.}
+\item{type}{Character. \code{"comp"} produces a annual length frequencies from ggplot2, while \code{"ML"}
+plots mean lengths from slot \code{MLZ_data@ML}, as well as data from 
+\code{MLZ_data@CPUE} and \code{MLZ_data@Effort} if available..}
+
+\item{ggplot_layer}{Optional layers to add to ggplot2 plot for \code{type = "comp"}.}
 }
 \description{
 Plots annual length frequencies from slot \code{Len_matrix} or \code{Len_df}. If there are data in 
@@ -20,5 +26,6 @@ both slots, \code{Len_matrix} is preferentially plotted.
 \dontrun{
 data(Nephrops)
 plot(Nephrops)
+plot(Nephrops, type = "ML")
 }
 }

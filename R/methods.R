@@ -132,14 +132,20 @@ setMethod("summary", signature(object = "MLZ_model"), function(object)
 #' both slots, \code{Len_matrix} is preferentially plotted.
 #'
 #' @param x An object of class \code{MLZ_data}.
-#' @param ggplot_layer Layers to add to ggplot2 plot.
+#' @param type Character. \code{"comp"} produces a annual length frequencies from ggplot2, while \code{"ML"}
+#' plots mean lengths from slot \code{MLZ_data@@ML}, as well as data from 
+#' \code{MLZ_data@@CPUE} and \code{MLZ_data@@Effort} if available..
+#' @param ggplot_layer Optional layers to add to ggplot2 plot for \code{type = "comp"}.
 #' @examples
 #' \dontrun{
 #' data(Nephrops)
 #' plot(Nephrops)
+#' plot(Nephrops, type = "ML")
 #' }
+#' @aliases plot.MLZ_data
 #' @export
-setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
+setMethod("plot", signature(x = "MLZ_data"), function(x, type = c("comp", "ML"), ggplot_layer = NULL) {
+  type <- match.arg(type)
   MLZ_data <- x
 
   old_par <- par(no.readonly = TRUE)
@@ -153,65 +159,72 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
   no.ML <- length(MLZ_data@MeanLength) == 0
 
   if(no.Len_matrix && no.Len_df && no.ML) stop("No length data available.")
-
-  if(!no.Len_matrix) {
-    Len_matrix <- MLZ_data@Len_matrix
-    rownames(Len_matrix) <- MLZ_data@Year
-    colnames(Len_matrix) <- MLZ_data@Len_bins
-    Len_matrix <- melt(Len_matrix)
-    names(Len_matrix) <- c("Year", "Length", "Frequency")
-    
-    Len_matrix <- mutate(group_by(Len_matrix, Year), newF = Frequency/max(Frequency), 
-                         sumF = sum(Frequency))
-    Len_matrix_N <- summarise(group_by(Len_matrix, Year), N = sum(Frequency))
-    
-    if(length(MLZ_data@Lc) != 0 || !is.null(MLZ_data@Lc)) z <- geom_vline(xintercept = MLZ_data@Lc, colour = "red")
-    else z <- NULL
-    ggplot_layer <- sapply(ggplot_layer, eval)
-
-    theme_clean <- theme_bw() + theme(panel.spacing = unit(0, "inches"),
-                                      panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-
-    zz <- ggplot(Len_matrix, aes(x = Length, y = newF)) + geom_line() + facet_wrap(~ Year) + 
-      geom_text(data = Len_matrix_N, hjust = "right", vjust = "top", x = max(Len_matrix$Length), y = 1, aes(label = paste("N =", N))) +
-      labs(y = "Relative Frequency") + theme_clean + z + ggplot_layer
-
-  }
-  if(!no.Len_df) {
-    if(!no.Len_matrix) message("Data from slot @Len_matrix was plotted.")
-    if(no.Len_matrix) {
-      Len_df <- MLZ_data@Len_df
-      names(Len_df) <- c("Year", "Length")
-      Len_df_N <- summarise(group_by(Len_df, Year), N = n())
-
+  
+  if(type == "comp") {
+    if(!no.Len_matrix) {
+      Len_matrix <- MLZ_data@Len_matrix
+      rownames(Len_matrix) <- MLZ_data@Year
+      colnames(Len_matrix) <- MLZ_data@Len_bins
+      Len_matrix <- melt(Len_matrix)
+      names(Len_matrix) <- c("Year", "Length", "Frequency")
+      
+      Len_matrix <- mutate(group_by(Len_matrix, Year), newF = Frequency/max(Frequency), 
+                           sumF = sum(Frequency))
+      Len_matrix_N <- summarise(group_by(Len_matrix, Year), N = sum(Frequency))
+      
       if(length(MLZ_data@Lc) != 0 || !is.null(MLZ_data@Lc)) z <- geom_vline(xintercept = MLZ_data@Lc, colour = "red")
       else z <- NULL
       ggplot_layer <- sapply(ggplot_layer, eval)
-
+      
       theme_clean <- theme_bw() + theme(panel.spacing = unit(0, "inches"),
                                         panel.grid.major = element_blank(), panel.grid.minor = element_blank())
       
-      zz <- ggplot(Len_df, aes(x = Length)) + geom_freqpoly(closed = "left", aes(y = ..ncount..)) + facet_wrap(~ Year) + 
-        geom_text(data = Len_df_N, hjust = "right", vjust = "top", x = max(Len_df$Length), y = 1, aes(label = paste("N =", N))) +
+      zz <- ggplot(Len_matrix, aes(x = Length, y = newF)) + geom_line() + facet_wrap(~ Year) + 
+        geom_text(data = Len_matrix_N, hjust = "right", vjust = "top", x = max(Len_matrix$Length), y = 1, aes(label = paste("N =", N))) +
         labs(y = "Relative Frequency") + theme_clean + z + ggplot_layer
+      
     }
+    if(!no.Len_df) {
+      if(!no.Len_matrix) message("Data from slot @Len_matrix was plotted.")
+      if(no.Len_matrix) {
+        Len_df <- MLZ_data@Len_df
+        names(Len_df) <- c("Year", "Length")
+        Len_df_N <- summarise(group_by(Len_df, Year), N = n())
+        
+        if(length(MLZ_data@Lc) != 0 || !is.null(MLZ_data@Lc)) z <- geom_vline(xintercept = MLZ_data@Lc, colour = "red")
+        else z <- NULL
+        ggplot_layer <- sapply(ggplot_layer, eval)
+        
+        theme_clean <- theme_bw() + theme(panel.spacing = unit(0, "inches"),
+                                          panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+        
+        zz <- ggplot(Len_df, aes(x = Length)) + geom_freqpoly(closed = "left", aes(y = ..ncount..)) + facet_wrap(~ Year) + 
+          geom_text(data = Len_df_N, hjust = "right", vjust = "top", x = max(Len_df$Length), y = 1, aes(label = paste("N =", N))) +
+          labs(y = "Relative Frequency") + theme_clean + z + ggplot_layer
+      }
+    }
+    if(exists("zz")) print(zz) else stop("No length frequency data available.")
   }
-  if(exists("zz")) print(zz)
-  if(!no.ML) {
-    nplots <- 1
-    summary.MLZ <- summary(MLZ_data)
-    if("Effort" %in% names(summary.MLZ)) nplots <- nplots + 1
-    if("CPUE" %in% names(summary.MLZ)) nplots <- nplots + 1
-    if(nplots == 3) layout(matrix(c(1,1,1,1,2,3), nrow = 2))
-    if(nplots < 3) par(mfrow = c(nplots, 1), mar = c(5, 4, 1, 1))
-    par(las = 1)
-    plot(MeanLength ~ Year, data = summary.MLZ, pch = 16, typ = "o",
-         xlab = "Year", ylab = paste("Mean Length (> Lc)", length.units))
-    if("CPUE" %in% names(summary.MLZ)) plot(CPUE ~ Year, data = summary.MLZ, pch = 16, typ = "o",
-                                            xlab = "Year", ylab = "CPUE")
-    if("Effort" %in% names(summary.MLZ)) plot(Effort ~ Year, data = summary.MLZ, pch = 16, typ = "o",
-                                              xlab = "Year", ylab = "Effort")
+  
+  if(type == "ML") {
+    
+    if(!no.ML) {
+      nplots <- 1
+      summary.MLZ <- summary(MLZ_data)
+      if("Effort" %in% names(summary.MLZ)) nplots <- nplots + 1
+      if("CPUE" %in% names(summary.MLZ)) nplots <- nplots + 1
+      if(nplots == 3) layout(matrix(c(1,1,1,1,2,3), nrow = 2))
+      if(nplots < 3) par(mfrow = c(nplots, 1), mar = c(5, 4, 1, 1))
+      par(las = 1)
+      plot(MeanLength ~ Year, data = summary.MLZ, pch = 16, typ = "o",
+           xlab = "Year", ylab = paste("Mean Length (> Lc)", length.units))
+      if("CPUE" %in% names(summary.MLZ)) plot(CPUE ~ Year, data = summary.MLZ, pch = 16, typ = "o",
+                                              xlab = "Year", ylab = "CPUE")
+      if("Effort" %in% names(summary.MLZ)) plot(Effort ~ Year, data = summary.MLZ, pch = 16, typ = "o",
+                                                xlab = "Year", ylab = "Effort")
+    } else stop("No mean lengths available.")
   }
+
   return(invisible())
 }
 )
@@ -228,6 +241,7 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, ggplot_layer = NULL) {
 #' goose.model <- ML(Goosefish, ncp = 2, grid.search = FALSE, figure = FALSE)
 #' plot(goose.model)
 #' }
+#' @aliases plot.MLZ_model
 #' @export
 setMethod("plot", signature(x = "MLZ_model"), function(x, residuals = TRUE) {
   MLZ_model <- x
@@ -314,8 +328,6 @@ setMethod("plot", signature(x = "MLZ_model"), function(x, residuals = TRUE) {
 }
 )
 
-# calc_ML variables
-Length <- Year <- NULL
-
-# plot.MLZ_data variables
-Length <- Year <- Frequency <- newF <- N <- ..ncount.. <- NULL
+if(getRversion() >= "2.15.1") {
+  utils::globalVariables(c("Length", "Year", "Frequency", "newF", "N", "..ncount.."))
+}

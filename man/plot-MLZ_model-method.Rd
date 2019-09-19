@@ -3,6 +3,7 @@
 \docType{methods}
 \name{plot,MLZ_model-method}
 \alias{plot,MLZ_model-method}
+\alias{plot.MLZ_model}
 \title{\code{plot} method for S4 class \code{MLZ_model}}
 \usage{
 \S4method{plot}{MLZ_model}(x, residuals = TRUE)
