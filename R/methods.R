@@ -144,7 +144,7 @@ setMethod("summary", signature(object = "MLZ_model"), function(object)
 #' }
 #' @aliases plot.MLZ_data
 #' @export
-setMethod("plot", signature(x = "MLZ_data"), function(x, type = c("comp", "ML"), ggplot_layer = NULL) {
+setMethod("plot", signature(x = "MLZ_data"), function(x, type = c("ML", "comp"), ggplot_layer = NULL) {
   type <- match.arg(type)
   MLZ_data <- x
 
@@ -222,7 +222,7 @@ setMethod("plot", signature(x = "MLZ_data"), function(x, type = c("comp", "ML"),
                                               xlab = "Year", ylab = "CPUE")
       if("Effort" %in% names(summary.MLZ)) plot(Effort ~ Year, data = summary.MLZ, pch = 16, typ = "o",
                                                 xlab = "Year", ylab = "Effort")
-    } else stop("No mean lengths available.")
+    } else stop("No mean lengths available. Try plot(", substitute(x), ", type = \"comp\")")
   }
 
   return(invisible())

@@ -51,7 +51,7 @@ bin_length(SilkSnapper)
 
 The `plot` function can be used to visualize the data to aid in the selection of $L_c$.
 ```{r, fig.height = 5, fig.width = 6, message = FALSE}
-plot(new.dataset)
+plot(new.dataset, type = "comp")
 ```
 
 Once Lc is identified, `calc_ML()` can be used to mean lengths from records larger than Lc.

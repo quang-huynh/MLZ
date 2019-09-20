@@ -6,7 +6,7 @@
 \alias{plot.MLZ_data}
 \title{\code{plot} method for S4 class \code{MLZ_data}}
 \usage{
-\S4method{plot}{MLZ_data}(x, type = c("comp", "ML"),
+\S4method{plot}{MLZ_data}(x, type = c("ML", "comp"),
   ggplot_layer = NULL)
 }
 \arguments{
