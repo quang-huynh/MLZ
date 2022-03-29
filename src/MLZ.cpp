@@ -1,7 +1,7 @@
 #define TMB_LIB_INIT R_init_MLZ
 #include <TMB.hpp>
 #include <tiny_ad/beta/pbeta.hpp>
-#include "../inst/include/functions.h"
+#include "../inst/include/functions.hpp"
 
 template<class Type>
 Type objective_function<Type>::operator() ()
@@ -9,21 +9,17 @@ Type objective_function<Type>::operator() ()
   DATA_STRING(model);
   
   if(model == "ML") {
-      #include "../inst/include/ML.h"
-  } else 
-      if(model == "MLCR") {
-          #include "../inst/include/MLCR.h" 
-      } else
-          if(model == "MSM1S") {
-              #include "../inst/include/MSM1S.h" 
-          } else 
-              if(model == "MSM23") {
-                  #include "../inst/include/MSM23.h" 
-              } else
-                  if(model == "MLeffort") {
-                      #include "../inst/include/MLeffort.h" 
-                  } else
-                      error("No model found.");
-  
+    return ML(this);
+  } else if(model == "MLCR") {
+    return MLCR(this);
+  } else if(model == "MSM1S") {
+    return MSM1S(this); 
+  } else if(model == "MSM23") {
+    return MSM23(this);
+  } else if(model == "MLeffort") {
+    return MLeffort(this);
+  } else {
+    error("No model found.");
+  }
   return 0;
 }

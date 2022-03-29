@@ -1,6 +1,13 @@
-//template<class Type>
-//Type objective_function<Type>::operator() ()
-//{
+
+#ifndef MSM23_hpp
+#define MSM23_hpp
+
+#undef TMB_OBJECTIVE_PTR
+#define TMB_OBJECTIVE_PTR obj
+
+template<class Type>
+Type MSM23(objective_function<Type> *obj) {
+  
   DATA_VECTOR(Linf);
   DATA_VECTOR(K);
   DATA_VECTOR(Lc);
@@ -37,30 +44,22 @@
   for(sp=0;sp<nspec;sp++) {
     // Calculate a, v, r, s, denom, num, numsum, Lpred
     modelOutput<Type> output;
-    vector<Type> Ztmp(nbreaks+1);
-    Ztmp = Z.col(sp);
-    Type Linftemp = Linf(sp);
-	  Type Ktemp = K(sp);
-	  Type Lctemp = Lc(sp);
-	  Type btemp = 1e-4;	
+    vector<Type> Ztmp = Z.col(sp);
 	
-	  output = model_output(Ztmp, yearZ, Linftemp, Ktemp, Lctemp, btemp, nbreaks, count);
+	  output = model_output(Ztmp, yearZ, Linf(sp), K(sp), Lc(sp), Type(1e-4), nbreaks, count);
 	  Lpred.col(sp) = output.Lpred;
     
     // Analytical solution for sigmaL
-    vector<Type> Lbartmp;
-    Lbartmp = Lbar.col(sp);
-    vector<Type> sstmp;
-    sstmp = ss.col(sp);
+    vector<Type> Lbartmp = Lbar.col(sp);
+    vector<Type> sstmp = ss.col(sp);
     
-    Type sigma = estimate_sigmaL(Lbartmp, output.Lpred, sstmp, count);
-    sigmaL(sp) = sigma;
+    sigmaL(sp) = estimate_sigmaL(Lbartmp, output.Lpred, sstmp, count);
     
     // Negative log-likelihood of mean lengths
-    nllc(sp) = nll_Lbar(Lbartmp, output.Lpred, sstmp, sigma, count);
+    nllc(sp) = nll_Lbar(Lbartmp, output.Lpred, sstmp, sigmaL(sp), count);
   }
   REPORT(Lpred);
-  ADREPORT(sigmaL);  
+  ADREPORT(sigmaL);
   
   Type nll = nllc.sum();
   
@@ -69,6 +68,11 @@
   REPORT(nllc);
   REPORT(nll);
   return nll;
-//}
-
+  
+}
+  
+#undef TMB_OBJECTIVE_PTR
+#define TMB_OBJECTIVE_PTR this
+  
+#endif
 

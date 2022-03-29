@@ -1,4 +1,5 @@
 
+
 template<class Type> 
 Type square(Type x) {return x*x;}
 
@@ -38,7 +39,7 @@ modelOutput<Type> model_output(vector<Type> Z, vector<Type> yearZ, Type Linf, Ty
   matrix<Type> v(nbreaks+1,count);
   matrix<Type> s(nbreaks+1,count);
   matrix<Type> r(nbreaks+1,count);
-  matrix<Type> w(nbreaks+1,count);  
+  matrix<Type> w(nbreaks+1,count);
   
   vector<Type> denom(count);
   vector<Type> numsum(count);
@@ -89,26 +90,26 @@ modelOutput<Type> model_output(vector<Type> Z, vector<Type> yearZ, Type Linf, Ty
     for(i=0;i<=nbr+1;i++) {
       a(i,m) = 1.;
       r(i,m) = 1.;
-	  w(i,m) = 1.;
+      w(i,m) = 1.;
 	  
       if(i>0) {
-	    for(j=0;j<=i-1;j++) {
+        for(j=0;j<=i-1;j++) {
           a(i,m) *= exp(-Z(nbr+1-j) * dy(nbr-j,m));
           r(i,m) *= exp(-(Z(nbr+1-j) + K) * dy(nbr-j,m));
-		  w(i,m) *= exp(Z(nbr+1-i) * dy(nbr-j,m));
+          w(i,m) *= exp(Z(nbr+1-i) * dy(nbr-j,m));
         }
       }
       if(i<=nbr) {
-		v(i,m) = 1. - exp(-Z(nbr+1-i) * dy(nbr-i,m));
-		s(i,m) = 1. - exp(-(Z(nbr+1-i)+K) * dy(nbr-i,m));
-	  }
-      if(i==nbr+1) {
-		v(i,m) = 1.;
-		s(i,m) = 1.;
+        v(i,m) = 1. - exp(-Z(nbr+1-i) * dy(nbr-i,m));
+        s(i,m) = 1. - exp(-(Z(nbr+1-i)+K) * dy(nbr-i,m));
       }
-	  denom(m) += a(i,m) * v(i,m)/Z(nbr+1-i);
+      if(i==nbr+1) {
+        v(i,m) = 1.;
+        s(i,m) = 1.;
+      }
+      denom(m) += a(i,m) * v(i,m)/Z(nbr+1-i);
       numsum(m) += r(i,m) * s(i,m) /(Z(nbr+1-i) + K);
-	  biomass(m) += a(i,m) * w(i,m) * pow(1 - Lc/Linf, -Z(nbr+1-i)/K) *
+      biomass(m) += a(i,m) * w(i,m) * pow(1 - Lc/Linf, -Z(nbr+1-i)/K) *
         (pbeta_inc(int_upper(nbr+1-i,m), b+1, Z(nbr+1-i)/K) - pbeta_inc(int_lower(nbr+1-i,m), b+1, Z(nbr+1-i)/K));
     }
     num(m) = Linf * (denom(m) - (1. - Lc/Linf) * numsum(m));
@@ -140,7 +141,7 @@ modelOutput<Type> model_output_eq(Type Z, Type Linf, Type K, Type Lc, Type b, in
   Type Zeq = Z;
   for(m=0;m<count;m++) {
     denom(m) = 1/Zeq;
-	biomass(m) = pow(1 - Lc/Linf, -Zeq/K) * (pbeta_inc(Type(1), b+1, Zeq/K) - pbeta_inc(Lc/Linf, b+1, Zeq/K));
+    biomass(m) = pow(1 - Lc/Linf, -Zeq/K) * (pbeta_inc(Type(1), b+1, Zeq/K) - pbeta_inc(Lc/Linf, b+1, Zeq/K));
     Lpred(m) = Linf * (1 - (Zeq/(Zeq+K)) * (1 - Lc/Linf));
   }
   
@@ -194,17 +195,19 @@ Type estimate_q(vector<Type> CPUE, vector<Type> population, int loglikeCPUE, int
   for(int m=0;m<count;m++) {
     if(CPUE(m)>0) {
       if(loglikeCPUE == 0) { 
-	    nyrs += 1.;	
-	    sum_q += log(CPUE(m)/population(m));
-      }
-	  if(loglikeCPUE == 1) {
+	      nyrs += 1.;	
+	      sum_q += log(CPUE(m)/population(m));
+      } else {
         sum_q += CPUE(m) * population(m);
         sum_q2 += square(population(m));
       }
     }
   }
-  if(loglikeCPUE == 0) q = exp(sum_q/nyrs);
-  if(loglikeCPUE == 1) q = sum_q/sum_q2;
+  if(loglikeCPUE == 0) {
+    q = exp(sum_q/nyrs);
+  } else {
+    q = sum_q/sum_q2;
+  }
   return q;
 }
 
@@ -220,11 +223,14 @@ Type estimate_sigmaI(vector<Type> CPUE, vector<Type> Ipred, int count, int logli
   Type sum_square = 0.;
   Type nyrs = 0.;
   for(int m=0;m<count;m++) {
-	if(CPUE(m)>0) {
-	  nyrs += 1.;
-	  if(loglikeCPUE == 0) sum_square += square(log(CPUE(m)/Ipred(m)));
-	  if(loglikeCPUE == 1) sum_square += square(CPUE(m) - Ipred(m));
-	}
+    if(CPUE(m)>0) {
+      nyrs += 1.;
+      if(loglikeCPUE == 0) {
+        sum_square += square(log(CPUE(m)/Ipred(m)));
+      } else {
+        if(loglikeCPUE == 1) sum_square += square(CPUE(m) - Ipred(m));
+      }
+    }
   }
   Type sigmaI = sqrt(sum_square/nyrs);
   return sigmaI;
@@ -255,10 +261,53 @@ template<class Type>
 Type nll_CPUE(vector<Type> CPUE, vector<Type> Ipred, Type sigma, int count, int loglikeCPUE) {
   Type nll = 0.;
   for(int m=0;m<count;m++) {
-	if(CPUE(m)>0) {
-	  if(loglikeCPUE == 0) nll -= dnorm(log(CPUE(m)), log(Ipred(m)), sigma, true);
-      if(loglikeCPUE == 1) nll -= dnorm(CPUE(m), Ipred(m), sigma, true);
-	}    
+    if(CPUE(m)>0) {
+      if(loglikeCPUE == 0) {
+        nll -= dnorm(log(CPUE(m)), log(Ipred(m)), sigma, true);
+      } else {
+        nll -= dnorm(CPUE(m), Ipred(m), sigma, true);
+      }
+    }   
   }
   return nll;
 }
+
+
+template<class Type>
+matrix<Type> ML_effort_Neq(int astep, int n_season, Type Z_init, Type Z, Type seasD) {
+  matrix<Type> N(astep,n_season);
+  int a,k;
+  N(0,0) = 1.;
+  for(a=1;a<astep;a++) N(a,0) = N(a-1,0) * exp(-Z_init/seasD);
+  if(n_season>1) {
+    for(k=1;k<n_season;k++) {
+      N(0,k) = 1.;
+      for(a=1;a<astep;a++) N(a,k) = N(a-1,k-1) * exp(-Z/seasD);
+    }
+  }
+  return N;
+}
+
+template<class Type>
+matrix<Type> ML_effort_N(int astep, int n_season, Type Zprev, Type Z, Type seasD, matrix<Type> Nprev) {
+  matrix<Type> N(astep,n_season);
+  int a,k;
+  N(0,0) = 1.;
+  for(a=1;a<astep;a++) N(a,0) = Nprev(a-1,n_season-1) * exp(-Zprev/seasD);
+  if(n_season>1) {
+    for(k=1;k<n_season;k++) {
+      N(0,k) = 1.;
+      for(a=1;a<astep;a++) N(a,k) = N(a-1,k-1) * exp(-Z/seasD);
+    }
+  }
+  return N;
+}
+
+
+
+#include "ML.hpp"
+#include "MLCR.hpp"
+#include "MSM1S.hpp" 
+#include "MSM23.hpp"
+#include "MLeffort.hpp" 
+

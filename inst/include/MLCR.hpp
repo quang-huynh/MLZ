@@ -1,7 +1,13 @@
 
-//template<class Type>
-//Type objective_function<Type>::operator() ()
-//{
+#ifndef MLCR_hpp
+#define MLCR_hpp
+
+#undef TMB_OBJECTIVE_PTR
+#define TMB_OBJECTIVE_PTR obj
+
+template<class Type>
+Type MLCR(objective_function<Type> *obj) {
+  
   DATA_SCALAR(Linf);
   DATA_SCALAR(K);
   DATA_SCALAR(Lc);
@@ -20,8 +26,11 @@
   
   // Calculate a, v, r, s, denom, num, numsum, Lpred
   modelOutput<Type> output;
-  if(nbreaks == 0) output = model_output_eq(Z(0), Linf, K, Lc, b, count);
-  if(nbreaks > 0) output = model_output(Z, yearZ, Linf, K, Lc, b, nbreaks, count);
+  if(nbreaks == 0) {
+    output = model_output_eq(Z(0), Linf, K, Lc, b, count);
+  } else {
+    output = model_output(Z, yearZ, Linf, K, Lc, b, nbreaks, count);
+  }
   
   vector<Type> Lpred(count);
   Lpred = output.Lpred;
@@ -30,8 +39,11 @@
   // Get population abundance (NPUE) or biomass (WPUE)
   vector<Type> population(count);
   vector<Type> Ipred;
-  if(isWPUE == 0) population = output.denom;
-  if(isWPUE == 1) population = output.biomass;
+  if(isWPUE == 0) {
+    population = output.denom;
+  } else {
+    population = output.biomass;
+  }
   
   // Analytical solution for q
   Type q = estimate_q(CPUE, population, CPUEisnormal, count);
@@ -66,6 +78,10 @@
   REPORT(nllc);
   REPORT(nll);
   return nll;
-//}
+}
 
+#undef TMB_OBJECTIVE_PTR
+#define TMB_OBJECTIVE_PTR this
+
+#endif
 

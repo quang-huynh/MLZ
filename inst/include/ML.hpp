@@ -1,7 +1,13 @@
 
-//template<class Type>
-//Type objective_function<Type>::operator() ()
-//{
+#ifndef ML_hpp
+#define ML_hpp
+
+#undef TMB_OBJECTIVE_PTR
+#define TMB_OBJECTIVE_PTR obj
+
+template<class Type>
+Type ML(objective_function<Type> *obj) {
+  
   DATA_SCALAR(Linf);
   DATA_SCALAR(K);
   DATA_SCALAR(Lc);
@@ -16,8 +22,11 @@
   
   // Calculate a, v, r, s, denom, num, numsum, Lpred
   modelOutput<Type> output;
-  if(nbreaks == 0) output = model_output_eq(Z(0), Linf, K, Lc, Type(1e-3), count);
-  if(nbreaks > 0) output = model_output(Z, yearZ, Linf, K, Lc, Type(1e-3), nbreaks, count);
+  if(nbreaks == 0) {
+    output = model_output_eq(Z(0), Linf, K, Lc, Type(1e-3), count);
+  } else {
+    output = model_output(Z, yearZ, Linf, K, Lc, Type(1e-3), nbreaks, count);
+  }
   
   vector<Type> Lpred(count);
   Lpred = output.Lpred;
@@ -34,4 +43,9 @@
   REPORT(yearZ);
   REPORT(nll);
   return nll;
-//}
+}
+
+#undef TMB_OBJECTIVE_PTR
+#define TMB_OBJECTIVE_PTR this
+
+#endif

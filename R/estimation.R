@@ -615,9 +615,9 @@ MLmulti <- function(MLZ.list, ncp, model = c("SSM", "MSM1", "MSM2", "MSM3"), sta
 #' @param timing The fraction of time (i.e., between 0 - 1) within \code{obs_season} that mean lengths are observed.
 #' @param figure If \code{TRUE}, a call to \code{plot} of observed and predicted mean lengths will be produced.
 #'
-#' @references Then, A.Y, Hoenig, J.M, and Huynh, Q.C. In revision. Estimating fishing and natural
+#' @references Then, A.Y, Hoenig, J.M, and Huynh, Q.C. 2018. Estimating fishing and natural
 #' mortality rates, and catchability coefficient, from a series of observations on mean length and
-#' fishing effort. ICES Journal of Marine Science.
+#' fishing effort. ICES Journal of Marine Science 75: 610-620.
 #'
 #' @return An object of class \code{\linkS4class{MLZ_model}}.
 #'

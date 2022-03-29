@@ -1,6 +1,9 @@
 
 ## List of version updates
 
+### version-0.1.4
+- Update TMB code to avoid gcc compiler warnings on CRAN.
+
 ### version-0.1.3
 - Fix plotting issue in `compare_models`.
 - `compare_models` can now directly take MLZ_model objects instead of a list, i.e., `compare_models(x, y)` instead of

@@ -1,6 +1,13 @@
-//template<class Type>
-//Type objective_function<Type>::operator() ()
-//{
+
+#ifndef MLeffort_hpp
+#define MLeffort_hpp
+
+#undef TMB_OBJECTIVE_PTR
+#define TMB_OBJECTIVE_PTR obj
+
+template<class Type>
+Type MLeffort(objective_function<Type> *obj) {
+  
   DATA_SCALAR(Linf);
   DATA_SCALAR(K);
   DATA_SCALAR(a0);
@@ -24,7 +31,6 @@
   int n_yr = Lbar.size();
   int y;
   int a;
-  int k;
   int obs_ind = obs_season - 1;
   int astep = n_age * n_season;
   
@@ -44,7 +50,9 @@
   
   Type Z_init = q * eff_init + M;
   vector<Type> Z(n_yr);
-  array<Type> N(n_yr,astep,n_season);
+  
+  vector<matrix<Type> > N(n_yr);
+  //array<Type> N(n_yr,astep,n_season);
   matrix<Type> Nobs(n_yr,astep);
   vector<Type> La(astep);
   vector<Type> age(astep);
@@ -61,29 +69,17 @@
   for(y=0;y<n_yr;y++) Z(y) = q * eff(y) + M;
   REPORT(Z);
   
-  N(0,0,0) = 1.;
-  for(a=1;a<astep;a++) N(0,a,0) = N(0,a-1,0) * exp(-Z_init/seasD);
-  if(n_season>1) {
-    for(k=1;k<n_season;k++) {
-      N(0,0,k) = 1.;
-      for(a=1;a<astep;a++) N(0,a,k) = N(0,a-1,k-1) * exp(-Z(0)/seasD);
-    }
-  }
+  N(0) = ML_effort_Neq(astep, n_season, Z_init, Z(0), seasD);
+  
   for(y=1;y<n_yr;y++) {
-    N(y,0,0) = 1.;
-    for(a=1;a<astep;a++) N(y,a,0) = N(y-1,a-1,n_season-1) * exp(-Z(y-1)/seasD);
-    if(n_season>1) {
-      for(k=1;k<n_season;k++) {
-        N(y,0,k) = 1.;
-        for(a=1;a<astep;a++) N(y,a,k) = N(y,a-1,k-1) * exp(-Z(y)/seasD);
-      }
-    }
+    N(y) = ML_effort_N(astep, n_season, Z(y-1), Z(y), seasD, N(y-1));
   }
+  
   for(y=0;y<n_yr;y++) {
     Type num = 0.;
     Type denom = 0.;
     for(a=0;a<astep;a++) {
-      Nobs(y,a) = N(y,a,obs_ind) * exp(-Z(y) * timing/seasD);
+      Nobs(y,a) = N(y)(a,obs_ind) * exp(-Z(y) * timing/seasD);
       num += Nobs(y,a) * La(a);
       denom += Nobs(y,a);
     }
@@ -97,4 +93,10 @@
   Type nll = nll_Lbar(Lbar, Lpred, ss, sigma, n_yr); 
   
   return nll;
-//}
+  
+}
+  
+#undef TMB_OBJECTIVE_PTR
+#define TMB_OBJECTIVE_PTR this
+  
+#endif

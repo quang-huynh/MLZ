@@ -16,6 +16,7 @@ vignette: >
 MLZ is a package that facilitates data preparation and estimation of mortality with statistical diagnostics using the mean length-based mortality estimator and several extensions. 
 
 ## 2. Outline of package
+
 In this section, a step-by-step guide to using the mean length (ML) estimator of Gedamke and Hoenig (2006) is provided. This guide outlines the main features of the package.
 
 Work in the package can be divided into three general steps, with supporting diagnostic tools:
@@ -25,6 +26,7 @@ Work in the package can be divided into three general steps, with supporting dia
 3. Model selection procedure
 
 ### 2.1 Data preparation
+
 MLZ uses the S4 class system. Data and life history parameters, i.e., von Bertalanffy Linf and K, are stored in a single object of class `MLZ_data` with pre-defined slots. Slots in the S4 class can be accessed with `@`.
 
 ```{r, echo = FALSE}
@@ -74,6 +76,7 @@ summary(new.dataset)
 ```
 
 ### 2.2 Mortality estimation
+
 Once mean lengths > Lc are calculated, mortality can be estimated using the `ML` function:
 
 ```{r, eval = FALSE}
@@ -113,6 +116,7 @@ model3 <- ML(Goosefish, ncp = 2, figure = FALSE)
 ```
 
 ### 2.3 Model selection
+
 Model runs with different change points can be compared using AIC. The `compare_models` function facilitates
 this feature and produces a plot of the predicted data.
 
@@ -127,7 +131,9 @@ compare_models(model1, model2, model3)
 
 
 ## 3. Diagnostic tools
+
 ### 3.1 Data preparation
+
 To explore changes in the length distribution over time, the `modal_length` function plots the modal length from each annual length distribution. The modal length can change for several reasons, including changes in mortality, selectivity, and recruitment.
 
 ```{r, eval = FALSE}
@@ -143,6 +149,7 @@ z = modal_length(new.dataset2, breaks = seq(80, 830, 10))
 ### 3.2 Mortality estimation
 
 #### 3.2.1 Grid search & likelihood profile of change points
+
 In order to avoid local minima in the negative log-likelihood function, the estimation functions by default use a grid search over the change points in order to find starting values close to the maximum likelihood estimates.
 
 The grid search function can also be called seperately using `profile_ML`. This function also serves as a likelihood profile over the change points. Figures are provided for 1- and 2-change point models.
@@ -166,13 +173,17 @@ zz <- profile_ML(Goosefish, ncp = 2, color = FALSE)
 `profile_MLCR`, and `profile_MLmulti` are also available for the respective models (Section 4).
 
 #### 3.2.2 Sensitivity to Lc
+
 The `sensitivity_Lc` function for the ML estimator plots estimates of Z and change points with different values of Lc.
 
 #### 3.2.3 Additional diagnostics
+
 Additional diagnostics, including sensitivity to life hitory (growth, natural mortality), and bootstrapping routines are in development.
 
 ## 4. Outline of other estimators
+
 ### 4.1 MLCR (Mean Length with Catch Rate)
+
 To use the MLCR estimator (Huynh et al. 2017b), a time series of CPUE is needed:
 
 ```{r, echo = FALSE}
@@ -195,6 +206,7 @@ MLCR(MuttonSnapper, ncp = 2, "WPUE")
 ```
 
 ### 4.2 MLmulti (Multispecies Mean Length estimator)
+
 For a multispecies analysis (Huynh et al. 2017a), seperate `MLZ_data` objects are created for seperate stocks/species and should be stored in a list:
 ```{r}
 data(PRSnapper)
@@ -214,6 +226,7 @@ names(res@opt$par)
 The `compare_models` function will correctly count the number of estimated parameters for AIC calculation.
 
 ### 4.3 MLeffort (Mean Length with Effort)
+
 `MLeffort` uses a time series of mean length and effort to estimate a catchability coefficient `q` and natural mortality `M` (Then et al.). Parameter $t_0$ from the von Bertalanffy equation
 is needed as well:
 ```{r, eval = FALSE}
@@ -244,10 +257,11 @@ MLeffort(Nephrops, start = list(q = 0.1), n_age = 24, estimate.M = FALSE)
 ```
 
 ## 5. References
+
 Gedamke, T. and Hoenig, J.M. 2006. Estimating mortality from mean length data in nonequilibrium situations, with application to the assessment of goosefish. Transactions of the American Fisheries Society 135:476-487.
 
 Huynh, Q.C., Gedamke, T., Hoenig, J.M, and Porch C. 2017a. Multispecies Extensions to a Nonequilibrium Length-Based Mortality Estimator. Marine and Coastal Fisheries 9:68-78.
 
 Huynh, Q.C., Gedamke, T., Porch, C.E., Hoenig, J.M., Walter, J.F, Bryan, M., and Brodziak, J. 2017b. Estimating Total Mortality Rates from Mean Lengths and Catch Rates in Non-equilibrium Situations. Transactions of the American Fisheries Society 146:803-815.
 
-Then, A.Y, Hoenig, J.M, and Huynh, Q.C. In revision. Estimating fishing and natural mortality rates, and catchability coefficient, from a series of observations on mean length and fishing effort. ICES Journal of Marine Science.
+Then, A.Y, Hoenig, J.M, and Huynh, Q.C. 2018. Estimating fishing and natural mortality rates, and catchability coefficient, from a series of observations on mean length and fishing effort. ICES Journal of Marine Science 75: 610-620.

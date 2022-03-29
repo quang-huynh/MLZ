@@ -10,3 +10,5 @@ src/*.so
 src/*.dll
 ML_templates/*
 .Rbuildignore
+/doc/
+/Meta/
