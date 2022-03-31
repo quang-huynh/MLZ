@@ -25,6 +25,7 @@ Imports:
     TMB
 RoxygenNote: 6.1.1
 Suggests:
+    covr,
     knitr,
     rmarkdown
 VignetteBuilder: knitr
