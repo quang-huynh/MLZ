@@ -1,6 +1,5 @@
 # MLZ: Mean Length-based Z Estimators
 
-[![Build Status](https://travis-ci.org/quang-huynh/MLZ.svg?branch=master)](https://travis-ci.org/quang-huynh/MLZ)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/MLZ)](https://CRAN.R-project.org/package=MLZ)
 
 ## Introduction
