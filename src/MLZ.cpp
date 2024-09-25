@@ -18,8 +18,6 @@ Type objective_function<Type>::operator() ()
     return MSM23(this);
   } else if(model == "MLeffort") {
     return MLeffort(this);
-  } else {
-    error("No model found.");
   }
   return 0;
 }

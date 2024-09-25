@@ -1,6 +1,9 @@
 
 ## List of version updates
 
+### version-0.1.5
+- Update TMB code to avoid noRemap compiler warnings on CRAN.
+
 ### version-0.1.4
 - Update TMB code to avoid gcc compiler warnings on CRAN.
 
